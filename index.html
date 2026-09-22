@@ -186,18 +186,18 @@
                         <button onclick="openTripModal()" class="bg-slate-900 text-amber-400 text-xs font-bold py-2.5 px-4 rounded-xl"><i class="fa-solid fa-plus"></i> إضافة رحلة جديدة</button>
                     </div>
                     <div class="bg-white rounded-2xl shadow-sm p-4 overflow-x-auto">
-                        <table class="w-full text-right text-xs whitespace-nowrap min-w-[700px]">
+                        <table class="w-full text-right text-xs whitespace-nowrap min-w-[850px]">
                             <thead>
                                 <tr class="text-slate-400 border-b pb-2">
                                     <th class="pb-2">رقم الرحلة</th>
                                     <th class="pb-2">العميل</th>
-                                    <th class="pb-2">الشاحنة</th>
-                                    <th class="pb-2">السائق</th>
+                                    <th class="pb-2">التاريخ والمسار</th>
+                                    <th class="pb-2">الشاحنة والسائق</th>
                                     <th class="pb-2">الإجمالي</th>
                                     <th class="pb-2">المدفوع</th>
-                                    <th class="pb-2">المتبقي (المعلق)</th>
+                                    <th class="pb-2">المعلق</th>
                                     <th class="pb-2">الحالة</th>
-                                    <th class="pb-2">إجراءات</th>
+                                    <th class="pb-2">الإجراءات</th>
                                 </tr>
                             </thead>
                             <tbody id="trips-table-body" class="divide-y divide-slate-100 font-medium"></tbody>
@@ -256,24 +256,86 @@
         </main>
     </div>
 
-    <!-- النافذة المنبثقة للرحلات -->
+    <!-- نافذة إضافة رحلة -->
     <div id="tripModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
             <h3 class="text-lg font-bold text-slate-900 mb-4">إضافة رحلة جديدة</h3>
             <form onsubmit="saveTrip(event)" class="space-y-3">
-                <div><input type="text" id="tripCustomer" required placeholder="اسم العميل" class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div><select id="tripTruckId" required class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></select></div>
-                    <div><select id="tripDriverId" required class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></select></div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم العميل</label>
+                    <input type="text" id="tripCustomer" required placeholder="أدخل اسم العميل" class="w-full p-3 bg-slate-50 border rounded-xl text-xs">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
-                    <div><input type="number" id="tripTotal" oninput="calcTrip()" required placeholder="المبلغ الإجمالي" class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></div>
-                    <div><input type="number" id="tripPaid" oninput="calcTrip()" required placeholder="المدفوع" class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">تاريخ البداية</label>
+                        <input type="date" id="tripDate" required class="w-full p-3 bg-slate-50 border rounded-xl text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">نوع الرحلة</label>
+                        <select id="tripType" class="w-full p-3 bg-slate-50 border rounded-xl text-xs">
+                            <option value="ذهاب فقط">ذهاب فقط</option>
+                            <option value="ذهاب وعودة">ذهاب وعودة</option>
+                        </select>
+                    </div>
                 </div>
-                <div><input type="number" id="tripPending" readonly placeholder="المتبقي (المعلق)" class="w-full p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs font-bold text-rose-600"></div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">من (التحميل)</label>
+                        <input type="text" id="tripFrom" required placeholder="مدينة التحميل" class="w-full p-3 bg-slate-50 border rounded-xl text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">إلى (التفريغ)</label>
+                        <input type="text" id="tripTo" required placeholder="مدينة الوصول" class="w-full p-3 bg-slate-50 border rounded-xl text-xs">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">الشاحنة (المتاحة فقط)</label>
+                        <select id="tripTruckId" required class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">السائق (المتاح فقط)</label>
+                        <select id="tripDriverId" required class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">المبلغ الإجمالي</label>
+                        <input type="number" id="tripTotal" oninput="calcTrip()" required placeholder="0" class="w-full p-3 bg-slate-50 border rounded-xl text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">المدفوع (عربون)</label>
+                        <input type="number" id="tripPaid" oninput="calcTrip()" required placeholder="0" class="w-full p-3 bg-slate-50 border rounded-xl text-xs">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-rose-600 mb-1">المتبقي (المعلق للتحصيل لاحقاً)</label>
+                    <input type="number" id="tripPending" readonly placeholder="0" class="w-full p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs font-bold text-rose-600">
+                </div>
                 <div class="flex justify-end gap-2 pt-2">
                     <button type="button" onclick="closeTripModal()" class="px-4 py-2 bg-slate-100 rounded-xl text-xs font-bold">إلغاء</button>
                     <button type="submit" class="px-5 py-2 bg-slate-900 text-amber-400 font-bold rounded-xl text-xs">حفظ الرحلة</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة تسجيل سداد دفعة مالية -->
+    <div id="paymentModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl">
+            <h3 class="text-lg font-bold text-slate-900 mb-3">تسجيل سداد دفعة مالية</h3>
+            <form onsubmit="savePayment(event)" class="space-y-3">
+                <input type="hidden" id="payTripId">
+                <div class="text-xs text-slate-500 bg-slate-50 p-3 rounded-xl">
+                    المبلغ المعلق الحالي: <strong id="payCurrentPending" class="text-rose-600">0 ر.س</strong>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">المبلغ المراد سداده الآن</label>
+                    <input type="number" id="payAmountInput" required min="1" placeholder="أدخل المبلغ" class="w-full p-3 bg-slate-50 border rounded-xl text-xs">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closePaymentModal()" class="px-4 py-2 bg-slate-100 rounded-xl text-xs font-bold">إلغاء</button>
+                    <button type="submit" class="px-5 py-2 bg-emerald-600 text-white font-bold rounded-xl text-xs">تأكيد وسداد</button>
                 </div>
             </form>
         </div>
@@ -290,7 +352,6 @@
                 <div>
                     <select id="truckStatus" class="w-full p-3 bg-slate-50 border rounded-xl text-xs">
                         <option value="جاهزة للتحميل">جاهزة للتحميل</option>
-                        <option value="في رحلة">في رحلة نشطة</option>
                         <option value="عطلانة/صيانة">عطلانة / في الصيانة</option>
                     </select>
                 </div>
@@ -313,7 +374,6 @@
                 <div>
                     <select id="driverStatus" class="w-full p-3 bg-slate-50 border rounded-xl text-xs">
                         <option value="متوفر">متوفر</option>
-                        <option value="في رحلة">في رحلة</option>
                         <option value="في إجازة">في إجازة</option>
                     </select>
                 </div>
@@ -414,7 +474,7 @@
 
         function renderStats() {
             document.getElementById('stat-total-trucks').innerText = trucks.length;
-            document.getElementById('stat-active-trips').innerText = trips.filter(t => t.status === 'جارية').length;
+            document.getElementById('stat-active-trips').innerText = trips.filter(t => t.status === 'نشطة').length;
             const paid = trips.reduce((a, b) => a + (parseFloat(b.paid) || 0), 0);
             const pending = trips.reduce((a, b) => a + (parseFloat(b.pending) || 0), 0);
             document.getElementById('stat-paid-amount').innerText = paid.toLocaleString() + ' ر.س';
@@ -447,7 +507,7 @@
 
             if(id) {
                 const t = trucks.find(x => x.id == id);
-                if(t) { t.plate = plate; t.model = model; t.status = status; }
+                if(t) { t.plate = plate; t.model = model; if(t.status !== 'في رحلة نشطة') t.status = status; }
             } else {
                 trucks.push({ id: Date.now(), plate, model, status });
             }
@@ -463,7 +523,7 @@
         function renderTrucks() {
             document.getElementById('trucks-grid').innerHTML = trucks.map(t => `
                 <div class="bg-white p-4 rounded-2xl shadow-sm border space-y-2">
-                    <div class="flex justify-between font-bold text-slate-900"><span>لوحة: ${t.plate}</span><span class="text-xs px-2 py-1 bg-slate-100 rounded">${t.status}</span></div>
+                    <div class="flex justify-between font-bold text-slate-900"><span>لوحة: ${t.plate}</span><span class="text-xs px-2 py-1 rounded ${t.status === 'في رحلة نشطة' ? 'bg-sky-100 text-sky-700' : 'bg-emerald-100 text-emerald-700'}">${t.status}</span></div>
                     <div class="text-xs text-slate-500">الموديل: ${t.model}</div>
                     <div class="flex justify-end gap-2 pt-2 border-t">
                         <button onclick="openTruckModal(${t.id})" class="text-xs text-sky-600 font-bold">تعديل</button>
@@ -499,7 +559,7 @@
 
             if(id) {
                 const d = drivers.find(x => x.id == id);
-                if(d) { d.name = name; d.phone = phone; d.status = status; }
+                if(d) { d.name = name; d.phone = phone; if(d.status !== 'في رحلة نشطة') d.status = status; }
             } else {
                 drivers.push({ id: Date.now(), name, phone, status });
             }
@@ -515,7 +575,7 @@
         function renderDrivers() {
             document.getElementById('drivers-grid').innerHTML = drivers.map(d => `
                 <div class="bg-white p-4 rounded-2xl shadow-sm border space-y-2">
-                    <div class="flex justify-between font-bold text-slate-900"><span>${d.name}</span><span class="text-xs px-2 py-1 bg-slate-100 rounded">${d.status}</span></div>
+                    <div class="flex justify-between font-bold text-slate-900"><span>${d.name}</span><span class="text-xs px-2 py-1 rounded ${d.status === 'في رحلة نشطة' ? 'bg-sky-100 text-sky-700' : 'bg-emerald-100 text-emerald-700'}">${d.status}</span></div>
                     <div class="text-xs text-slate-500">جوال: ${d.phone}</div>
                     <div class="flex justify-end gap-2 pt-2 border-t">
                         <button onclick="openDriverModal(${d.id})" class="text-xs text-sky-600 font-bold">تعديل</button>
@@ -528,12 +588,19 @@
         // الرحلات والحسابات
         function openTripModal() {
             document.getElementById('tripCustomer').value = '';
+            document.getElementById('tripDate').valueAsDate = new Date();
+            document.getElementById('tripFrom').value = '';
+            document.getElementById('tripTo').value = '';
             document.getElementById('tripTotal').value = '';
             document.getElementById('tripPaid').value = '';
             document.getElementById('tripPending').value = '';
 
-            document.getElementById('tripTruckId').innerHTML = trucks.map(t => `<option value="${t.id}">لوحة: ${t.plate} (${t.model})</option>`).join('');
-            document.getElementById('tripDriverId').innerHTML = drivers.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+            const availableTrucks = trucks.filter(t => t.status !== 'في رحلة نشطة' && t.status !== 'عطلانة/صيانة');
+            const availableDrivers = drivers.filter(d => d.status !== 'في رحلة نشطة' && d.status !== 'في إجازة');
+
+            document.getElementById('tripTruckId').innerHTML = availableTrucks.length ? availableTrucks.map(t => `<option value="${t.id}">لوحة: ${t.plate} (${t.model})</option>`).join('') : '<option value="">لا توجد شاحنات متاحة حالياً</option>';
+            document.getElementById('tripDriverId').innerHTML = availableDrivers.length ? availableDrivers.map(d => `<option value="${d.id}">${d.name}</option>`).join('') : '<option value="">لا توجد سائقين متاحيين حالياً</option>';
+            
             document.getElementById('tripModal').classList.remove('hidden');
         }
         function closeTripModal() { document.getElementById('tripModal').classList.add('hidden'); }
@@ -545,27 +612,94 @@
         function saveTrip(e) {
             e.preventDefault();
             const customer = document.getElementById('tripCustomer').value.trim();
+            const date = document.getElementById('tripDate').value;
+            const type = document.getElementById('tripType').value;
+            const fromLoc = document.getElementById('tripFrom').value.trim();
+            const toLoc = document.getElementById('tripTo').value.trim();
             const truckId = document.getElementById('tripTruckId').value;
             const driverId = document.getElementById('tripDriverId').value;
             const total = parseFloat(document.getElementById('tripTotal').value) || 0;
             const paid = parseFloat(document.getElementById('tripPaid').value) || 0;
             const pending = total - paid;
 
+            if(!truckId || !driverId) {
+                alert('يجيب توفر شاحنة وسائق متاحين لإتمام الرحلة.');
+                return;
+            }
+
+            const trk = trucks.find(x => x.id == truckId);
+            const drv = drivers.find(x => x.id == driverId);
+            if(trk) trk.status = 'في رحلة نشطة';
+            if(drv) drv.status = 'في رحلة نشطة';
+
             trips.push({
                 id: Date.now(),
                 tripNumber: 'TRP-' + (trips.length + 101),
-                customer, truckId, driverId, total, paid, pending,
-                status: pending === 0 ? 'مكتملة' : 'جارية'
+                customer, date, type, fromLoc, toLoc, truckId, driverId, total, paid, pending,
+                status: 'نشطة'
             });
             syncToCloud();
             closeTripModal();
         }
-        function deleteTrip(id) {
-            if(confirm('حذف هذه الرحلة؟')) {
-                trips = trips.filter(x => x.id != id);
-                syncToCloud();
+
+        // سداد دفعة مالية
+        function openPaymentModal(tripId) {
+            const t = trips.find(x => x.id == tripId);
+            if(t) {
+                document.getElementById('payTripId').value = t.id;
+                document.getElementById('payCurrentPending').innerText = t.pending + ' ر.س';
+                document.getElementById('payAmountInput').value = '';
+                document.getElementById('paymentModal').classList.remove('hidden');
             }
         }
+        function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
+        function savePayment(e) {
+            e.preventDefault();
+            const tripId = document.getElementById('payTripId').value;
+            const payAmount = parseFloat(document.getElementById('payAmountInput').value) || 0;
+            const t = trips.find(x => x.id == tripId);
+            if(t) {
+                if(payAmount > t.pending) {
+                    alert('المبلغ المدفوع أكبر من المبلغ المعلق المتبقي!');
+                    return;
+                }
+                t.paid += payAmount;
+                t.pending -= payAmount;
+                syncToCloud();
+                closePaymentModal();
+            }
+        }
+
+        // إنهاء الرحلة وتحرير الشاحنة والسائق
+        function finishTrip(tripId) {
+            if(confirm('هل أنت متأكد من إنهاء هذه الرحلة وتحرير الشاحنة والسائق؟')) {
+                const t = trips.find(x => x.id == tripId);
+                if(t) {
+                    t.status = 'مكتملة';
+                    const trk = trucks.find(x => x.id == t.truckId);
+                    const drv = drivers.find(x => x.id == t.driverId);
+                    if(trk) trk.status = 'جاهزة للتحميل';
+                    if(drv) drv.status = 'متوفر';
+                    syncToCloud();
+                }
+            }
+        }
+
+        // إلغاء الرحلة
+        function cancelTrip(tripId) {
+            if(confirm('هل تريد إلغاء هذه الرحلة؟')) {
+                const t = trips.find(x => x.id == tripId);
+                if(t) {
+                    t.status = 'ملغية';
+                    const trk = trucks.find(x => x.id == t.truckId);
+                    const drv = drivers.find(x => x.id == t.driverId);
+                    if(trk && trk.status === 'في رحلة نشطة') trk.status = 'جاهزة للتحميل';
+                    if(drv && drv.status === 'في رحلة نشطة') drv.status = 'متوفر';
+                    syncToCloud();
+                }
+            }
+        }
+
         function renderTrips() {
             document.getElementById('trips-table-body').innerHTML = trips.map(t => {
                 const trk = trucks.find(x => x.id == t.truckId);
@@ -574,13 +708,25 @@
                     <tr>
                         <td class="p-2 font-bold text-amber-600">${t.tripNumber}</td>
                         <td class="p-2">${t.customer}</td>
-                        <td class="p-2">${trk ? trk.plate : '-'}</td>
-                        <td class="p-2">${drv ? drv.name : '-'}</td>
+                        <td class="p-2 text-xs">
+                            <div>${t.date || '-'} (${t.type || 'ذهاب'})</div>
+                            <div class="text-slate-500">${t.fromLoc || ''} ➔ ${t.toLoc || ''}</div>
+                        </td>
+                        <td class="p-2">
+                            <div>لوحة: ${trk ? trk.plate : '-'}</div>
+                            <div class="text-xs text-slate-500">${drv ? drv.name : '-'}</div>
+                        </td>
                         <td class="p-2 font-bold">${t.total} ر.س</td>
                         <td class="p-2 text-emerald-600 font-bold">${t.paid} ر.س</td>
                         <td class="p-2 text-rose-600 font-bold">${t.pending} ر.س</td>
-                        <td class="p-2"><span class="px-2 py-0.5 rounded bg-slate-100">${t.status}</span></td>
-                        <td class="p-2"><button onclick="deleteTrip(${t.id})" class="text-rose-600 font-bold">حذف</button></td>
+                        <td class="p-2">
+                            <span class="px-2.5 py-1 rounded text-xs font-bold ${t.status === 'نشطة' ? 'bg-sky-100 text-sky-700' : t.status === 'مكتملة' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">${t.status}</span>
+                        </td>
+                        <td class="p-2 space-x-1 space-x-reverse whitespace-nowrap">
+                            ${t.status === 'نشطة' ? `<button onclick="finishTrip(${t.id})" class="px-2.5 py-1 bg-amber-500 text-slate-950 font-bold rounded text-xs">إنهاء الرحلة</button>` : ''}
+                            ${t.pending > 0 && t.status !== 'ملغية' ? `<button onclick="openPaymentModal(${t.id})" class="px-2.5 py-1 bg-emerald-600 text-white font-bold rounded text-xs">تسجيل سداد</button>` : ''}
+                            ${t.status === 'نشطة' ? `<button onclick="cancelTrip(${t.id})" class="px-2.5 py-1 bg-rose-600 text-white font-bold rounded text-xs">إلغاء الرحلة</button>` : ''}
+                        </td>
                     </tr>
                 `;
             }).join('');
