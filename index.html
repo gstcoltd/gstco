@@ -144,7 +144,7 @@
                             <i class="fa-solid fa-bolt text-amber-400 animate-pulse"></i> التزامن المباشر موحد وحقيقي (Firebase)
                         </div>
                         <h1 class="text-xl md:text-3xl font-black text-white">شركة الاختيار العالمي للنقل البري</h1>
-                        <p class="text-slate-300 text-[11px] sm:text-xs mt-0.5">تحديث فوري ثابت لا يضيع مع التحديث</p>
+                        <p class="text-slate-300 text-[11px] sm:text-xs mt-0.5">تحديث فوري ثابت ومحمّي من الضياع</p>
                     </div>
                 </div>
             </div>
@@ -566,7 +566,7 @@
     </div>
 
     <script>
-        // قاعدة بيانات سحابية موحدة ومباشرة
+        // إعدادات قاعدة البيانات السحابية الحقيقية المباشرة
         const firebaseConfig = {
             databaseURL: "https://global-choice-fleet-default-rtdb.asia-southeast1.firebasedatabase.app"
         };
@@ -574,12 +574,13 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let defaultUsers = [ { id: 1, username: 'admin', password: 'admin123', fullName: 'أبو سعيد (المدير)', role: 'admin' } ];
-        let defaultTrucks = [
+        // بيانات أولية تُحمل فقط إذا كانت السحابة فارغة تماماً
+        const initialUsers = [ { id: 1, username: 'admin', password: 'admin123', fullName: 'أبو سعيد (المدير)', role: 'admin' } ];
+        const initialTrucks = [
             { id: 101, plate: '2841', model: 'مرسيدس أكتروس', status: 'ready' },
             { id: 102, plate: '5912', model: 'فولفو FH', status: 'ready' }
         ];
-        let defaultDrivers = [
+        const initialDrivers = [
             { id: 1, name: 'محمد علي', phone: '0501234567', status: 'available', truckId: 101 },
             { id: 2, name: 'أحمد سعيد', phone: '0559876543', status: 'available', truckId: 102 }
         ];
@@ -591,29 +592,29 @@
         let nextTripNumber = 1001;
         let currentUser = null;
 
-        // القراءة من السحابة فقط وعدم الكتابة التلقائية لتفادي حذف البيانات
+        // التزامن الفوري الأحادي المصدر مع حماية السحابة من الاستبدال العشوائي
         db.ref('fleetData').on('value', (snapshot) => {
             const val = snapshot.val();
             if (val) {
-                users = val.users || defaultUsers;
-                trucks = val.trucks || defaultTrucks;
-                drivers = val.drivers || defaultDrivers;
+                users = val.users || initialUsers;
+                trucks = val.trucks || initialTrucks;
+                drivers = val.drivers || initialDrivers;
                 trips = val.trips || [];
                 nextTripNumber = val.nextTripNumber || 1001;
             } else {
-                users = defaultUsers;
-                trucks = defaultTrucks;
-                drivers = defaultDrivers;
+                // إذا كانت السحابة فارغة كلياً فقط يتم إنشاء البيانات الابتدائية مرة واحدة
+                users = initialUsers;
+                trucks = initialTrucks;
+                drivers = initialDrivers;
                 trips = [];
                 nextTripNumber = 1001;
-                saveData();
+                pushDataToCloud();
             }
             renderAll();
         });
 
-        // يتم الحفظ السحابي فقط عند قيام المستخدم بتعديل أو إضافة بيانات جديدة
-        function saveData() {
-            renderAll();
+        // دالة الحفظ الصريحة بالسحابة (تستدعى فقط عند إضافة أو تعديل أو حذف)
+        function pushDataToCloud() {
             db.ref('fleetData').set({
                 users: users,
                 trucks: trucks,
@@ -670,10 +671,13 @@
             const u = document.getElementById('resetUsername').value.trim();
             const code = document.getElementById('resetMasterCode').value.trim();
             if (code === '123456') {
-                const targetUser = users.find(x => x.username === u || x.role === 'admin');
+                let targetUser = users.find(x => x.username === u);
+                if (!targetUser && u === 'admin') {
+                    targetUser = users.find(x => x.role === 'admin');
+                }
                 if (targetUser) {
                     targetUser.password = 'admin123';
-                    saveData();
+                    pushDataToCloud();
                     document.getElementById('resetError').classList.add('hidden');
                     document.getElementById('resetSuccess').classList.remove('hidden');
                     setTimeout(() => {
@@ -681,6 +685,8 @@
                         document.getElementById('username').value = targetUser.username;
                         document.getElementById('password').value = 'admin123';
                     }, 1500);
+                } else {
+                    alert('المستخدم غير موجود!');
                 }
             } else {
                 document.getElementById('resetError').classList.remove('hidden');
@@ -700,7 +706,7 @@
                 trucks.forEach(t => { if(t.status === 'on_trip') t.status = 'ready'; });
                 drivers.forEach(d => { if(d.status === 'on_trip') d.status = 'available'; });
 
-                saveData();
+                pushDataToCloud();
                 alert('تم تصفير الرحلات والمبالغ المالية بنجاح!');
             }
         }
@@ -741,7 +747,7 @@
             currentUser.password = newPass;
             const uIdx = users.findIndex(u => u.id === currentUser.id);
             if(uIdx !== -1) users[uIdx].password = newPass;
-            saveData();
+            pushDataToCloud();
             errDiv.classList.add('hidden');
             document.getElementById('passSuccess').classList.remove('hidden');
             setTimeout(() => { closeChangePasswordModal(); }, 1200);
@@ -951,7 +957,7 @@
                 const drv = drivers.find(x => x.id === trip.driverId);
                 if(drv) drv.status = 'available';
 
-                saveData();
+                pushDataToCloud();
                 closeFinishTripModal();
             }
         }
@@ -1018,7 +1024,7 @@
             const drv = drivers.find(x => x.id === driverId);
             if(drv) drv.status = 'on_trip';
 
-            saveData();
+            pushDataToCloud();
             closeTripModal();
         }
 
@@ -1033,7 +1039,7 @@
                     if(trk) trk.status = 'ready';
                     const drv = drivers.find(x => x.id === trip.driverId);
                     if(drv) drv.status = 'available';
-                    saveData();
+                    pushDataToCloud();
                 }
             }
         }
@@ -1075,7 +1081,7 @@
 
         function changeTruckStatus(id, newStatus) {
             const trk = trucks.find(x => x.id === id);
-            if(trk) { trk.status = newStatus; saveData(); }
+            if(trk) { trk.status = newStatus; pushDataToCloud(); }
         }
 
         function openTruckModal() { 
@@ -1103,7 +1109,7 @@
         function deleteTruck(id) {
             if(confirm('هل أنت متأكد من حذف هذه الشاحنة؟')) {
                 trucks = trucks.filter(t => t.id !== id);
-                saveData();
+                pushDataToCloud();
             }
         }
 
@@ -1125,7 +1131,7 @@
                 trucks.push({ id: Date.now(), plate, model, status });
             }
 
-            saveData();
+            pushDataToCloud();
             closeTruckModal();
         }
 
@@ -1164,7 +1170,7 @@
 
         function changeDriverStatus(id, newStatus) {
             const drv = drivers.find(x => x.id === id);
-            if(drv) { drv.status = newStatus; saveData(); }
+            if(drv) { drv.status = newStatus; pushDataToCloud(); }
         }
 
         function openDriverModal() {
@@ -1199,7 +1205,7 @@
         function deleteDriver(id) {
             if(confirm('هل أنت متأكد من حذف هذا السائق؟')) {
                 drivers = drivers.filter(d => d.id !== id);
-                saveData();
+                pushDataToCloud();
             }
         }
 
@@ -1223,7 +1229,7 @@
                 drivers.push({ id: Date.now(), name, phone, status, truckId });
             }
 
-            saveData();
+            pushDataToCloud();
             closeDriverModal();
         }
 
@@ -1255,13 +1261,13 @@
             const password = document.getElementById('newPassword').value.trim();
             const role = document.getElementById('newUserRole').value;
             users.push({ id: Date.now(), username, fullName, password, role });
-            saveData();
+            pushDataToCloud();
             closeUserModal();
         }
 
         function deleteUser(id) {
             users = users.filter(u => u.id !== id);
-            saveData();
+            pushDataToCloud();
         }
     </script>
 </body>
