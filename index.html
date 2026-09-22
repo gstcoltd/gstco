@@ -30,7 +30,7 @@
 </head>
 <body class="bg-luxury-light min-h-screen text-slate-800 antialiased selection:bg-amber-400 selection:text-slate-900">
 
-    <!-- شاشة تسجيل الدخول -->
+    <!-- شاشة تسجيل الدخول (آمنة وخالية من ظهور كلمة المرور) -->
     <div id="loginSection" class="min-h-screen flex items-center justify-center bg-slate-900 relative overflow-hidden p-4">
         <div class="absolute inset-0 z-0 opacity-25 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?q=80&w=1920&auto=format&fit=crop');"></div>
         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/60 z-0"></div>
@@ -74,9 +74,6 @@
                     <i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول
                 </button>
             </form>
-            <div class="mt-6 text-center text-xs text-slate-400 border-t border-slate-100 pt-4">
-                <span>الحساب الرئيسي: <strong class="text-slate-700">admin / admin123</strong></span>
-            </div>
         </div>
     </div>
 
@@ -149,7 +146,7 @@
                 <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                     <div>
                         <div class="inline-flex items-center gap-1.5 px-3 py-0.5 bg-emerald-500/20 border border-emerald-400/40 rounded-full text-emerald-300 text-[10px] font-bold mb-1.5">
-                            <i class="fa-solid fa-bolt text-amber-400 animate-pulse"></i> التزامن الفوري سحابياً بين الجوال والكمبيوتر مفعل
+                            <i class="fa-solid fa-bolt text-amber-400 animate-pulse"></i> نظام إدارة الأسطول والرحلات (آمن ومحدث)
                         </div>
                         <h1 class="text-xl md:text-3xl font-black text-white">شركة الاختيار العالمي للنقليات</h1>
                         <p class="text-slate-300 text-[11px] sm:text-xs mt-0.5">نظام إدارة الأسطول والرحلات والماليات</p>
@@ -339,7 +336,7 @@
     <div id="forgotPasswordModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl">
             <h3 class="text-lg font-bold text-slate-900 mb-2">استعادة كلمة المرور</h3>
-            <p class="text-xs text-slate-500 mb-4">يرجى التواصل مع مدير النظام (الأدمن) لإعادة تعيين كلمة المرور الخاصة بحسابك أو استخدام حساب الأدمن الرئيسي: <strong class="text-slate-800">admin / admin123</strong></p>
+            <p class="text-xs text-slate-500 mb-4">يرجى التواصل مع مدير النظام (الأدمن) لإعادة تعيين كلمة المرور الخاصة بحسابك.</p>
             <div class="flex justify-end pt-2">
                 <button type="button" onclick="closeForgotPasswordModal()" class="px-5 py-2.5 bg-slate-900 text-amber-400 font-bold rounded-xl text-xs">حسناً، فهمت</button>
             </div>
@@ -498,33 +495,37 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let users = [ { id: 1, username: 'admin', password: 'admin123', fullName: 'أبو سعيد (المدير)', role: 'admin', status: 'نشط' } ];
-        let trucks = [ { id: 101, plate: '2841', model: 'مرسيدس أكتروس', status: 'جاهزة للتحميل' } ];
-        let drivers = [ { id: 1, name: 'محمد علي', phone: '0501234567', status: 'متوفر' } ];
-        let trips = [];
+        let users = JSON.parse(localStorage.getItem('gc_users')) || [ { id: 1, username: 'admin', password: 'admin123', fullName: 'أبو سعيد (المدير)', role: 'admin', status: 'نشط' } ];
+        let trucks = JSON.parse(localStorage.getItem('gc_trucks')) || [ { id: 101, plate: '2841', model: 'مرسيدس أكتروس', status: 'جاهزة للتحميل' } ];
+        let drivers = JSON.parse(localStorage.getItem('gc_drivers')) || [ { id: 1, name: 'محمد علي', phone: '0501234567', status: 'متوفر' } ];
+        let trips = JSON.parse(localStorage.getItem('gc_trips')) || [];
         let currentUser = null;
 
-        // الاتصال اللحظي المباشر بالسحابة وتحديث الشاشات أينما كان الجهاز
+        // ربط سحابي متزامن مع الذاكرة المحلية لضمان عدم ضياع البيانات
         db.ref('fleetData').on('value', (snapshot) => {
             const val = snapshot.val();
             if (val) {
-                users = val.users || users;
-                trucks = val.trucks || trucks;
-                drivers = val.drivers || drivers;
-                trips = val.trips || [];
-            } else {
-                syncToCloud();
-            }
-            if (currentUser) {
-                renderAll();
+                if(val.users) users = val.users;
+                if(val.trucks) trucks = val.trucks;
+                if(val.drivers) drivers = val.drivers;
+                if(val.trips) trips = val.trips;
+                saveLocal();
+                if (currentUser) renderAll();
             }
         });
 
+        function saveLocal() {
+            localStorage.setItem('gc_users', JSON.stringify(users));
+            localStorage.setItem('gc_trucks', JSON.stringify(trucks));
+            localStorage.setItem('gc_drivers', JSON.stringify(drivers));
+            localStorage.setItem('gc_trips', JSON.stringify(trips));
+        }
+
         function syncToCloud() {
+            saveLocal();
             db.ref('fleetData').set({ users, trucks, drivers, trips });
         }
 
-        // تصدير نسخة احتياطية
         function exportBackup() {
             const data = { users, trucks, drivers, trips };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -536,7 +537,6 @@
             URL.revokeObjectURL(url);
         }
 
-        // استعادة البيانات من ملف
         function importBackup(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -551,7 +551,7 @@
                         trips = data.trips;
                         syncToCloud();
                         renderAll();
-                        alert('تم استعادة جميع البيانات بنجاح تام وتم تزامنها!');
+                        alert('تم استعادة جميع البيانات بنجاح تام!');
                     } else {
                         alert('ملف النسخة الاحتياطية غير صالح.');
                     }
@@ -567,7 +567,6 @@
             const u = document.getElementById('username').value.trim().toLowerCase();
             const p = document.getElementById('password').value.trim();
 
-            // جلب أحدث بيانات المستخدمين من الذاكرة الحية المتزامنة
             const found = users.find(x => x.username.toLowerCase() === u && x.password === p && x.status !== 'موقوف');
             if (found) {
                 currentUser = found;
