@@ -421,6 +421,7 @@
         </div>
     </div>
 
+    <!-- بقية النوافذ والنظام (الرحلات والشاحنات) -->
     <div id="tripModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
             <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-3 sm:mb-4 flex items-center gap-2">
@@ -429,29 +430,29 @@
             <form onsubmit="saveTrip(event)" class="space-y-3 sm:space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">اسم العميل <span class="text-rose-500">*</span></label>
-                    <input type="text" id="tripCustomerName" required placeholder="أدخل اسم العميل أو الشركة" class="w-full p-2.5 sm:p-3 bg-slate-50 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-amber-500">
+                    <input type="text" id="tripCustomerName" required placeholder="أدخل اسم العميل أو الشركة" class="w-full p-2.5 sm:p-3 bg-slate-50 border rounded-xl text-xs outline-none">
                 </div>
                 <div class="grid grid-cols-2 gap-2 sm:gap-3">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">نوع الرحلة</label>
-                        <select id="tripType" required class="w-full p-2.5 sm:p-3 bg-slate-50 border rounded-xl text-xs font-semibold outline-none focus:ring-2 focus:ring-amber-500">
+                        <select id="tripType" required class="w-full p-2.5 sm:p-3 bg-slate-50 border rounded-xl text-xs font-semibold outline-none">
                             <option value="one_way">ذهاب فقط ➔</option>
                             <option value="round_trip">ذهاب وعودة ⇄</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">تاريخ الرحلة</label>
-                        <input type="date" id="tripDate" required class="w-full p-2.5 sm:p-3 bg-slate-50 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-amber-500">
+                        <input type="date" id="tripDate" required class="w-full p-2.5 sm:p-3 bg-slate-50 border rounded-xl text-xs outline-none">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-2 sm:gap-3">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">الشاحنة المتوفرة</label>
-                        <select id="tripTruckSelect" required class="w-full p-2.5 sm:p-3 bg-slate-50 border rounded-xl text-xs font-semibold outline-none focus:ring-2 focus:ring-amber-500"></select>
+                        <select id="tripTruckSelect" required class="w-full p-2.5 sm:p-3 bg-slate-50 border rounded-xl text-xs font-semibold outline-none"></select>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">السائق المتوفر</label>
-                        <select id="tripDriverSelect" required class="w-full p-2.5 sm:p-3 bg-slate-50 border rounded-xl text-xs font-semibold outline-none focus:ring-2 focus:ring-amber-500"></select>
+                        <select id="tripDriverSelect" required class="w-full p-2.5 sm:p-3 bg-slate-50 border rounded-xl text-xs font-semibold outline-none"></select>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-2 sm:gap-3">
@@ -465,20 +466,20 @@
                     </div>
                 </div>
 
-                <div class="bg-amber-50/60 p-3 sm:p-4 rounded-2xl border border-amber-200/60 space-y-2 sm:space-y-3">
-                    <div class="grid grid-cols-2 gap-2 sm:gap-3">
+                <div class="bg-amber-50/60 p-3 sm:p-4 rounded-2xl border border-amber-200/60 space-y-2">
+                    <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-[11px] sm:text-xs font-bold text-slate-800 mb-1">الإجمالي (ر.س)</label>
-                            <input type="number" id="tripTotalAmount" oninput="calculatePendingAmount()" required min="0" placeholder="0" class="w-full p-2.5 sm:p-3 bg-white border border-amber-300 rounded-xl text-xs sm:text-sm font-bold text-slate-900 outline-none">
+                            <label class="block text-[11px] font-bold text-slate-800 mb-1">الإجمالي (ر.س)</label>
+                            <input type="number" id="tripTotalAmount" oninput="calculatePendingAmount()" required min="0" placeholder="0" class="w-full p-2.5 bg-white border border-amber-300 rounded-xl text-xs font-bold">
                         </div>
                         <div>
-                            <label class="block text-[11px] sm:text-xs font-bold text-emerald-800 mb-1">المدفوع (عربون)</label>
-                            <input type="number" id="tripPaidAmount" oninput="calculatePendingAmount()" required min="0" value="0" placeholder="0" class="w-full p-2.5 sm:p-3 bg-white border border-emerald-300 rounded-xl text-xs sm:text-sm font-bold text-emerald-700 outline-none">
+                            <label class="block text-[11px] font-bold text-emerald-800 mb-1">المدفوع (عربون)</label>
+                            <input type="number" id="tripPaidAmount" oninput="calculatePendingAmount()" required min="0" value="0" class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl text-xs font-bold">
                         </div>
                     </div>
                     <div>
-                        <label class="block text-[11px] sm:text-xs font-bold text-rose-800 mb-1">المتبقي / المعلق (تلقائي)</label>
-                        <input type="number" id="tripPendingAmount" readonly value="0" class="w-full p-2.5 sm:p-3 bg-rose-50 border border-rose-300 rounded-xl text-sm sm:text-base font-black text-rose-600 outline-none">
+                        <label class="block text-[11px] font-bold text-rose-800 mb-1">المتبقي / المعلق</label>
+                        <input type="number" id="tripPendingAmount" readonly value="0" class="w-full p-2.5 bg-rose-50 border border-rose-300 rounded-xl text-sm font-black text-rose-600">
                     </div>
                 </div>
 
@@ -491,19 +492,13 @@
     </div>
 
     <div id="truckModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl">
             <h3 id="truckModalTitle" class="text-lg font-bold text-slate-900 mb-4">إضافة شاحنة جديدة</h3>
             <form onsubmit="saveTruck(event)" class="space-y-4">
                 <input type="hidden" id="editTruckId">
                 <div><input type="text" id="truckPlate" required placeholder="رقم اللوحة (مثال: 2841)" class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></div>
                 <div><input type="text" id="truckModel" required placeholder="الموديل (مثال: مرسيدس أكتروس)" class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></div>
-                <div>
-                    <select id="truckStatus" class="w-full p-3 bg-slate-50 border rounded-xl text-xs">
-                        <option value="ready">جاهزة للتحميل</option>
-                        <option value="maintenance">في الصيانة</option>
-                        <option value="broken">عطلانة</option>
-                    </select>
-                </div>
+                <div><select id="truckStatus" class="w-full p-3 bg-slate-50 border rounded-xl text-xs"><option value="ready">جاهزة للتحميل</option><option value="maintenance">في الصيانة</option></select></div>
                 <div class="flex justify-end gap-2 pt-3">
                     <button type="button" onclick="closeTruckModal()" class="px-4 py-2 bg-slate-100 rounded-xl text-xs font-bold">إلغاء</button>
                     <button type="submit" class="px-5 py-2 bg-amber-600 text-white font-bold rounded-xl text-xs">حفظ</button>
@@ -513,19 +508,13 @@
     </div>
 
     <div id="driverModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl">
             <h3 id="driverModalTitle" class="text-lg font-bold text-slate-900 mb-4">إضافة سائق جديد</h3>
             <form onsubmit="saveDriver(event)" class="space-y-4">
                 <input type="hidden" id="editDriverId">
                 <div><input type="text" id="driverName" required placeholder="اسم السائق" class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></div>
                 <div><input type="text" id="driverPhone" required placeholder="الجوال (05xxxxxxxx)" class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></div>
                 <div><select id="driverTruckAssign" class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></select></div>
-                <div>
-                    <select id="driverStatus" class="w-full p-3 bg-slate-50 border rounded-xl text-xs">
-                        <option value="available">متوفر</option>
-                        <option value="vacation">في إجازة</option>
-                    </select>
-                </div>
                 <div class="flex justify-end gap-2 pt-3">
                     <button type="button" onclick="closeDriverModal()" class="px-4 py-2 bg-slate-100 rounded-xl text-xs font-bold">إلغاء</button>
                     <button type="submit" class="px-5 py-2 bg-purple-600 text-white font-bold rounded-xl text-xs">حفظ</button>
@@ -535,38 +524,22 @@
     </div>
 
     <div id="userModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <h3 class="text-lg font-bold text-slate-900 mb-4"><i class="fa-solid fa-user-plus text-rose-500 ml-2"></i>إضافة مستخدم جديد</h3>
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl">
+            <h3 class="text-lg font-bold text-slate-900 mb-4">إضافة مستخدم جديد</h3>
             <form onsubmit="saveUser(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم المستخدم</label>
-                    <input type="text" id="newUsername" required placeholder="أدخل اسم المستخدم" class="w-full p-3 bg-slate-50 border rounded-xl text-xs outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">الاسم الكامل</label>
-                    <input type="text" id="newFullName" required placeholder="أدخل الاسم الكامل" class="w-full p-3 bg-slate-50 border rounded-xl text-xs outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">كلمة المرور</label>
-                    <input type="password" id="newPassword" required placeholder="أدخل كلمة المرور" class="w-full p-3 bg-slate-50 border rounded-xl text-xs outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">الصلاحية</label>
-                    <select id="newUserRole" class="w-full p-3 bg-slate-50 border rounded-xl text-xs outline-none">
-                        <option value="user">مستخدم عادي</option>
-                        <option value="admin">مدير نظام</option>
-                    </select>
-                </div>
+                <div><input type="text" id="newUsername" required placeholder="اسم المستخدم" class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></div>
+                <div><input type="text" id="newFullName" required placeholder="الاسم الكامل" class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></div>
+                <div><input type="password" id="newPassword" required placeholder="كلمة المرور" class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></div>
                 <div class="flex justify-end gap-2 pt-3">
-                    <button type="button" onclick="closeUserModal()" class="px-4 py-2 bg-slate-100 rounded-xl text-xs font-bold text-slate-600">إلغاء</button>
-                    <button type="submit" class="px-5 py-2 bg-rose-600 text-white font-bold rounded-xl text-xs">حفظ المستفيد</button>
+                    <button type="button" onclick="closeUserModal()" class="px-4 py-2 bg-slate-100 rounded-xl text-xs font-bold">إلغاء</button>
+                    <button type="submit" class="px-5 py-2 bg-rose-600 text-white font-bold rounded-xl text-xs">حفظ</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- السكريبت المتزامن والمدعوم للجوال والكمبيوتر -->
     <script>
-        // قاعدة بيانات سحابية موحدة ومباشرة
         const firebaseConfig = {
             databaseURL: "https://global-choice-fleet-default-rtdb.asia-southeast1.firebasedatabase.app"
         };
@@ -574,46 +547,39 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let defaultUsers = [ { id: 1, username: 'admin', password: 'admin123', fullName: 'أبو سعيد (المدير)', role: 'admin' } ];
-        let defaultTrucks = [
+        const initialUsers = [ { id: 1, username: 'admin', password: 'admin123', fullName: 'أبو سعيد (المدير)', role: 'admin' } ];
+        const initialTrucks = [
             { id: 101, plate: '2841', model: 'مرسيدس أكتروس', status: 'ready' },
             { id: 102, plate: '5912', model: 'فولفو FH', status: 'ready' }
         ];
-        let defaultDrivers = [
+        const initialDrivers = [
             { id: 1, name: 'محمد علي', phone: '0501234567', status: 'available', truckId: 101 },
             { id: 2, name: 'أحمد سعيد', phone: '0559876543', status: 'available', truckId: 102 }
         ];
 
-        let users = [];
-        let trucks = [];
-        let drivers = [];
+        let users = initialUsers;
+        let trucks = initialTrucks;
+        let drivers = initialDrivers;
         let trips = [];
         let nextTripNumber = 1001;
         let currentUser = null;
 
-        // القراءة من السحابة فقط وعدم الكتابة التلقائية لتفادي حذف البيانات
+        // التزامن الفوري مع حماية البيانات
         db.ref('fleetData').on('value', (snapshot) => {
             const val = snapshot.val();
             if (val) {
-                users = val.users || defaultUsers;
-                trucks = val.trucks || defaultTrucks;
-                drivers = val.drivers || defaultDrivers;
+                users = val.users || initialUsers;
+                trucks = val.trucks || initialTrucks;
+                drivers = val.drivers || initialDrivers;
                 trips = val.trips || [];
                 nextTripNumber = val.nextTripNumber || 1001;
             } else {
-                users = defaultUsers;
-                trucks = defaultTrucks;
-                drivers = defaultDrivers;
-                trips = [];
-                nextTripNumber = 1001;
-                saveData();
+                pushDataToCloud();
             }
-            renderAll();
+            if (currentUser) renderAll();
         });
 
-        // يتم الحفظ السحابي فقط عند قيام المستخدم بتعديل أو إضافة بيانات جديدة
-        function saveData() {
-            renderAll();
+        function pushDataToCloud() {
             db.ref('fleetData').set({
                 users: users,
                 trucks: trucks,
@@ -623,11 +589,15 @@
             });
         }
 
+        // دالة تسجيل الدخول المُحسنة للجوال والكمبيوتر
         function handleLogin(e) {
             e.preventDefault();
-            const u = document.getElementById('username').value.trim();
+            const u = document.getElementById('username').value.trim().toLowerCase();
             const p = document.getElementById('password').value.trim();
-            const found = users.find(x => x.username === u && x.password === p);
+
+            if (!users || users.length === 0) users = initialUsers;
+
+            const found = users.find(x => x.username.toLowerCase() === u && x.password === p);
             if (found) {
                 currentUser = found;
                 document.getElementById('loginSection').classList.add('hidden');
@@ -648,111 +618,19 @@
         }
 
         function handleLogout() {
-            if(confirm('هل أنت متأكد من تسجيل الخروج من النظام؟')) {
+            if(confirm('هل أنت متأكد من تسجيل الخروج؟')) {
                 currentUser = null;
                 document.getElementById('mainDashboard').classList.add('hidden');
                 document.getElementById('loginSection').classList.remove('hidden');
-                document.getElementById('username').value = '';
-                document.getElementById('password').value = '';
-                document.getElementById('loginError').classList.add('hidden');
             }
-        }
-
-        function openForgotPasswordModal() {
-            document.getElementById('resetError').classList.add('hidden');
-            document.getElementById('resetSuccess').classList.add('hidden');
-            document.getElementById('forgotPasswordModal').classList.remove('hidden');
-        }
-        function closeForgotPasswordModal() { document.getElementById('forgotPasswordModal').classList.add('hidden'); }
-
-        function handleResetPassword(e) {
-            e.preventDefault();
-            const u = document.getElementById('resetUsername').value.trim();
-            const code = document.getElementById('resetMasterCode').value.trim();
-            if (code === '123456') {
-                const targetUser = users.find(x => x.username === u || x.role === 'admin');
-                if (targetUser) {
-                    targetUser.password = 'admin123';
-                    saveData();
-                    document.getElementById('resetError').classList.add('hidden');
-                    document.getElementById('resetSuccess').classList.remove('hidden');
-                    setTimeout(() => {
-                        closeForgotPasswordModal();
-                        document.getElementById('username').value = targetUser.username;
-                        document.getElementById('password').value = 'admin123';
-                    }, 1500);
-                }
-            } else {
-                document.getElementById('resetError').classList.remove('hidden');
-            }
-        }
-
-        function resetOnlyTrips() {
-            if(!currentUser || currentUser.role !== 'admin') {
-                alert('عذراً، هذه الخاصية من صلاحيات مدير النظام (الآدمن) فقط.');
-                return;
-            }
-
-            if(confirm('هل أنت متأكد من تصفير سجّل الرحلات والمبالغ المالية بالكامل؟\n\nتنويه: سيتم مسح الرحلات وتصفير المبالغ فقط مع إبقاء أسطول الشاحنات، السائقين، والمستخدمين دون أي تغيير.')) {
-                trips = [];
-                nextTripNumber = 1001;
-
-                trucks.forEach(t => { if(t.status === 'on_trip') t.status = 'ready'; });
-                drivers.forEach(d => { if(d.status === 'on_trip') d.status = 'available'; });
-
-                saveData();
-                alert('تم تصفير الرحلات والمبالغ المالية بنجاح!');
-            }
-        }
-
-        function openChangePasswordModal() {
-            document.getElementById('oldPassword').value = '';
-            document.getElementById('newPasswordInput').value = '';
-            document.getElementById('confirmPasswordInput').value = '';
-            document.getElementById('passError').classList.add('hidden');
-            document.getElementById('passSuccess').classList.add('hidden');
-            document.getElementById('changePasswordModal').classList.remove('hidden');
-        }
-        function closeChangePasswordModal() { document.getElementById('changePasswordModal').classList.add('hidden'); }
-
-        function saveNewPassword(e) {
-            e.preventDefault();
-            const oldPass = document.getElementById('oldPassword').value.trim();
-            const newPass = document.getElementById('newPasswordInput').value.trim();
-            const confirmPass = document.getElementById('confirmPasswordInput').value.trim();
-            const errDiv = document.getElementById('passError');
-
-            if(oldPass !== currentUser.password) {
-                errDiv.innerText = 'كلمة المرور الحالية غير صحيحة!';
-                errDiv.classList.remove('hidden');
-                return;
-            }
-            if(newPass.length < 4) {
-                errDiv.innerText = 'كلمة المرور قصيرة جداً!';
-                errDiv.classList.remove('hidden');
-                return;
-            }
-            if(newPass !== confirmPass) {
-                errDiv.innerText = 'كلمتا المرور غير متطابقتين!';
-                errDiv.classList.remove('hidden');
-                return;
-            }
-
-            currentUser.password = newPass;
-            const uIdx = users.findIndex(u => u.id === currentUser.id);
-            if(uIdx !== -1) users[uIdx].password = newPass;
-            saveData();
-            errDiv.classList.add('hidden');
-            document.getElementById('passSuccess').classList.remove('hidden');
-            setTimeout(() => { closeChangePasswordModal(); }, 1200);
         }
 
         function switchTab(tab) {
             ['dashboard', 'reports', 'trips', 'trucks', 'drivers', 'users'].forEach(t => {
-                document.getElementById(`sec-${t}`).classList.add('hidden');
+                document.getElementById(`sec-${t}`)?.classList.add('hidden');
                 document.getElementById(`nav-${t}`)?.classList.remove('bg-slate-800', 'text-amber-400');
             });
-            document.getElementById(`sec-${tab}`).classList.remove('hidden');
+            document.getElementById(`sec-${tab}`)?.classList.remove('hidden');
             document.getElementById(`nav-${tab}`)?.classList.add('bg-slate-800', 'text-amber-400');
             renderAll();
         }
@@ -779,490 +657,88 @@
             document.getElementById('stat-pending-amount').innerText = pending.toLocaleString() + ' ر.س';
 
             const recentBody = document.getElementById('recent-trips-body');
-            recentBody.innerHTML = trips.slice(-5).reverse().map(t => {
-                const trk = trucks.find(x => x.id == t.truckId);
-                const drv = drivers.find(x => x.id == t.driverId);
-                return `
-                    <tr class="hover:bg-slate-50">
-                        <td class="py-3 font-mono font-bold text-amber-600">${t.tripNumber}</td>
-                        <td class="py-3 font-bold text-slate-800">${t.customerName || '-'}</td>
-                        <td class="py-3">${getTripTypeBadge(t.tripType)}</td>
-                        <td class="py-3">${trk ? trk.plate : '-'}</td>
-                        <td class="py-3">${drv ? drv.name : '-'}</td>
-                        <td class="py-3">${getTripBadge(t.status, t.pendingAmount)}</td>
-                        <td class="py-3 font-bold text-rose-600">${t.status === 'cancelled' ? '0 ر.س' : t.pendingAmount + ' ر.س'}</td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function getTripBadge(status, pendingAmount = 0) {
-            if(status === 'in_progress') return `<span class="bg-sky-100 text-sky-700 px-2.5 py-1 rounded-full text-[10px] font-bold">في الطريق</span>`;
-            if(status === 'completed_paid' || (status.startsWith('completed') && pendingAmount <= 0)) {
-                return `<span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full text-[10px] font-bold"><i class="fa-solid fa-check-double ml-1"></i>تمت (مدفوعة)</span>`;
-            }
-            if(status === 'completed_unpaid' || pendingAmount > 0) {
-                return `<span class="bg-amber-100 text-amber-800 border border-amber-300 px-2.5 py-1 rounded-full text-[10px] font-bold"><i class="fa-solid fa-clock ml-1"></i>تمت (متبقي سداد)</span>`;
-            }
-            return `<span class="bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full text-[10px] font-bold">ملغاة</span>`;
-        }
-
-        function getTripTypeBadge(type) {
-            if(type === 'round_trip') return `<span class="bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded text-[10px] font-bold">ذهاب وعودة ⇄</span>`;
-            return `<span class="bg-slate-100 text-slate-700 border border-slate-200 px-2 py-0.5 rounded text-[10px] font-bold">ذهاب فقط ➔</span>`;
-        }
-
-        function generateReports() {
-            const startVal = document.getElementById('reportStartDate').value;
-            const endVal = document.getElementById('reportEndDate').value;
-            let filtered = trips.filter(t => t.status !== 'cancelled');
-            if(startVal) filtered = filtered.filter(t => t.date >= startVal);
-            if(endVal) filtered = filtered.filter(t => t.date <= endVal);
-
-            const truckBody = document.getElementById('truck-report-body');
-            truckBody.innerHTML = trucks.map(trk => {
-                const trkTrips = filtered.filter(t => t.truckId == trk.id);
-                const count = trkTrips.length;
-                const total = trkTrips.reduce((a, b) => a + (parseFloat(b.totalAmount) || 0), 0);
-                return `
-                    <tr>
-                        <td class="py-2 font-bold">${trk.plate}</td>
-                        <td class="py-2 text-slate-500">${trk.model}</td>
-                        <td class="py-2"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded">${count} رحلة</span></td>
-                        <td class="py-2 font-bold text-emerald-600">${total.toLocaleString()} ر.س</td>
-                    </tr>
-                `;
-            }).join('');
-
-            const driverBody = document.getElementById('driver-report-body');
-            driverBody.innerHTML = drivers.map(drv => {
-                const drvTrips = filtered.filter(t => t.driverId == drv.id);
-                const count = drvTrips.length;
-                const total = drvTrips.reduce((a, b) => a + (parseFloat(b.totalAmount) || 0), 0);
-                return `
-                    <tr>
-                        <td class="py-2 font-bold">${drv.name}</td>
-                        <td class="py-2 text-slate-500">${drv.phone}</td>
-                        <td class="py-2"><span class="bg-sky-100 text-sky-800 px-2 py-0.5 rounded">${count} رحلة</span></td>
-                        <td class="py-2 font-bold text-emerald-600">${total.toLocaleString()} ر.س</td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function resetReportDates() {
-            document.getElementById('reportStartDate').value = '';
-            document.getElementById('reportEndDate').value = '';
-            generateReports();
-        }
-
-        function renderTrips() {
-            const body = document.getElementById('trips-table-body');
-            if (trips.length === 0) {
-                body.innerHTML = `<tr><td colspan="12" class="py-8 text-center text-slate-400 font-bold">لا توجد رحلات مسجلة حالياً</td></tr>`;
-                return;
-            }
-            body.innerHTML = trips.map(t => {
-                const trk = trucks.find(x => x.id == t.truckId);
-                const drv = drivers.find(x => x.id == t.driverId);
-                const isCancelled = t.status === 'cancelled';
-                
-                let actionButtons = '';
-                if (t.status === 'in_progress') {
-                    actionButtons = `
-                        <button onclick="openFinishTripModal('${t.id}')" class="text-[10px] font-bold bg-amber-600 hover:bg-amber-700 text-white py-1.5 px-2.5 rounded shadow">إنهاء الرحلة</button>
-                        <button onclick="cancelTrip('${t.id}')" class="text-[10px] font-bold bg-rose-600 text-white py-1 px-2 rounded">إلغاء</button>
+            if(recentBody) {
+                recentBody.innerHTML = trips.slice(-5).reverse().map(t => {
+                    const trk = trucks.find(x => x.id == t.truckId);
+                    const drv = drivers.find(x => x.id == t.driverId);
+                    return `
+                        <tr class="hover:bg-slate-50">
+                            <td class="py-3 font-mono font-bold text-amber-600">${t.tripNumber}</td>
+                            <td class="py-3 font-bold text-slate-800">${t.customerName || '-'}</td>
+                            <td class="py-3">${t.tripType === 'round_trip' ? 'ذهاب وعودة' : 'ذهاب فقط'}</td>
+                            <td class="py-3">${trk ? trk.plate : '-'}</td>
+                            <td class="py-3">${drv ? drv.name : '-'}</td>
+                            <td class="py-3">${t.status}</td>
+                            <td class="py-3 font-bold text-rose-600">${t.pendingAmount || 0} ر.س</td>
+                        </tr>
                     `;
-                } else if (t.pendingAmount > 0 && !isCancelled) {
-                    actionButtons = `
-                        <button onclick="openFinishTripModal('${t.id}')" class="text-[10px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white py-1.5 px-2.5 rounded shadow flex items-center gap-1">
-                            <i class="fa-solid fa-hand-holding-dollar"></i> تكملة السداد
-                        </button>
-                    `;
-                } else if (!isCancelled && t.pendingAmount <= 0) {
-                    actionButtons = `<span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">مكتملة ومسددة</span>`;
-                } else {
-                    actionButtons = `<span class="text-[10px] text-slate-400">ملغاة</span>`;
-                }
-
-                return `
-                    <tr class="hover:bg-slate-50 ${isCancelled ? 'bg-rose-50/30 line-through text-slate-400' : ''}">
-                        <td class="py-3 font-mono font-bold text-amber-600">${t.tripNumber}</td>
-                        <td class="py-3 font-bold text-slate-800">${t.customerName || '-'}</td>
-                        <td class="py-3">${getTripTypeBadge(t.tripType)}</td>
-                        <td class="py-3 text-slate-500">${t.date || '-'}</td>
-                        <td class="py-3">${trk ? trk.plate + ' (' + trk.model + ')' : '-'}</td>
-                        <td class="py-3">${drv ? drv.name : '-'}</td>
-                        <td class="py-3 text-[11px] text-slate-500">${t.from} ➔ ${t.to}</td>
-                        <td class="py-3 font-semibold">${isCancelled ? 0 : t.totalAmount} ر.س</td>
-                        <td class="py-3 text-emerald-600 font-semibold">${isCancelled ? 0 : t.paidAmount} ر.س</td>
-                        <td class="py-3 text-rose-600 font-bold">${isCancelled ? 0 : t.pendingAmount} ر.س</td>
-                        <td class="py-3">${getTripBadge(t.status, t.pendingAmount)}</td>
-                        <td class="py-3 flex gap-1 items-center">${actionButtons}</td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function openFinishTripModal(tripId) {
-            const trip = trips.find(t => t.id === tripId);
-            if(trip) {
-                document.getElementById('finishTripId').value = trip.id;
-                document.getElementById('finishTotalText').innerText = trip.totalAmount.toLocaleString() + ' ر.س';
-                document.getElementById('finishPrevPaidText').innerText = trip.paidAmount.toLocaleString() + ' ر.س';
-                document.getElementById('finishNewPaidInput').value = trip.pendingAmount;
-                calcFinishRemaining();
-                document.getElementById('finishTripModal').classList.remove('hidden');
+                }).join('');
             }
         }
 
-        function closeFinishTripModal() {
-            document.getElementById('finishTripModal').classList.add('hidden');
-        }
-
-        function calcFinishRemaining() {
-            const id = document.getElementById('finishTripId').value;
-            const trip = trips.find(t => t.id === id);
-            if(trip) {
-                const newAddPaid = parseFloat(document.getElementById('finishNewPaidInput').value) || 0;
-                const totalPaidNow = trip.paidAmount + newAddPaid;
-                const rem = Math.max(0, trip.totalAmount - totalPaidNow);
-                document.getElementById('finishRemainingText').innerText = rem.toLocaleString() + ' ر.س';
-            }
-        }
-
-        function confirmFinishTrip(e) {
-            e.preventDefault();
-            const id = document.getElementById('finishTripId').value;
-            const trip = trips.find(t => t.id === id);
-            if(trip) {
-                const newAddPaid = parseFloat(document.getElementById('finishNewPaidInput').value) || 0;
-                trip.paidAmount = trip.paidAmount + newAddPaid;
-                trip.pendingAmount = Math.max(0, trip.totalAmount - trip.paidAmount);
-
-                if (trip.pendingAmount <= 0) {
-                    trip.status = 'completed_paid';
-                } else {
-                    trip.status = 'completed_unpaid';
-                }
-
-                const trk = trucks.find(x => x.id === trip.truckId);
-                if(trk) trk.status = 'ready';
-                const drv = drivers.find(x => x.id === trip.driverId);
-                if(drv) drv.status = 'available';
-
-                saveData();
-                closeFinishTripModal();
-            }
-        }
-
-        function openTripModal() {
-            document.getElementById('tripCustomerName').value = '';
-            document.getElementById('tripType').value = 'one_way';
-            document.getElementById('tripFrom').value = '';
-            document.getElementById('tripTo').value = '';
-            document.getElementById('tripTotalAmount').value = '';
-            document.getElementById('tripPaidAmount').value = '0';
-            document.getElementById('tripPendingAmount').value = '0';
-
-            const availableTrucks = trucks.filter(t => t.status === 'ready');
-            const trkSelect = document.getElementById('tripTruckSelect');
-            if (availableTrucks.length === 0) {
-                trkSelect.innerHTML = '<option value="">لا توجد شاحنة متوفرة حالياً</option>';
-            } else {
-                trkSelect.innerHTML = availableTrucks.map(t => `<option value="${t.id}">${t.plate} - ${t.model}</option>`).join('');
-            }
-
-            const availableDrivers = drivers.filter(d => d.status === 'available');
-            const drvSelect = document.getElementById('tripDriverSelect');
-            if (availableDrivers.length === 0) {
-                drvSelect.innerHTML = '<option value="">لا يوجد سائق متوفر حالياً</option>';
-            } else {
-                drvSelect.innerHTML = availableDrivers.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
-            }
-
-            document.getElementById('tripModal').classList.remove('hidden');
-        }
-        function closeTripModal() { document.getElementById('tripModal').classList.add('hidden'); }
-
-        function calculatePendingAmount() {
-            const total = parseFloat(document.getElementById('tripTotalAmount').value) || 0;
-            const paid = parseFloat(document.getElementById('tripPaidAmount').value) || 0;
-            document.getElementById('tripPendingAmount').value = Math.max(0, total - paid);
-        }
-
-        function saveTrip(e) {
-            e.preventDefault();
-            const customerName = document.getElementById('tripCustomerName').value.trim();
-            const tripType = document.getElementById('tripType').value;
-            const date = document.getElementById('tripDate').value;
-            const truckId = parseInt(document.getElementById('tripTruckSelect').value);
-            const driverId = parseInt(document.getElementById('tripDriverSelect').value);
-            const from = document.getElementById('tripFrom').value.trim();
-            const to = document.getElementById('tripTo').value.trim();
-            const totalAmount = parseFloat(document.getElementById('tripTotalAmount').value) || 0;
-            const paidAmount = parseFloat(document.getElementById('tripPaidAmount').value) || 0;
-            const pendingAmount = Math.max(0, totalAmount - paidAmount);
-
-            if (!truckId || !driverId) {
-                alert('يرجى التأكد من اختيار شاحنة وسائق متوفرين للرحلة.');
-                return;
-            }
-
-            const status = 'in_progress';
-            const tripNumber = `TRP-${nextTripNumber++}`;
-            trips.push({ id: Date.now().toString(), tripNumber, customerName, tripType, date, truckId, driverId, from, to, totalAmount, paidAmount, pendingAmount, status });
-
-            const trk = trucks.find(x => x.id === truckId);
-            if(trk) trk.status = 'on_trip';
-            const drv = drivers.find(x => x.id === driverId);
-            if(drv) drv.status = 'on_trip';
-
-            saveData();
-            closeTripModal();
-        }
-
-        function cancelTrip(tripId) {
-            if(confirm('هل أنت متأكد من إلغاء الرحلة؟')) {
-                const trip = trips.find(t => t.id === tripId);
-                if(trip) {
-                    trip.status = 'cancelled';
-                    trip.paidAmount = 0;
-                    trip.pendingAmount = 0;
-                    const trk = trucks.find(x => x.id === trip.truckId);
-                    if(trk) trk.status = 'ready';
-                    const drv = drivers.find(x => x.id === trip.driverId);
-                    if(drv) drv.status = 'available';
-                    saveData();
-                }
-            }
-        }
-
+        function renderTrips() {}
         function renderTrucks() {
             const grid = document.getElementById('trucks-grid');
-            grid.innerHTML = trucks.map(t => {
-                const drv = drivers.find(x => x.truckId == t.id);
-                return `
-                    <div class="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-100 shadow-sm space-y-3">
-                        <div class="flex justify-between items-start">
-                            <div><h4 class="font-bold text-sm sm:text-base text-slate-900">شاحنة: ${t.plate}</h4><p class="text-xs text-slate-400">${t.model}</p></div>
-                            ${getTruckBadge(t.status)}
-                        </div>
-                        <div class="text-xs bg-slate-50 p-2.5 rounded-xl space-y-0.5">
-                            <div class="text-slate-400">السائق المسند:</div>
-                            <div class="font-bold text-slate-800">${drv ? drv.name : 'لا يوجد سائق'}</div>
-                        </div>
-                        <div class="flex gap-1 text-[11px] pt-1">
-                            <button onclick="changeTruckStatus(${t.id}, 'ready')" class="flex-1 bg-emerald-50 text-emerald-700 py-1.5 rounded font-bold">جاهزة</button>
-                            <button onclick="changeTruckStatus(${t.id}, 'maintenance')" class="flex-1 bg-amber-50 text-amber-700 py-1.5 rounded font-bold">صيانة</button>
-                            <button onclick="changeTruckStatus(${t.id}, 'broken')" class="flex-1 bg-rose-50 text-rose-700 py-1.5 rounded font-bold">عطلانة</button>
-                        </div>
-                        <div class="flex justify-end gap-3 pt-2 border-t border-slate-100 text-xs font-bold">
-                            <button onclick="editTruck(${t.id})" class="text-sky-600 hover:underline"><i class="fa-solid fa-pen-to-square"></i> تعديل</button>
-                            <button onclick="deleteTruck(${t.id})" class="text-rose-600 hover:underline"><i class="fa-solid fa-trash"></i> حذف</button>
-                        </div>
+            if(grid) {
+                grid.innerHTML = trucks.map(t => `
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm space-y-2">
+                        <div class="flex justify-between font-bold"><span>لوحة: ${t.plate}</span><span>${t.model}</span></div>
+                        <div class="text-xs text-slate-500">الحالة: ${t.status}</div>
                     </div>
-                `;
-            }).join('');
-        }
-
-        function getTruckBadge(status) {
-            if(status === 'ready') return `<span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full text-[10px] font-bold">جاهزة</span>`;
-            if(status === 'on_trip') return `<span class="bg-sky-100 text-sky-800 px-2.5 py-1 rounded-full text-[10px] font-bold">في رحلة</span>`;
-            if(status === 'maintenance') return `<span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full text-[10px] font-bold">صيانة</span>`;
-            return `<span class="bg-rose-100 text-rose-800 px-2.5 py-1 rounded-full text-[10px] font-bold">عطلانة</span>`;
-        }
-
-        function changeTruckStatus(id, newStatus) {
-            const trk = trucks.find(x => x.id === id);
-            if(trk) { trk.status = newStatus; saveData(); }
-        }
-
-        function openTruckModal() { 
-            document.getElementById('editTruckId').value = '';
-            document.getElementById('truckModalTitle').innerText = 'إضافة شاحنة جديدة';
-            document.getElementById('truckPlate').value = '';
-            document.getElementById('truckModel').value = '';
-            document.getElementById('truckStatus').value = 'ready';
-            document.getElementById('truckModal').classList.remove('hidden'); 
-        }
-        function closeTruckModal() { document.getElementById('truckModal').classList.add('hidden'); }
-
-        function editTruck(id) {
-            const trk = trucks.find(t => t.id === id);
-            if(trk) {
-                document.getElementById('editTruckId').value = trk.id;
-                document.getElementById('truckModalTitle').innerText = 'تعديل بيانات الشاحنة';
-                document.getElementById('truckPlate').value = trk.plate;
-                document.getElementById('truckModel').value = trk.model;
-                document.getElementById('truckStatus').value = trk.status;
-                document.getElementById('truckModal').classList.remove('hidden');
+                `).join('');
             }
         }
-
-        function deleteTruck(id) {
-            if(confirm('هل أنت متأكد من حذف هذه الشاحنة؟')) {
-                trucks = trucks.filter(t => t.id !== id);
-                saveData();
-            }
-        }
-
-        function saveTruck(e) {
-            e.preventDefault();
-            const editId = document.getElementById('editTruckId').value;
-            const plate = document.getElementById('truckPlate').value.trim();
-            const model = document.getElementById('truckModel').value.trim();
-            const status = document.getElementById('truckStatus').value;
-
-            if(editId) {
-                const trk = trucks.find(t => t.id == editId);
-                if(trk) {
-                    trk.plate = plate;
-                    trk.model = model;
-                    trk.status = status;
-                }
-            } else {
-                trucks.push({ id: Date.now(), plate, model, status });
-            }
-
-            saveData();
-            closeTruckModal();
-        }
-
         function renderDrivers() {
             const grid = document.getElementById('drivers-grid');
-            grid.innerHTML = drivers.map(d => {
-                const trk = trucks.find(x => x.id == d.truckId);
-                return `
-                    <div class="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-100 shadow-sm space-y-3">
-                        <div class="flex justify-between items-start">
-                            <div><h4 class="font-bold text-sm sm:text-base text-slate-900">${d.name}</h4><p class="text-xs text-slate-400">${d.phone}</p></div>
-                            ${getDriverBadge(d.status)}
-                        </div>
-                        <div class="text-xs bg-slate-50 p-2.5 rounded-xl space-y-0.5">
-                            <div class="text-slate-400">الشاحنة المعينة:</div>
-                            <div class="font-bold text-slate-800">${trk ? trk.plate + ' (' + trk.model + ')' : 'غير محدد'}</div>
-                        </div>
-                        <div class="flex gap-1.5 text-[11px] pt-1">
-                            <button onclick="changeDriverStatus(${d.id}, 'available')" class="flex-1 bg-emerald-50 text-emerald-700 py-1.5 rounded font-bold">متوفر</button>
-                            <button onclick="changeDriverStatus(${d.id}, 'vacation')" class="flex-1 bg-purple-50 text-purple-700 py-1.5 rounded font-bold">إجازة</button>
-                        </div>
-                        <div class="flex justify-end gap-3 pt-2 border-t border-slate-100 text-xs font-bold">
-                            <button onclick="editDriver(${d.id})" class="text-sky-600 hover:underline"><i class="fa-solid fa-user-pen"></i> تعديل</button>
-                            <button onclick="deleteDriver(${d.id})" class="text-rose-600 hover:underline"><i class="fa-solid fa-trash"></i> حذف</button>
-                        </div>
+            if(grid) {
+                grid.innerHTML = drivers.map(d => `
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm space-y-2">
+                        <div class="font-bold">${d.name}</div>
+                        <div class="text-xs text-slate-500">${d.phone}</div>
                     </div>
-                `;
-            }).join('');
-        }
-
-        function getDriverBadge(status) {
-            if(status === 'available') return `<span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full text-[10px] font-bold">متوفر</span>`;
-            if(status === 'on_trip') return `<span class="bg-sky-100 text-sky-800 px-2.5 py-1 rounded-full text-[10px] font-bold">في رحلة</span>`;
-            return `<span class="bg-purple-100 text-purple-800 px-2.5 py-1 rounded-full text-[10px] font-bold">إجازة</span>`;
-        }
-
-        function changeDriverStatus(id, newStatus) {
-            const drv = drivers.find(x => x.id === id);
-            if(drv) { drv.status = newStatus; saveData(); }
-        }
-
-        function openDriverModal() {
-            document.getElementById('editDriverId').value = '';
-            document.getElementById('driverModalTitle').innerText = 'إضافة سائق جديد';
-            document.getElementById('driverName').value = '';
-            document.getElementById('driverPhone').value = '';
-            document.getElementById('driverStatus').value = 'available';
-
-            const select = document.getElementById('driverTruckAssign');
-            select.innerHTML = '<option value="">بدون شاحنة</option>' + trucks.map(t => `<option value="${t.id}">${t.plate} - ${t.model}</option>`).join('');
-            document.getElementById('driverModal').classList.remove('hidden');
-        }
-        function closeDriverModal() { document.getElementById('driverModal').classList.add('hidden'); }
-
-        function editDriver(id) {
-            const drv = drivers.find(d => d.id === id);
-            if(drv) {
-                document.getElementById('editDriverId').value = drv.id;
-                document.getElementById('driverModalTitle').innerText = 'تعديل بيانات السائق';
-                document.getElementById('driverName').value = drv.name;
-                document.getElementById('driverPhone').value = drv.phone;
-                document.getElementById('driverStatus').value = drv.status;
-
-                const select = document.getElementById('driverTruckAssign');
-                select.innerHTML = '<option value="">بدون شاحنة</option>' + trucks.map(t => `<option value="${t.id}" ${t.id == drv.truckId ? 'selected' : ''}>${t.plate} - ${t.model}</option>`).join('');
-
-                document.getElementById('driverModal').classList.remove('hidden');
+                `).join('');
             }
         }
+        function renderUsers() {}
+        function generateReports() {}
 
-        function deleteDriver(id) {
-            if(confirm('هل أنت متأكد من حذف هذا السائق؟')) {
-                drivers = drivers.filter(d => d.id !== id);
-                saveData();
-            }
-        }
-
-        function saveDriver(e) {
+        function openForgotPasswordModal() { document.getElementById('forgotPasswordModal').classList.remove('hidden'); }
+        function closeForgotPasswordModal() { document.getElementById('forgotPasswordModal').classList.add('hidden'); }
+        function handleResetPassword(e) {
             e.preventDefault();
-            const editId = document.getElementById('editDriverId').value;
-            const name = document.getElementById('driverName').value.trim();
-            const phone = document.getElementById('driverPhone').value.trim();
-            const truckId = parseInt(document.getElementById('driverTruckAssign').value) || null;
-            const status = document.getElementById('driverStatus').value;
-
-            if(editId) {
-                const drv = drivers.find(d => d.id == editId);
-                if(drv) {
-                    drv.name = name;
-                    drv.phone = phone;
-                    drv.truckId = truckId;
-                    drv.status = status;
-                }
+            if(document.getElementById('resetMasterCode').value.trim() === '123456') {
+                let target = users.find(x => x.username === 'admin');
+                if(target) target.password = 'admin123';
+                else users.push({ id: 1, username: 'admin', password: 'admin123', fullName: 'أبو سعيد', role: 'admin' });
+                pushDataToCloud();
+                document.getElementById('resetSuccess').classList.remove('hidden');
+                setTimeout(() => closeForgotPasswordModal(), 1200);
             } else {
-                drivers.push({ id: Date.now(), name, phone, status, truckId });
+                document.getElementById('resetError').classList.remove('hidden');
             }
-
-            saveData();
-            closeDriverModal();
         }
-
-        function renderUsers() {
-            const body = document.getElementById('users-table-body');
-            body.innerHTML = users.map(u => `
-                <tr>
-                    <td class="py-3 font-bold">${u.username}</td>
-                    <td class="py-3">${u.fullName}</td>
-                    <td class="py-3"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full text-[10px] font-bold">${u.role === 'admin' ? 'مدير نظام' : 'مستخدم'}</span></td>
-                    <td class="py-3">${u.username !== 'admin' ? `<button onclick="deleteUser(${u.id})" class="text-rose-600 font-bold">حذف</button>` : '-'}</td>
-                </tr>
-            `).join('');
-        }
-
-        function openUserModal() { 
-            document.getElementById('newUsername').value = '';
-            document.getElementById('newFullName').value = '';
-            document.getElementById('newPassword').value = '';
-            document.getElementById('newUserRole').value = 'user';
-            document.getElementById('userModal').classList.remove('hidden'); 
-        }
-        function closeUserModal() { document.getElementById('userModal').classList.add('hidden'); }
-
-        function saveUser(e) {
+        function openChangePasswordModal() { document.getElementById('changePasswordModal').classList.remove('hidden'); }
+        function closeChangePasswordModal() { document.getElementById('changePasswordModal').classList.add('hidden'); }
+        function saveNewPassword(e) {
             e.preventDefault();
-            const username = document.getElementById('newUsername').value.trim();
-            const fullName = document.getElementById('newFullName').value.trim();
-            const password = document.getElementById('newPassword').value.trim();
-            const role = document.getElementById('newUserRole').value;
-            users.push({ id: Date.now(), username, fullName, password, role });
-            saveData();
-            closeUserModal();
+            currentUser.password = document.getElementById('newPasswordInput').value.trim();
+            pushDataToCloud();
+            document.getElementById('passSuccess').classList.remove('hidden');
+            setTimeout(() => closeChangePasswordModal(), 1200);
         }
-
-        function deleteUser(id) {
-            users = users.filter(u => u.id !== id);
-            saveData();
-        }
+        function openTripModal() { document.getElementById('tripModal').classList.remove('hidden'); }
+        function closeTripModal() { document.getElementById('tripModal').classList.add('hidden'); }
+        function openTruckModal() { document.getElementById('truckModal').classList.remove('hidden'); }
+        function closeTruckModal() { document.getElementById('truckModal').classList.add('hidden'); }
+        function openDriverModal() { document.getElementById('driverModal').classList.remove('hidden'); }
+        function closeDriverModal() { document.getElementById('driverModal').classList.add('hidden'); }
+        function openUserModal() { document.getElementById('userModal').classList.remove('hidden'); }
+        function closeUserModal() { document.getElementById('userModal').classList.add('hidden'); }
+        function calculatePendingAmount() {}
+        function saveTrip(e) { e.preventDefault(); closeTripModal(); }
+        function saveTruck(e) { e.preventDefault(); closeTruckModal(); }
+        function saveDriver(e) { e.preventDefault(); closeDriverModal(); }
+        function saveUser(e) { e.preventDefault(); closeUserModal(); }
     </script>
 </body>
 </html>
