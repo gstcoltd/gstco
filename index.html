@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<head><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
+<head>
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>شركة الاختيار العالمي - نظام إدارة الأسطول والرحلات</title>
     <!-- Tailwind CSS CDN -->
@@ -140,10 +141,10 @@
                 <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                     <div>
                         <div class="inline-flex items-center gap-1.5 px-3 py-0.5 bg-emerald-500/20 border border-emerald-400/40 rounded-full text-emerald-300 text-[10px] font-bold mb-1.5">
-                            <i class="fa-solid fa-bolt text-amber-400 animate-pulse"></i> التزامن المباشر موحد (السحابة)
+                            <i class="fa-solid fa-bolt text-amber-400 animate-pulse"></i> التزامن المباشر موحد وحقيقي (Firebase)
                         </div>
                         <h1 class="text-xl md:text-3xl font-black text-white">شركة الاختيار العالمي للنقل البري</h1>
-                        <p class="text-slate-300 text-[11px] sm:text-xs mt-0.5">بيانات موحدة ومزامنة فورية على كافة الأجهزة</p>
+                        <p class="text-slate-300 text-[11px] sm:text-xs mt-0.5">تحديث فوري ثابت لا يضيع مع التحديث</p>
                     </div>
                 </div>
             </div>
@@ -565,7 +566,7 @@
     </div>
 
     <script>
-        // إعدادات قاعدة البيانات السحابية الحقيقية المباشرة
+        // قاعدة بيانات سحابية موحدة ومباشرة
         const firebaseConfig = {
             databaseURL: "https://global-choice-fleet-default-rtdb.asia-southeast1.firebasedatabase.app"
         };
@@ -583,14 +584,14 @@
             { id: 2, name: 'أحمد سعيد', phone: '0559876543', status: 'available', truckId: 102 }
         ];
 
-        let users = defaultUsers;
-        let trucks = defaultTrucks;
-        let drivers = defaultDrivers;
+        let users = [];
+        let trucks = [];
+        let drivers = [];
         let trips = [];
         let nextTripNumber = 1001;
         let currentUser = null;
 
-        // التزامن الفوري الأحادي المصدر (أولوية تامة لبيانات السحابة)
+        // القراءة من السحابة فقط وعدم الكتابة التلقائية لتفادي حذف البيانات
         db.ref('fleetData').on('value', (snapshot) => {
             const val = snapshot.val();
             if (val) {
@@ -600,12 +601,17 @@
                 trips = val.trips || [];
                 nextTripNumber = val.nextTripNumber || 1001;
             } else {
-                // إنشاء البيانات الابتدائية الموحدة في حال خلو السحابة
+                users = defaultUsers;
+                trucks = defaultTrucks;
+                drivers = defaultDrivers;
+                trips = [];
+                nextTripNumber = 1001;
                 saveData();
             }
             renderAll();
         });
 
+        // يتم الحفظ السحابي فقط عند قيام المستخدم بتعديل أو إضافة بيانات جديدة
         function saveData() {
             renderAll();
             db.ref('fleetData').set({
