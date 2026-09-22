@@ -149,7 +149,7 @@
                 <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                     <div>
                         <div class="inline-flex items-center gap-1.5 px-3 py-0.5 bg-emerald-500/20 border border-emerald-400/40 rounded-full text-emerald-300 text-[10px] font-bold mb-1.5">
-                            <i class="fa-solid fa-bolt text-amber-400 animate-pulse"></i> التزامن الفوري سحابياً ومحلياً بين الجوال والكمبيوتر
+                            <i class="fa-solid fa-bolt text-amber-400 animate-pulse"></i> التزامن الفوري سحابياً بين الجوال والكمبيوتر مفعل
                         </div>
                         <h1 class="text-xl md:text-3xl font-black text-white">شركة الاختيار العالمي للنقليات</h1>
                         <p class="text-slate-300 text-[11px] sm:text-xs mt-0.5">نظام إدارة الأسطول والرحلات والماليات</p>
@@ -504,18 +504,20 @@
         let trips = [];
         let currentUser = null;
 
-        // الاستماع الفوري لقاعدة البيانات السحابية لضمان مزامنة البيانات بين الكمبيوتر والجوال
+        // الاتصال اللحظي المباشر بالسحابة وتحديث الشاشات أينما كان الجهاز
         db.ref('fleetData').on('value', (snapshot) => {
             const val = snapshot.val();
             if (val) {
-                if(val.users) users = val.users;
-                if(val.trucks) trucks = val.trucks;
-                if(val.drivers) drivers = val.drivers;
-                if(val.trips) trips = val.trips;
+                users = val.users || users;
+                trucks = val.trucks || trucks;
+                drivers = val.drivers || drivers;
+                trips = val.trips || [];
             } else {
                 syncToCloud();
             }
-            if (currentUser) renderAll();
+            if (currentUser) {
+                renderAll();
+            }
         });
 
         function syncToCloud() {
@@ -565,6 +567,7 @@
             const u = document.getElementById('username').value.trim().toLowerCase();
             const p = document.getElementById('password').value.trim();
 
+            // جلب أحدث بيانات المستخدمين من الذاكرة الحية المتزامنة
             const found = users.find(x => x.username.toLowerCase() === u && x.password === p && x.status !== 'موقوف');
             if (found) {
                 currentUser = found;
