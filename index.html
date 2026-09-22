@@ -138,10 +138,10 @@
                 <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                     <div>
                         <div class="inline-flex items-center gap-1.5 px-3 py-0.5 bg-emerald-500/20 border border-emerald-400/40 rounded-full text-emerald-300 text-[10px] font-bold mb-1.5">
-                            <i class="fa-solid fa-bolt text-amber-400 animate-pulse"></i> التزامن اللحظي المباشر شغال (Firebase)
+                            <i class="fa-solid fa-bolt text-amber-400 animate-pulse"></i> التزامن المباشر موحد (السحابة)
                         </div>
                         <h1 class="text-xl md:text-3xl font-black text-white">شركة الاختيار العالمي للنقل البري</h1>
-                        <p class="text-slate-300 text-[11px] sm:text-xs mt-0.5">تحديث فوري تلقائي بين الجوال والكمبيوتر</p>
+                        <p class="text-slate-300 text-[11px] sm:text-xs mt-0.5">بيانات موحدة ومزامنة فورية على كافة الأجهزة</p>
                     </div>
                 </div>
             </div>
@@ -571,33 +571,39 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let users = [ { id: 1, username: 'admin', password: 'admin123', fullName: 'أبو سعيد (المدير)', role: 'admin' } ];
-        let trucks = [
+        let defaultUsers = [ { id: 1, username: 'admin', password: 'admin123', fullName: 'أبو سعيد (المدير)', role: 'admin' } ];
+        let defaultTrucks = [
             { id: 101, plate: '2841', model: 'مرسيدس أكتروس', status: 'ready' },
             { id: 102, plate: '5912', model: 'فولفو FH', status: 'ready' }
         ];
-        let drivers = [
+        let defaultDrivers = [
             { id: 1, name: 'محمد علي', phone: '0501234567', status: 'available', truckId: 101 },
             { id: 2, name: 'أحمد سعيد', phone: '0559876543', status: 'available', truckId: 102 }
         ];
+
+        let users = defaultUsers;
+        let trucks = defaultTrucks;
+        let drivers = defaultDrivers;
         let trips = [];
         let nextTripNumber = 1001;
         let currentUser = null;
 
-        // الاستماع المباشر الفوري للتغييرات في السحابة
+        // التزامن الفوري الأحادي المصدر (أولوية تامة لبيانات السحابة)
         db.ref('fleetData').on('value', (snapshot) => {
             const val = snapshot.val();
             if (val) {
-                users = val.users || users;
-                trucks = val.trucks || trucks;
-                drivers = val.drivers || drivers;
+                users = val.users || defaultUsers;
+                trucks = val.trucks || defaultTrucks;
+                drivers = val.drivers || defaultDrivers;
                 trips = val.trips || [];
                 nextTripNumber = val.nextTripNumber || 1001;
-                renderAll();
+            } else {
+                // إنشاء البيانات الابتدائية الموحدة في حال خلو السحابة
+                saveData();
             }
+            renderAll();
         });
 
-        // حفظ البيانات الفوري إلى السحابة
         function saveData() {
             renderAll();
             db.ref('fleetData').set({
