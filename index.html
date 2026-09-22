@@ -111,19 +111,19 @@
                 </div>
             </div>
 
-            <!-- أزرار القائمة والتنقل بين الأقسام -->
+            <!-- أزرار التنقل بين الأقسام -->
             <div class="container mx-auto px-4 flex gap-2 overflow-x-auto border-t border-slate-800/80 pt-2 pb-1">
                 <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-4 py-2 rounded-t-xl text-sm font-bold flex items-center gap-2 transition bg-brand-dark text-amber-400 border-t-2 border-amber-500">
-                    <i class="fa-solid fa-chart-pie"></i> لوحة التحكم
+                    <i class="fa-solid fa-chart-pie"></i> الرئيسية
                 </button>
                 <button onclick="switchTab('trips')" id="nav-trips" class="px-4 py-2 rounded-t-xl text-sm font-bold flex items-center gap-2 transition text-slate-400 hover:text-white">
-                    <i class="fa-solid fa-route"></i> الرحلات
+                    <i class="fa-solid fa-route"></i> إدارة الرحلات
                 </button>
                 <button onclick="switchTab('reports')" id="nav-reports" class="px-4 py-2 rounded-t-xl text-sm font-bold flex items-center gap-2 transition text-slate-400 hover:text-white">
                     <i class="fa-solid fa-file-invoice-dollar"></i> التقارير والمالية
                 </button>
                 <button onclick="switchTab('trucks')" id="nav-trucks" class="px-4 py-2 rounded-t-xl text-sm font-bold flex items-center gap-2 transition text-slate-400 hover:text-white">
-                    <i class="fa-solid fa-truck"></i> الشاحنات
+                    <i class="fa-solid fa-truck"></i> أسطول الشاحنات
                 </button>
                 <button onclick="switchTab('drivers')" id="nav-drivers" class="px-4 py-2 rounded-t-xl text-sm font-bold flex items-center gap-2 transition text-slate-400 hover:text-white">
                     <i class="fa-solid fa-users"></i> السائقون
@@ -131,66 +131,132 @@
             </div>
         </header>
 
-        <main class="container mx-auto px-4 py-8">
-            <!-- 1. الرئيسية -->
+        <main class="container mx-auto px-4 py-8 space-y-6">
+            <!-- 1️⃣ قسم الرئيسية -->
             <section id="sec-dashboard" class="space-y-6">
+                <div class="bg-brand-navy p-6 rounded-2xl border border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-white">مرحباً بك أبا سعيد 👋</h2>
+                        <p class="text-slate-400 text-sm mt-1">نظام متابعة أسطول شركة الاختيار العالمي بالنقل البري.</p>
+                    </div>
+                    <button onclick="switchTab('trips')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs transition flex items-center gap-2">
+                        <i class="fa-solid fa-plus"></i> إضافة رحلة جديدة
+                    </button>
+                </div>
+
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-brand-navy p-5 rounded-2xl border border-slate-800">
-                        <span class="text-xs text-slate-400">إجمالي الرحلات</span>
+                        <span class="text-xs text-slate-400 font-semibold">إجمالي الرحلات</span>
                         <h3 id="statTotalTrips" class="text-2xl font-bold text-white mt-1">0</h3>
                     </div>
                     <div class="bg-brand-navy p-5 rounded-2xl border border-slate-800">
-                        <span class="text-xs text-slate-400">رحلات جارية</span>
+                        <span class="text-xs text-slate-400 font-semibold">رحلات جارية</span>
                         <h3 id="statActiveTrips" class="text-2xl font-bold text-amber-400 mt-1">0</h3>
                     </div>
                     <div class="bg-brand-navy p-5 rounded-2xl border border-slate-800">
-                        <span class="text-xs text-slate-400">إجمالي الشاحنات</span>
+                        <span class="text-xs text-slate-400 font-semibold">عدد الشاحنات</span>
                         <h3 id="statTotalTrucks" class="text-2xl font-bold text-white mt-1">0</h3>
                     </div>
                     <div class="bg-brand-navy p-5 rounded-2xl border border-slate-800">
-                        <span class="text-xs text-slate-400">عدد السائقين</span>
+                        <span class="text-xs text-slate-400 font-semibold">عدد السائقين</span>
                         <h3 id="statTotalDrivers" class="text-2xl font-bold text-white mt-1">0</h3>
                     </div>
                 </div>
             </section>
 
-            <!-- 2. الرحلات -->
+            <!-- 2️⃣ قسم الرحلات -->
             <section id="sec-trips" class="hidden space-y-6">
                 <div class="flex justify-between items-center bg-brand-navy p-4 rounded-2xl border border-slate-800">
-                    <h2 class="text-lg font-bold text-white"><i class="fa-solid fa-route text-amber-400 ml-2"></i> إدارة الرحلات</h2>
-                    <button onclick="alert('سيتم فتح نافذة إضافة رحلة')" class="bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs hover:bg-amber-600 transition">
-                        + رحلة جديدة
+                    <h2 class="text-lg font-bold text-white"><i class="fa-solid fa-route text-amber-400 ml-2"></i> رحلات النقل البري</h2>
+                    <button onclick="openTripModal()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition">
+                        + إضافة رحلة جديدة
                     </button>
                 </div>
-                <div class="bg-brand-navy rounded-2xl border border-slate-800 p-4">
-                    <p class="text-slate-400 text-sm text-center py-6">قائمة الرحلات متزامنة ومباشرة من قاعدة البيانات السحابية.</p>
+                <div class="bg-brand-navy rounded-2xl border border-slate-800 p-4 overflow-x-auto">
+                    <table class="w-full text-right text-xs">
+                        <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
+                            <tr>
+                                <th class="p-3">رقم الرحلة</th>
+                                <th class="p-3">الشاحنة</th>
+                                <th class="p-3">السائق</th>
+                                <th class="p-3">المبلغ الإجمالي</th>
+                                <th class="p-3">المدفوع</th>
+                                <th class="p-3">المتبقي</th>
+                                <th class="p-3">الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tripsTableBody" class="divide-y divide-slate-800">
+                            <tr><td colspan="7" class="p-4 text-center text-slate-400">لا توجد رحلات مسجلة حتى الآن</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </section>
 
-            <!-- 3. التقارير -->
+            <!-- 3️⃣ قسم التقارير والمالية -->
             <section id="sec-reports" class="hidden space-y-6">
                 <div class="bg-brand-navy p-6 rounded-2xl border border-slate-800">
                     <h2 class="text-lg font-bold text-white mb-2"><i class="fa-solid fa-file-invoice-dollar text-emerald-400 ml-2"></i> التقارير والتحصيل المالي</h2>
-                    <p class="text-slate-400 text-sm">متابعة الأجور المسددة والمعلقة للشاحنات.</p>
+                    <p class="text-slate-400 text-xs">ملخص الإيرادات والمبالغ المسددة والمعلقة لكل رحلة.</p>
                 </div>
             </section>
 
-            <!-- 4. الشاحنات -->
+            <!-- 4️⃣ قسم الشاحنات -->
             <section id="sec-trucks" class="hidden space-y-6">
                 <div class="bg-brand-navy p-6 rounded-2xl border border-slate-800">
-                    <h2 class="text-lg font-bold text-white mb-4"><i class="fa-solid fa-truck text-amber-400 ml-2"></i> أسطول الشاحنات</h2>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-bold text-white"><i class="fa-solid fa-truck text-amber-400 ml-2"></i> أسطول الشاحنات (3 شاحنات)</h2>
+                        <button onclick="openTruckModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold">+ إضافة شاحنة</button>
+                    </div>
                     <div id="trucksGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
                 </div>
             </section>
 
-            <!-- 5. السائقون -->
+            <!-- 5️⃣ قسم السائقون -->
             <section id="sec-drivers" class="hidden space-y-6">
                 <div class="bg-brand-navy p-6 rounded-2xl border border-slate-800">
-                    <h2 class="text-lg font-bold text-white mb-4"><i class="fa-solid fa-users text-amber-400 ml-2"></i> بيانات السائقين</h2>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-bold text-white"><i class="fa-solid fa-users text-amber-400 ml-2"></i> سجل السائقين</h2>
+                        <button onclick="openDriverModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold">+ إضافة سائق</button>
+                    </div>
                     <div id="driversGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
                 </div>
             </section>
         </main>
+    </div>
+
+    <!-- نافذة إضافة رحلة Modal -->
+    <div id="tripModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-brand-navy border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl">
+            <h3 class="text-lg font-bold text-white mb-4">إضافة رحلة جديدة</h3>
+            <form onsubmit="handleSaveTrip(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">الشاحنة</label>
+                    <select id="tripTruck" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white">
+                        <!-- تُعبأ تلقائياً -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">السائق</label>
+                    <select id="tripDriver" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white">
+                        <!-- تُعبأ تلقائياً -->
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">المبلغ الإجمالي (ر.س)</label>
+                        <input type="number" id="tripTotal" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white" placeholder="0">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">المبلغ المدفوع (ر.س)</label>
+                        <input type="number" id="tripPaid" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white" placeholder="0">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-4 border-t border-slate-800">
+                    <button type="button" onclick="closeTripModal()" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs font-bold">إلغاء</button>
+                    <button type="submit" class="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl text-xs">حفظ الرحلة</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script>
@@ -282,18 +348,79 @@
             }
         }
 
+        function openTripModal() {
+            const truckSelect = document.getElementById('tripTruck');
+            const driverSelect = document.getElementById('tripDriver');
+            
+            truckSelect.innerHTML = trucks.map(t => `<option value="${t.id}">${t.plate} - ${t.model}</option>`).join('');
+            driverSelect.innerHTML = drivers.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+
+            document.getElementById('tripModal').classList.remove('hidden');
+        }
+
+        function closeTripModal() {
+            document.getElementById('tripModal').classList.add('hidden');
+        }
+
+        function handleSaveTrip(e) {
+            e.preventDefault();
+            const tId = document.getElementById('tripTruck').value;
+            const dId = document.getElementById('tripDriver').value;
+            const total = parseFloat(document.getElementById('tripTotal').value) || 0;
+            const paid = parseFloat(document.getElementById('tripPaid').value) || 0;
+
+            const newTrip = {
+                id: Date.now(),
+                code: 'TRP-' + (trips.length + 1001),
+                truckId: tId,
+                driverId: dId,
+                totalAmount: total,
+                paidAmount: paid,
+                pendingAmount: total - paid,
+                status: (total - paid) === 0 ? 'مكتملة' : 'جارية'
+            };
+
+            trips.push(newTrip);
+            db.ref('fleetData/trips').set(trips).then(() => {
+                closeTripModal();
+            });
+        }
+
         function renderUI() {
             document.getElementById('statTotalTrips').innerText = trips.length;
             document.getElementById('statActiveTrips').innerText = trips.filter(t => t.status === 'جارية').length;
             document.getElementById('statTotalTrucks').innerText = trucks.length;
             document.getElementById('statTotalDrivers').innerText = drivers.length;
 
+            // بناء جدول الرحلات
+            const tripsBody = document.getElementById('tripsTableBody');
+            if (trips.length > 0) {
+                tripsBody.innerHTML = trips.map(t => {
+                    const truck = trucks.find(x => x.id == t.truckId);
+                    const driver = drivers.find(x => x.id == t.driverId);
+                    return `
+                        <tr>
+                            <td class="p-3 font-bold text-amber-400">${t.code}</td>
+                            <td class="p-3">${truck ? truck.plate : '-'}</td>
+                            <td class="p-3">${driver ? driver.name : '-'}</td>
+                            <td class="p-3 font-bold">${t.totalAmount} ر.س</td>
+                            <td class="p-3 text-emerald-400 font-bold">${t.paidAmount} ر.س</td>
+                            <td class="p-3 text-rose-400 font-bold">${t.pendingAmount} ر.س</td>
+                            <td class="p-3"><span class="px-2 py-1 rounded bg-slate-800 text-xs">${t.status}</span></td>
+                        </tr>
+                    `;
+                }).join('');
+            } else {
+                tripsBody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">لا توجد رحلات مسجلة حتى الآن</td></tr>`;
+            }
+
+            // بناء شبكة الشاحنات
             const tGrid = document.getElementById('trucksGrid');
             if (tGrid) {
                 tGrid.innerHTML = trucks.map(t => `
                     <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 flex justify-between items-center">
                         <div>
-                            <div class="text-xs text-slate-400">لوحة الشاحنة</div>
+                            <div class="text-xs text-slate-400">لوحة الشاحنة (بدون أحرف)</div>
                             <div class="text-lg font-bold text-white">${t.plate}</div>
                             <div class="text-xs text-slate-400">${t.model}</div>
                         </div>
@@ -302,6 +429,7 @@
                 `).join('');
             }
 
+            // بناء شبكة السائقين
             const dGrid = document.getElementById('driversGrid');
             if (dGrid) {
                 dGrid.innerHTML = drivers.map(d => `
