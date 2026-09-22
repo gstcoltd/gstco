@@ -602,7 +602,6 @@
                 trips = val.trips || [];
                 nextTripNumber = val.nextTripNumber || 1001;
             } else {
-                // إذا كانت السحابة فارغة كلياً فقط يتم إنشاء البيانات الابتدائية مرة واحدة
                 users = initialUsers;
                 trucks = initialTrucks;
                 drivers = initialDrivers;
@@ -613,7 +612,6 @@
             renderAll();
         });
 
-        // دالة الحفظ الصريحة بالسحابة (تستدعى فقط عند إضافة أو تعديل أو حذف)
         function pushDataToCloud() {
             db.ref('fleetData').set({
                 users: users,
@@ -628,7 +626,14 @@
             e.preventDefault();
             const u = document.getElementById('username').value.trim();
             const p = document.getElementById('password').value.trim();
-            const found = users.find(x => x.username === u && x.password === p);
+            
+            // التأكد من وجود مستخدمين
+            if (!users || users.length === 0) {
+                users = initialUsers;
+                pushDataToCloud();
+            }
+
+            const found = users.find(x => x.username.toLowerCase() === u.toLowerCase() && x.password === p);
             if (found) {
                 currentUser = found;
                 document.getElementById('loginSection').classList.add('hidden');
@@ -670,24 +675,25 @@
             e.preventDefault();
             const u = document.getElementById('resetUsername').value.trim();
             const code = document.getElementById('resetMasterCode').value.trim();
+            
             if (code === '123456') {
-                let targetUser = users.find(x => x.username === u);
-                if (!targetUser && u === 'admin') {
-                    targetUser = users.find(x => x.role === 'admin');
-                }
-                if (targetUser) {
-                    targetUser.password = 'admin123';
-                    pushDataToCloud();
-                    document.getElementById('resetError').classList.add('hidden');
-                    document.getElementById('resetSuccess').classList.remove('hidden');
-                    setTimeout(() => {
-                        closeForgotPasswordModal();
-                        document.getElementById('username').value = targetUser.username;
-                        document.getElementById('password').value = 'admin123';
-                    }, 1500);
+                let targetUser = users.find(x => x.username.toLowerCase() === u.toLowerCase() || x.role === 'admin');
+                
+                if (!targetUser) {
+                    targetUser = { id: 1, username: 'admin', password: 'admin123', fullName: 'أبو سعيد (المدير)', role: 'admin' };
+                    users.push(targetUser);
                 } else {
-                    alert('المستخدم غير موجود!');
+                    targetUser.password = 'admin123';
                 }
+
+                pushDataToCloud();
+                document.getElementById('resetError').classList.add('hidden');
+                document.getElementById('resetSuccess').classList.remove('hidden');
+                setTimeout(() => {
+                    closeForgotPasswordModal();
+                    document.getElementById('username').value = targetUser.username;
+                    document.getElementById('password').value = 'admin123';
+                }, 1500);
             } else {
                 document.getElementById('resetError').classList.remove('hidden');
             }
