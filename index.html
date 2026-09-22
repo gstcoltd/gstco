@@ -92,14 +92,14 @@
     <!-- لوحة التحكم الرئيسية -->
     <div id="mainDashboard" class="hidden min-h-screen">
         <header class="bg-brand-navy border-b border-slate-800 sticky top-0 z-30 shadow-md">
-            <div class="container mx-auto px-4 py-3 flex items-center justify-between gap-4">
+            <div class="container mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center text-amber-500 font-bold">
                         <i class="fa-solid fa-truck-moving text-xl"></i>
                     </div>
                     <div>
-                        <h1 class="font-bold text-lg text-white leading-tight">إدارة الأسطول والرحلات</h1>
-                        <span class="text-xs text-slate-400">متابعة ومراقبة الشاحنات والماليات</span>
+                        <h1 class="font-bold text-lg text-white leading-tight">شركة الاختيار العالمي</h1>
+                        <span class="text-xs text-slate-400">إدارة الأسطول ومتابعة الرحلات</span>
                     </div>
                 </div>
 
@@ -110,13 +110,86 @@
                     </button>
                 </div>
             </div>
+
+            <!-- أزرار القائمة والتنقل بين الأقسام -->
+            <div class="container mx-auto px-4 flex gap-2 overflow-x-auto border-t border-slate-800/80 pt-2 pb-1">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-4 py-2 rounded-t-xl text-sm font-bold flex items-center gap-2 transition bg-brand-dark text-amber-400 border-t-2 border-amber-500">
+                    <i class="fa-solid fa-chart-pie"></i> لوحة التحكم
+                </button>
+                <button onclick="switchTab('trips')" id="nav-trips" class="px-4 py-2 rounded-t-xl text-sm font-bold flex items-center gap-2 transition text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-route"></i> الرحلات
+                </button>
+                <button onclick="switchTab('reports')" id="nav-reports" class="px-4 py-2 rounded-t-xl text-sm font-bold flex items-center gap-2 transition text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-file-invoice-dollar"></i> التقارير والمالية
+                </button>
+                <button onclick="switchTab('trucks')" id="nav-trucks" class="px-4 py-2 rounded-t-xl text-sm font-bold flex items-center gap-2 transition text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-truck"></i> الشاحنات
+                </button>
+                <button onclick="switchTab('drivers')" id="nav-drivers" class="px-4 py-2 rounded-t-xl text-sm font-bold flex items-center gap-2 transition text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-users"></i> السائقون
+                </button>
+            </div>
         </header>
 
         <main class="container mx-auto px-4 py-8">
-            <div class="bg-brand-navy border border-slate-800 rounded-2xl p-6">
-                <h2 class="text-xl font-bold text-white mb-2">أهلاً بك أبا سعيد في نظام إدارة الأسطول</h2>
-                <p class="text-slate-400 text-sm">تم تسجيل الدخول بنجاح وبدء التزامن السحابي المباشر.</p>
-            </div>
+            <!-- 1. الرئيسية -->
+            <section id="sec-dashboard" class="space-y-6">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-brand-navy p-5 rounded-2xl border border-slate-800">
+                        <span class="text-xs text-slate-400">إجمالي الرحلات</span>
+                        <h3 id="statTotalTrips" class="text-2xl font-bold text-white mt-1">0</h3>
+                    </div>
+                    <div class="bg-brand-navy p-5 rounded-2xl border border-slate-800">
+                        <span class="text-xs text-slate-400">رحلات جارية</span>
+                        <h3 id="statActiveTrips" class="text-2xl font-bold text-amber-400 mt-1">0</h3>
+                    </div>
+                    <div class="bg-brand-navy p-5 rounded-2xl border border-slate-800">
+                        <span class="text-xs text-slate-400">إجمالي الشاحنات</span>
+                        <h3 id="statTotalTrucks" class="text-2xl font-bold text-white mt-1">0</h3>
+                    </div>
+                    <div class="bg-brand-navy p-5 rounded-2xl border border-slate-800">
+                        <span class="text-xs text-slate-400">عدد السائقين</span>
+                        <h3 id="statTotalDrivers" class="text-2xl font-bold text-white mt-1">0</h3>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. الرحلات -->
+            <section id="sec-trips" class="hidden space-y-6">
+                <div class="flex justify-between items-center bg-brand-navy p-4 rounded-2xl border border-slate-800">
+                    <h2 class="text-lg font-bold text-white"><i class="fa-solid fa-route text-amber-400 ml-2"></i> إدارة الرحلات</h2>
+                    <button onclick="alert('سيتم فتح نافذة إضافة رحلة')" class="bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs hover:bg-amber-600 transition">
+                        + رحلة جديدة
+                    </button>
+                </div>
+                <div class="bg-brand-navy rounded-2xl border border-slate-800 p-4">
+                    <p class="text-slate-400 text-sm text-center py-6">قائمة الرحلات متزامنة ومباشرة من قاعدة البيانات السحابية.</p>
+                </div>
+            </section>
+
+            <!-- 3. التقارير -->
+            <section id="sec-reports" class="hidden space-y-6">
+                <div class="bg-brand-navy p-6 rounded-2xl border border-slate-800">
+                    <h2 class="text-lg font-bold text-white mb-2"><i class="fa-solid fa-file-invoice-dollar text-emerald-400 ml-2"></i> التقارير والتحصيل المالي</h2>
+                    <p class="text-slate-400 text-sm">متابعة الأجور المسددة والمعلقة للشاحنات.</p>
+                </div>
+            </section>
+
+            <!-- 4. الشاحنات -->
+            <section id="sec-trucks" class="hidden space-y-6">
+                <div class="bg-brand-navy p-6 rounded-2xl border border-slate-800">
+                    <h2 class="text-lg font-bold text-white mb-4"><i class="fa-solid fa-truck text-amber-400 ml-2"></i> أسطول الشاحنات</h2>
+                    <div id="trucksGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                </div>
+            </section>
+
+            <!-- 5. السائقون -->
+            <section id="sec-drivers" class="hidden space-y-6">
+                <div class="bg-brand-navy p-6 rounded-2xl border border-slate-800">
+                    <h2 class="text-lg font-bold text-white mb-4"><i class="fa-solid fa-users text-amber-400 ml-2"></i> بيانات السائقين</h2>
+                    <div id="driversGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                </div>
+            </section>
         </main>
     </div>
 
@@ -129,21 +202,42 @@
         const db = firebase.database();
 
         const defaultUsers = [ { id: 1, username: 'admin', password: 'admin123', name: 'أبو سعيد (المدير)', role: 'admin' } ];
+        const defaultTrucks = [
+            { id: 101, plate: '2841', model: 'مرسيدس أكتروس', status: 'جاهزة' },
+            { id: 102, plate: '5912', model: 'فولفو FH', status: 'جاهزة' },
+            { id: 103, plate: '7410', model: 'مان TGS', status: 'جاهزة' }
+        ];
+        const defaultDrivers = [
+            { id: 1, name: 'محمد علي', phone: '0501234567', status: 'متاح' },
+            { id: 2, name: 'أحمد سعيد', phone: '0559876543', status: 'متاح' }
+        ];
+
         let users = defaultUsers;
+        let trucks = defaultTrucks;
+        let drivers = defaultDrivers;
+        let trips = [];
 
         db.ref('fleetData').on('value', (snapshot) => {
             const val = snapshot.val();
-            if (val && val.users) {
-                users = val.users;
+            if (val) {
+                users = val.users || defaultUsers;
+                trucks = val.trucks || defaultTrucks;
+                drivers = val.drivers || defaultDrivers;
+                trips = val.trips || [];
+                renderUI();
             } else {
                 forceFixAdminAccount();
             }
         });
 
         function forceFixAdminAccount() {
-            users = defaultUsers;
-            db.ref('fleetData/users').set(users).then(() => {
-                alert('تم تهيئة وتثبيت حساب الآدمن سحابياً بنجاح!\n\nاسم المستخدم: admin\nكلمة المرور: admin123');
+            db.ref('fleetData').set({
+                users: defaultUsers,
+                trucks: defaultTrucks,
+                drivers: defaultDrivers,
+                trips: []
+            }).then(() => {
+                alert('تم تهيئة وتثبيت حساب الآدمن بنجاح!');
             });
         }
 
@@ -157,6 +251,7 @@
                 document.getElementById('loginSection').classList.add('hidden');
                 document.getElementById('mainDashboard').classList.remove('hidden');
                 document.getElementById('displayUserName').innerText = found.name;
+                renderUI();
             } else {
                 document.getElementById('login_error').classList.remove('hidden');
             }
@@ -165,6 +260,60 @@
         function handleLogout() {
             document.getElementById('mainDashboard').classList.add('hidden');
             document.getElementById('loginSection').classList.remove('hidden');
+        }
+
+        function switchTab(tab) {
+            ['dashboard', 'trips', 'reports', 'trucks', 'drivers'].forEach(t => {
+                const sec = document.getElementById(`sec-${t}`);
+                const nav = document.getElementById(`nav-${t}`);
+                if (sec) sec.classList.add('hidden');
+                if (nav) {
+                    nav.classList.remove('bg-brand-dark', 'text-amber-400', 'border-t-2', 'border-amber-500');
+                    nav.classList.add('text-slate-400');
+                }
+            });
+
+            const activeSec = document.getElementById(`sec-${tab}`);
+            const activeNav = document.getElementById(`nav-${tab}`);
+            if (activeSec) activeSec.classList.remove('hidden');
+            if (activeNav) {
+                activeNav.classList.remove('text-slate-400');
+                activeNav.classList.add('bg-brand-dark', 'text-amber-400', 'border-t-2', 'border-amber-500');
+            }
+        }
+
+        function renderUI() {
+            document.getElementById('statTotalTrips').innerText = trips.length;
+            document.getElementById('statActiveTrips').innerText = trips.filter(t => t.status === 'جارية').length;
+            document.getElementById('statTotalTrucks').innerText = trucks.length;
+            document.getElementById('statTotalDrivers').innerText = drivers.length;
+
+            const tGrid = document.getElementById('trucksGrid');
+            if (tGrid) {
+                tGrid.innerHTML = trucks.map(t => `
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 flex justify-between items-center">
+                        <div>
+                            <div class="text-xs text-slate-400">لوحة الشاحنة</div>
+                            <div class="text-lg font-bold text-white">${t.plate}</div>
+                            <div class="text-xs text-slate-400">${t.model}</div>
+                        </div>
+                        <span class="px-2.5 py-1 bg-amber-500/10 text-amber-400 text-xs font-bold rounded-lg border border-amber-500/20">${t.status}</span>
+                    </div>
+                `).join('');
+            }
+
+            const dGrid = document.getElementById('driversGrid');
+            if (dGrid) {
+                dGrid.innerHTML = drivers.map(d => `
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 flex justify-between items-center">
+                        <div>
+                            <div class="text-sm font-bold text-white">${d.name}</div>
+                            <div class="text-xs text-slate-400">${d.phone}</div>
+                        </div>
+                        <span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 text-xs font-bold rounded-lg border border-emerald-500/20">${d.status}</span>
+                    </div>
+                `).join('');
+            }
         }
     </script>
 </body>
