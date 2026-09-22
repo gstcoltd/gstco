@@ -11,6 +11,10 @@
     <!-- Google Fonts (Cairo) -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <style>
         body { font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
         .bg-luxury-light { background-color: #f8fafc; }
@@ -134,10 +138,10 @@
                 <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                     <div>
                         <div class="inline-flex items-center gap-1.5 px-3 py-0.5 bg-emerald-500/20 border border-emerald-400/40 rounded-full text-emerald-300 text-[10px] font-bold mb-1.5">
-                            <i class="fa-solid fa-cloud text-emerald-400 animate-pulse"></i> التزامن المباشر نشط (سحابي)
+                            <i class="fa-solid fa-bolt text-amber-400 animate-pulse"></i> التزامن اللحظي المباشر شغال (Firebase)
                         </div>
                         <h1 class="text-xl md:text-3xl font-black text-white">شركة الاختيار العالمي للنقل البري</h1>
-                        <p class="text-slate-300 text-[11px] sm:text-xs mt-0.5">متابعة الأأسطول والرحلات - متزامن على الجوال والكمبيوتر تلقائياً</p>
+                        <p class="text-slate-300 text-[11px] sm:text-xs mt-0.5">تحديث فوري تلقائي بين الجوال والكمبيوتر</p>
                     </div>
                 </div>
             </div>
@@ -559,8 +563,13 @@
     </div>
 
     <script>
-        // رابط السحابة الجاهز
-        const CLOUD_API_URL = "https://api.jsonbin.io/v3/b/66eb8578acd3cb34a888c3a9";
+        // إعدادات قاعدة البيانات السحابية الحقيقية المباشرة
+        const firebaseConfig = {
+            databaseURL: "https://global-choice-fleet-default-rtdb.asia-southeast1.firebasedatabase.app"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
         let users = [ { id: 1, username: 'admin', password: 'admin123', fullName: 'أبو سعيد (المدير)', role: 'admin' } ];
         let trucks = [
@@ -575,41 +584,29 @@
         let nextTripNumber = 1001;
         let currentUser = null;
 
-        // جلب البيانات من السحابة فور الفتح
-        async function loadCloudData() {
-            try {
-                const res = await fetch(CLOUD_API_URL + "/latest", {
-                    headers: { "X-Master-Key": "$2a$10$wU08/sR8Rk12J01Yg/GqD.J9HhYy7b0fV9a24k5g.d6e5f8a9b0c1" }
-                });
-                const json = await res.json();
-                if (json.record) {
-                    users = json.record.users || users;
-                    trucks = json.record.trucks || trucks;
-                    drivers = json.record.drivers || drivers;
-                    trips = json.record.trips || [];
-                    nextTripNumber = json.record.nextTripNumber || 1001;
-                    renderAll();
-                }
-            } catch (e) {
-                console.log("استخدام البيانات المحلية كبديل للشبكة");
+        // الاستماع المباشر الفوري للتغييرات في السحابة
+        db.ref('fleetData').on('value', (snapshot) => {
+            const val = snapshot.val();
+            if (val) {
+                users = val.users || users;
+                trucks = val.trucks || trucks;
+                drivers = val.drivers || drivers;
+                trips = val.trips || [];
+                nextTripNumber = val.nextTripNumber || 1001;
+                renderAll();
             }
-        }
+        });
 
-        // حفظ البيانات على السحابة
-        async function saveData() {
+        // حفظ البيانات الفوري إلى السحابة
+        function saveData() {
             renderAll();
-            try {
-                await fetch(CLOUD_API_URL, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Master-Key": "$2a$10$wU08/sR8Rk12J01Yg/GqD.J9HhYy7b0fV9a24k5g.d6e5f8a9b0c1"
-                    },
-                    body: JSON.stringify({ users, trucks, drivers, trips, nextTripNumber })
-                });
-            } catch (e) {
-                console.log("تعذر الحفظ السحابي المؤقت");
-            }
+            db.ref('fleetData').set({
+                users: users,
+                trucks: trucks,
+                drivers: drivers,
+                trips: trips,
+                nextTripNumber: nextTripNumber
+            });
         }
 
         function handleLogin(e) {
@@ -630,8 +627,7 @@
                 }
                 
                 document.getElementById('tripDate').valueAsDate = new Date();
-                loadCloudData();
-                setInterval(loadCloudData, 5000); // تحديث سحابي تلقائي كل 5 ثوانٍ
+                renderAll();
             } else {
                 document.getElementById('loginError').classList.remove('hidden');
             }
