@@ -21,6 +21,11 @@
     <style>
         body { font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
         .bg-luxury-light { background-color: #f8fafc; }
+        @media print {
+            body { background: white; }
+            aside, button, .no-print { display: none !important; }
+            main { padding: 0 !important; }
+        }
     </style>
 </head>
 <body class="bg-luxury-light min-h-screen text-slate-800 antialiased selection:bg-amber-400 selection:text-slate-900">
@@ -136,7 +141,7 @@
                 <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                     <div>
                         <div class="inline-flex items-center gap-1.5 px-3 py-0.5 bg-emerald-500/20 border border-emerald-400/40 rounded-full text-emerald-300 text-[10px] font-bold mb-1.5">
-                            <i class="fa-solid fa-bolt text-amber-400 animate-pulse"></i> التزامن الفوري سحابياً (Firebase متصل للجوال والكمبيوتر)
+                            <i class="fa-solid fa-bolt text-amber-400 animate-pulse"></i> التزامن الفوري سحابياً (محمي ومحفوظ دائماً)
                         </div>
                         <h1 class="text-xl md:text-3xl font-black text-white">شركة الاختيار العالمي للنقليات</h1>
                         <p class="text-slate-300 text-[11px] sm:text-xs mt-0.5">نظام إدارة الأسطول والرحلات والماليات</p>
@@ -196,6 +201,7 @@
                                     <th class="pb-2">الإجمالي</th>
                                     <th class="pb-2">المدفوع</th>
                                     <th class="pb-2">المعلق</th>
+                                    <th class="pb-2">حالة السداد</th>
                                     <th class="pb-2">الحالة</th>
                                     <th class="pb-2">الإجراءات</th>
                                 </tr>
@@ -245,11 +251,73 @@
                     </div>
                 </section>
 
-                <!-- 6. التقارير -->
-                <section id="sec-reports" class="hidden space-y-4">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm">
-                        <h2 class="text-lg font-bold text-slate-900 mb-2">التقارير المالية</h2>
-                        <p class="text-xs text-slate-500">تقارير الإيرادات والمبالغ المعلقة للرحلات والأسطول.</p>
+                <!-- 6. التقارير التفصيلية المتقدمة -->
+                <section id="sec-reports" class="hidden space-y-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm space-y-4">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b pb-4">
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900">التقارير التفصيلية للحركة والماليات</h2>
+                                <p class="text-xs text-slate-500">حركة الأداء لكل شاحنة وسائق خلال فترة زمنية محددة</p>
+                            </div>
+                            <button onclick="window.print()" class="no-print bg-slate-900 text-white text-xs font-bold py-2 px-4 rounded-xl shadow">
+                                <i class="fa-solid fa-print"></i> طباعة التقرير
+                            </button>
+                        </div>
+
+                        <!-- أدوات الفلترة بالفترة -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-4 rounded-2xl border">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">من تاريخ</label>
+                                <input type="date" id="repStartDate" onchange="generateAdvancedReports()" class="w-full p-2.5 bg-white border rounded-xl text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">إلى تاريخ</label>
+                                <input type="date" id="repEndDate" onchange="generateAdvancedReports()" class="w-full p-2.5 bg-white border rounded-xl text-xs">
+                            </div>
+                            <div class="flex items-end">
+                                <button onclick="resetReportFilter()" class="w-full bg-slate-200 text-slate-700 text-xs font-bold py-2.5 rounded-xl">عرض كل الفترات</button>
+                            </div>
+                        </div>
+
+                        <!-- جدول تقارير الشاحنات -->
+                        <div class="space-y-2">
+                            <h3 class="font-bold text-sm text-slate-800"><i class="fa-solid fa-truck text-amber-500 ml-1"></i> تقرير الشاحنات على حدة</h3>
+                            <div class="overflow-x-auto border rounded-2xl p-2">
+                                <table class="w-full text-right text-xs min-w-[600px]">
+                                    <thead>
+                                        <tr class="text-slate-400 border-b pb-2 bg-slate-50">
+                                            <th class="p-2">رقم اللوحة</th>
+                                            <th class="p-2">الموديل</th>
+                                            <th class="p-2">عدد الرحلات</th>
+                                            <th class="p-2">إجمالي المبالغ</th>
+                                            <th class="p-2">المسدد</th>
+                                            <th class="p-2">المعلق</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="truck-report-rows" class="divide-y divide-slate-100 font-medium"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- جدول تقارير السائقين -->
+                        <div class="space-y-2 pt-2">
+                            <h3 class="font-bold text-sm text-slate-800"><i class="fa-solid fa-user-tie text-purple-500 ml-1"></i> تقرير السائقين على حدة</h3>
+                            <div class="overflow-x-auto border rounded-2xl p-2">
+                                <table class="w-full text-right text-xs min-w-[600px]">
+                                    <thead>
+                                        <tr class="text-slate-400 border-b pb-2 bg-slate-50">
+                                            <th class="p-2">اسم السائق</th>
+                                            <th class="p-2">رقم الجوال</th>
+                                            <th class="p-2">عدد الرحلات المنجزة</th>
+                                            <th class="p-2">إجمالي عوائد الرحلات</th>
+                                            <th class="p-2">المسدد</th>
+                                            <th class="p-2">المعلق</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="driver-report-rows" class="divide-y divide-slate-100 font-medium"></tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -413,7 +481,9 @@
         let drivers = [ { id: 1, name: 'محمد علي', phone: '0501234567', status: 'متوفر' } ];
         let trips = [];
         let currentUser = null;
+        let isInitialLoad = true;
 
+        // التزامن الذكي الذي يحمي بياناتك من المسح عند أي تحديث
         db.ref('fleetData').on('value', (snapshot) => {
             const val = snapshot.val();
             if (val) {
@@ -421,9 +491,10 @@
                 trucks = val.trucks || trucks;
                 drivers = val.drivers || drivers;
                 trips = val.trips || [];
-            } else {
+            } else if (isInitialLoad) {
                 syncToCloud();
             }
+            isInitialLoad = false;
             if (currentUser) renderAll();
         });
 
@@ -470,13 +541,15 @@
             renderDrivers();
             renderTrips();
             renderUsers();
+            generateAdvancedReports();
         }
 
         function renderStats() {
             document.getElementById('stat-total-trucks').innerText = trucks.length;
             document.getElementById('stat-active-trips').innerText = trips.filter(t => t.status === 'نشطة').length;
-            const paid = trips.reduce((a, b) => a + (parseFloat(b.paid) || 0), 0);
-            const pending = trips.reduce((a, b) => a + (parseFloat(b.pending) || 0), 0);
+            const activeTrips = trips.filter(t => t.status !== 'ملغية');
+            const paid = activeTrips.reduce((a, b) => a + (parseFloat(b.paid) || 0), 0);
+            const pending = activeTrips.reduce((a, b) => a + (parseFloat(b.pending) || 0), 0);
             document.getElementById('stat-paid-amount').innerText = paid.toLocaleString() + ' ر.س';
             document.getElementById('stat-pending-amount').innerText = pending.toLocaleString() + ' ر.س';
         }
@@ -623,7 +696,7 @@
             const pending = total - paid;
 
             if(!truckId || !driverId) {
-                alert('يجيب توفر شاحنة وسائق متاحين لإتمام الرحلة.');
+                alert('يجب توفر شاحنة وسائق متاحين لإتمام الرحلة.');
                 return;
             }
 
@@ -632,11 +705,15 @@
             if(trk) trk.status = 'في رحلة نشطة';
             if(drv) drv.status = 'في رحلة نشطة';
 
+            let payStatus = 'معلق بالكامل';
+            if(paid === total) payStatus = 'مدفوع بالكامل';
+            else if(paid > 0) payStatus = 'سداد جزئي';
+
             trips.push({
                 id: Date.now(),
                 tripNumber: 'TRP-' + (trips.length + 101),
                 customer, date, type, fromLoc, toLoc, truckId, driverId, total, paid, pending,
-                status: 'نشطة'
+                payStatus, status: 'نشطة'
             });
             syncToCloud();
             closeTripModal();
@@ -665,6 +742,10 @@
                 }
                 t.paid += payAmount;
                 t.pending -= payAmount;
+                
+                if(t.pending === 0) t.payStatus = 'مدفوع بالكامل';
+                else t.payStatus = 'سداد جزئي';
+
                 syncToCloud();
                 closePaymentModal();
             }
@@ -685,12 +766,14 @@
             }
         }
 
-        // إلغاء الرحلة
+        // إلغاء الرحلة مع خصم المبلغ المعلق
         function cancelTrip(tripId) {
-            if(confirm('هل تريد إلغاء هذه الرحلة؟')) {
+            if(confirm('هل تريد إلغاء هذه الرحلة وسيتم خصم مبالغها المعلقة؟')) {
                 const t = trips.find(x => x.id == tripId);
                 if(t) {
                     t.status = 'ملغية';
+                    t.pending = 0; // خصم المبلغ المعلق فوراً
+                    t.payStatus = 'ملغي';
                     const trk = trucks.find(x => x.id == t.truckId);
                     const drv = drivers.find(x => x.id == t.driverId);
                     if(trk && trk.status === 'في رحلة نشطة') trk.status = 'جاهزة للتحميل';
@@ -704,6 +787,10 @@
             document.getElementById('trips-table-body').innerHTML = trips.map(t => {
                 const trk = trucks.find(x => x.id == t.truckId);
                 const drv = drivers.find(x => x.id == t.driverId);
+                let payBadge = 'bg-rose-100 text-rose-700';
+                if(t.payStatus === 'مدفوع بالكامل') payBadge = 'bg-emerald-100 text-emerald-700';
+                else if(t.payStatus === 'سداد جزئي') payBadge = 'bg-amber-100 text-amber-700';
+
                 return `
                     <tr>
                         <td class="p-2 font-bold text-amber-600">${t.tripNumber}</td>
@@ -719,6 +806,7 @@
                         <td class="p-2 font-bold">${t.total} ر.س</td>
                         <td class="p-2 text-emerald-600 font-bold">${t.paid} ر.س</td>
                         <td class="p-2 text-rose-600 font-bold">${t.pending} ر.س</td>
+                        <td class="p-2"><span class="px-2 py-0.5 rounded text-xs font-bold ${payBadge}">${t.payStatus || 'معلق بالكامل'}</span></td>
                         <td class="p-2">
                             <span class="px-2.5 py-1 rounded text-xs font-bold ${t.status === 'نشطة' ? 'bg-sky-100 text-sky-700' : t.status === 'مكتملة' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">${t.status}</span>
                         </td>
@@ -730,6 +818,68 @@
                     </tr>
                 `;
             }).join('');
+        }
+
+        // تقارير متقدمة مفصلة لكل شاحنة وسائق مع تحديد الفترة
+        function generateAdvancedReports() {
+            const startDate = document.getElementById('repStartDate').value;
+            const endDate = document.getElementById('repEndDate').value;
+
+            // فلترة الرحلات حسب التاريخ المختار (إن وجدت)
+            let filteredTrips = trips.filter(t => {
+                if(t.status === 'ملغية') return false;
+                if(!startDate && !endDate) return true;
+                if(!t.date) return true;
+                if(startDate && t.date < startDate) return false;
+                if(endDate && t.date > endDate) return false;
+                return true;
+            });
+
+            // تقرير الشاحنات على حدة
+            document.getElementById('truck-report-rows').innerHTML = trucks.map(trk => {
+                const trkTrips = filteredTrips.filter(t => t.truckId == trk.id);
+                const count = trkTrips.length;
+                const total = trkTrips.reduce((a, b) => a + (parseFloat(b.total) || 0), 0);
+                const paid = trkTrips.reduce((a, b) => a + (parseFloat(b.paid) || 0), 0);
+                const pending = trkTrips.reduce((a, b) => a + (parseFloat(b.pending) || 0), 0);
+
+                return `
+                    <tr>
+                        <td class="p-2 font-bold text-slate-900">${trk.plate} (${trk.model})</td>
+                        <td class="p-2">${trk.status}</td>
+                        <td class="p-2 font-bold text-sky-600">${count} رحلات</td>
+                        <td class="p-2 font-bold">${total.toLocaleString()} ر.س</td>
+                        <td class="p-2 text-emerald-600 font-bold">${paid.toLocaleString()} ر.س</td>
+                        <td class="p-2 text-rose-600 font-bold">${pending.toLocaleString()} ر.س</td>
+                    </tr>
+                `;
+            }).join('');
+
+            // تقرير السائقين على حدة
+            document.getElementById('driver-report-rows').innerHTML = drivers.map(drv => {
+                const drvTrips = filteredTrips.filter(t => t.driverId == drv.id);
+                const count = drvTrips.length;
+                const total = drvTrips.reduce((a, b) => a + (parseFloat(b.total) || 0), 0);
+                const paid = drvTrips.reduce((a, b) => a + (parseFloat(b.paid) || 0), 0);
+                const pending = drvTrips.reduce((a, b) => a + (parseFloat(b.pending) || 0), 0);
+
+                return `
+                    <tr>
+                        <td class="p-2 font-bold text-slate-900">${drv.name}</td>
+                        <td class="p-2">${drv.phone}</td>
+                        <td class="p-2 font-bold text-purple-600">${count} رحلات</td>
+                        <td class="p-2 font-bold">${total.toLocaleString()} ر.س</td>
+                        <td class="p-2 text-emerald-600 font-bold">${paid.toLocaleString()} ر.س</td>
+                        <td class="p-2 text-rose-600 font-bold">${pending.toLocaleString()} ر.س</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function resetReportFilter() {
+            document.getElementById('repStartDate').value = '';
+            document.getElementById('repEndDate').value = '';
+            generateAdvancedReports();
         }
 
         // المستخدمين والصلاحيات
