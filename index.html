@@ -58,7 +58,6 @@
                 <div>
                     <div class="flex justify-between items-center mb-1.5">
                         <label class="block text-xs font-bold text-slate-700">كلمة المرور</label>
-                        <button type="button" onclick="openForgotPasswordModal()" class="text-[11px] font-bold text-amber-600 hover:underline">نسيت كلمة المرور؟</button>
                     </div>
                     <div class="relative">
                         <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400">
@@ -119,16 +118,24 @@
                 </nav>
             </div>
 
+            <!-- أزرار النسخ الاحتياطي (حفظ الأمان التام) -->
             <div class="p-3 sm:p-4 border-t border-slate-800/80 space-y-2">
                 <div class="flex items-center justify-between px-2 text-xs text-slate-400">
                     <span>المستخدم:</span>
                     <span id="currentUserName" class="font-bold text-amber-400">الآدمن</span>
                 </div>
-                <div class="grid grid-cols-2 lg:grid-cols-1 gap-2">
-                    <button onclick="handleLogout()" class="w-full flex items-center justify-center gap-1.5 bg-rose-600 hover:bg-rose-700 text-white py-2 rounded-xl transition text-[11px] font-bold shadow-md">
-                        <i class="fa-solid fa-right-from-bracket"></i> خروج
+                <div class="grid grid-cols-2 gap-1">
+                    <button onclick="exportBackup()" class="bg-amber-600 hover:bg-amber-700 text-slate-950 py-2 px-1 rounded-xl transition text-[10px] font-bold shadow-md flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-download"></i> تصدير البيانات
                     </button>
+                    <label class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-1 rounded-xl transition text-[10px] font-bold shadow-md flex items-center justify-center gap-1 cursor-pointer">
+                        <i class="fa-solid fa-upload"></i> استعادة البيانات
+                        <input type="file" id="importFile" onchange="importBackup(event)" accept=".json" class="hidden">
+                    </label>
                 </div>
+                <button onclick="handleLogout()" class="w-full flex items-center justify-center gap-1.5 bg-rose-600 hover:bg-rose-700 text-white py-2 rounded-xl transition text-[11px] font-bold shadow-md">
+                    <i class="fa-solid fa-right-from-bracket"></i> تسجيل خروج
+                </button>
             </div>
         </aside>
 
@@ -141,7 +148,7 @@
                 <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                     <div>
                         <div class="inline-flex items-center gap-1.5 px-3 py-0.5 bg-emerald-500/20 border border-emerald-400/40 rounded-full text-emerald-300 text-[10px] font-bold mb-1.5">
-                            <i class="fa-solid fa-bolt text-amber-400 animate-pulse"></i> التزامن الفوري سحابياً ومحلياً (محمي من الضياع)
+                            <i class="fa-solid fa-shield-halved text-amber-400"></i> نظام النسخ الاحتياطي اليدوي والمحلي والسحابي مفعل
                         </div>
                         <h1 class="text-xl md:text-3xl font-black text-white">شركة الاختيار العالمي للنقليات</h1>
                         <p class="text-slate-300 text-[11px] sm:text-xs mt-0.5">نظام إدارة الأسطول والرحلات والماليات</p>
@@ -479,14 +486,12 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // استرجاع البيانات المحفوظة محلياً إن وجدت لمنع العودة لنقطة الصفر
         let users = JSON.parse(localStorage.getItem('gc_users')) || [ { id: 1, username: 'admin', password: 'admin123', fullName: 'أبو سعيد (المدير)', role: 'admin', status: 'نشط' } ];
         let trucks = JSON.parse(localStorage.getItem('gc_trucks')) || [ { id: 101, plate: '2841', model: 'مرسيدس أكتروس', status: 'جاهزة للتحميل' } ];
         let drivers = JSON.parse(localStorage.getItem('gc_drivers')) || [ { id: 1, name: 'محمد علي', phone: '0501234567', status: 'متوفر' } ];
         let trips = JSON.parse(localStorage.getItem('gc_trips')) || [];
         let currentUser = null;
 
-        // التزامن الذكي المزدوج (سحابي + محلي)
         db.ref('fleetData').on('value', (snapshot) => {
             const val = snapshot.val();
             if (val && val.users && val.users.length > 0) {
@@ -511,6 +516,44 @@
         function syncToCloud() {
             saveLocal();
             db.ref('fleetData').set({ users, trucks, drivers, trips });
+        }
+
+        // تصدير نسخة احتياطية (ملف JSON آمن)
+        function exportBackup() {
+            const data = { users, trucks, drivers, trips };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `GlobalChoice_Backup_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // استعادة البيانات من ملف JSON
+        function importBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.users && data.trucks && data.drivers && data.trips) {
+                        users = data.users;
+                        trucks = data.trucks;
+                        drivers = data.drivers;
+                        trips = data.trips;
+                        syncToCloud();
+                        renderAll();
+                        alert('تم استعادة جميع البيانات بنجاح تام!');
+                    } else {
+                        alert('ملف النسخة الاحتياطية غير صالح أو تالف.');
+                    }
+                } catch (err) {
+                    alert('حدث خطأ أثناء قراءة الملف.');
+                }
+            };
+            reader.readAsText(file);
         }
 
         function handleLogin(e) {
@@ -745,7 +788,6 @@
             }
             if(confirm('هل أنت متأكد من تصفير وحذف جميع سجلات الرحلات؟')) {
                 trips = [];
-                // إعادة جميع الشاحنات والسائقين لحالة جاهز/متوفر
                 trucks.forEach(t => t.status = 'جاهزة للتحميل');
                 drivers.forEach(d => d.status = 'متوفر');
                 syncToCloud();
