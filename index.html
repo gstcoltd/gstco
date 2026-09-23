@@ -19,7 +19,7 @@
                 <i class="fa-solid fa-truck-front text-amber-400 text-2xl"></i>
             </div>
             <h2 class="text-xl font-black text-slate-900">شركة الاختيار العالمي للنقليات</h2>
-            <p class="text-xs text-amber-600 font-bold mt-1">نظام إدارة الأسطول والرحلات</p>
+            <p class="text-xs text-amber-600 font-bold mt-1">نظام إدارة الأسطول والرحلات - أبو سعيد</p>
         </div>
         
         <form onsubmit="handleLogin(event)" class="space-y-4">
@@ -40,8 +40,8 @@
         </form>
     </div>
 
-    <!-- لوحة التحكم الرئيسية الكاملة -->
-    <div id="mainDashboard" class="hidden max-w-6xl w-full bg-slate-50 rounded-3xl shadow-2xl overflow-hidden border border-slate-700">
+    <!-- لوحة التحكم الاحترافية الكاملة -->
+    <div id="mainDashboard" class="hidden max-w-7xl w-full bg-slate-50 rounded-3xl shadow-2xl overflow-hidden border border-slate-700 min-h-[90vh] flex flex-col">
         <header class="bg-slate-900 p-4 text-white flex justify-between items-center border-b border-amber-400/30">
             <div class="flex items-center space-x-3 space-x-reverse">
                 <div class="w-10 h-10 bg-amber-400 rounded-xl flex items-center justify-center text-slate-900 font-black">
@@ -49,65 +49,102 @@
                 </div>
                 <div>
                     <h1 class="font-black text-sm">شركة الاختيار العالمي للنقليات</h1>
-                    <p class="text-[10px] text-amber-400">لوحة التحكم الإدارية - أبو سعيد</p>
+                    <p class="text-[10px] text-amber-400">المدير التنفيذي: أبو سعيد</p>
                 </div>
             </div>
-            <button onclick="handleLogout()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs transition">
-                <i class="fa-solid fa-right-from-bracket ml-1"></i> تسجيل خروج
-            </button>
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <button onclick="loadData()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-amber-400 rounded-xl text-xs font-bold transition">
+                    <i class="fa-solid fa-rotate ml-1"></i> تحديث البيانات
+                </button>
+                <button onclick="handleLogout()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs transition">
+                    <i class="fa-solid fa-right-from-bracket ml-1"></i> خروج
+                </button>
+            </div>
         </header>
 
-        <main class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- إضافة شاحنة -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                <h3 class="font-bold text-slate-900 text-sm mb-3 flex items-center"><i class="fa-solid fa-truck-moving text-amber-500 ml-2"></i> إضافة شاحنة جديدة</h3>
-                <form onsubmit="addTruck(event)" class="space-y-3">
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">رقم اللوحة (أرقام فقط بدون حروف)</label>
-                        <input type="text" id="truckPlate" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="مثال: 2841">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">الموديل / الوصف</label>
-                        <input type="text" id="truckModel" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="مرسيدس أكتروس">
-                    </div>
-                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2.5 rounded-xl text-xs shadow">حفظ الشاحنة</button>
-                </form>
+        <main class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 flex-grow">
+            <!-- النماذج والإدخال -->
+            <div class="space-y-6">
+                <!-- إضافة شاحنة -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-slate-900 text-sm mb-3 flex items-center"><i class="fa-solid fa-truck-moving text-amber-500 ml-2"></i> إضافة شاحنة (رقم اللوحة فقط)</h3>
+                    <form onsubmit="addTruck(event)" class="space-y-3">
+                        <div>
+                            <input type="text" id="truckPlate" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="مثال: 2841">
+                        </div>
+                        <div>
+                            <input type="text" id="truckModel" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="الموديل / الوصف (اختياري)">
+                        </div>
+                        <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2 rounded-xl text-xs shadow">حفظ الشاحنة</button>
+                    </form>
+                </div>
+
+                <!-- إضافة سائق -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-slate-900 text-sm mb-3 flex items-center"><i class="fa-solid fa-user-tie text-amber-500 ml-2"></i> إضافة سائق جديد</h3>
+                    <form onsubmit="addDriver(event)" class="space-y-3">
+                        <div>
+                            <input type="text" id="driverName" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="اسم السائق الثلاثي">
+                        </div>
+                        <div>
+                            <input type="text" id="driverPhone" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="رقم الجوال (05xxxxxxxx)">
+                        </div>
+                        <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2 rounded-xl text-xs shadow">حفظ السائق</button>
+                    </form>
+                </div>
+
+                <!-- إضافة رحلة -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-slate-900 text-sm mb-3 flex items-center"><i class="fa-solid fa-route text-amber-500 ml-2"></i> تسسجيل رحلة جديدة</h3>
+                    <form onsubmit="addTrip(event)" class="space-y-3">
+                        <div>
+                            <input type="text" id="tripTruck" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="رقم لوحة الشاحنة">
+                        </div>
+                        <div>
+                            <input type="text" id="tripRoute" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="خط السير (مثال: جدة - الرياض)">
+                        </div>
+                        <div>
+                            <input type="number" id="tripPrice" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="سعر الشحن (ر.س)">
+                        </div>
+                        <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold py-2.5 rounded-xl text-xs shadow">حفظ الرحلة</button>
+                    </form>
+                </div>
             </div>
 
-            <!-- إضافة سائق -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                <h3 class="font-bold text-slate-900 text-sm mb-3 flex items-center"><i class="fa-solid fa-user-tie text-amber-500 ml-2"></i> إضافة سائق جديد</h3>
-                <form onsubmit="addDriver(event)" class="space-y-3">
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">اسم السائق</label>
-                        <input type="text" id="driverName" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="اسم السائق الثلاثي">
+            <!-- الجداول والعروض الاحترافية -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- جدول الرحلات -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-slate-900 text-sm mb-3 flex items-center"><i class="fa-solid fa-list-check text-amber-500 ml-2"></i> سجل الرحلات النشطة</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right text-xs">
+                            <thead class="bg-slate-100 text-slate-700">
+                                <tr>
+                                    <th class="p-2.5 rounded-r-xl">رقم الرحلة</th>
+                                    <th class="p-2.5">الشاحنة</th>
+                                    <th class="p-2.5">خط السير</th>
+                                    <th class="p-2.5">السعر</th>
+                                    <th class="p-2.5 rounded-l-xl">الحالة</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tripsTable" class="divide-y divide-slate-100 text-slate-600">
+                                <tr><td colspan="5" class="text-center p-4 text-slate-400">جاري تحميل البيانات...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">رقم الجوال</label>
-                        <input type="text" id="driverPhone" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="05xxxxxxxx">
-                    </div>
-                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2.5 rounded-xl text-xs shadow">حفظ السائق</button>
-                </form>
-            </div>
+                </div>
 
-            <!-- إضافة رحلة -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                <h3 class="font-bold text-slate-900 text-sm mb-3 flex items-center"><i class="fa-solid fa-route text-amber-500 ml-2"></i> تسسجيل رحلة جديدة</h3>
-                <form onsubmit="addTrip(event)" class="space-y-3">
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">رقم اللوحة</label>
-                        <input type="text" id="tripTruck" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="2841">
+                <!-- جدول الشاحنات والسائقين -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+                        <h4 class="font-bold text-slate-900 text-xs mb-3 flex items-center"><i class="fa-solid fa-truck text-amber-500 ml-2"></i> الشاحنات المسجلة</h4>
+                        <div id="trucksList" class="space-y-2 text-xs text-slate-600 max-h-40 overflow-y-auto"></div>
                     </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">خط السير</label>
-                        <input type="text" id="tripRoute" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="جدة - الرياض">
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+                        <h4 class="font-bold text-slate-900 text-xs mb-3 flex items-center"><i class="fa-solid fa-users text-amber-500 ml-2"></i> السائقون</h4>
+                        <div id="driversList" class="space-y-2 text-xs text-slate-600 max-h-40 overflow-y-auto"></div>
                     </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">سعر الشحن (ر.س)</label>
-                        <input type="number" id="tripPrice" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="5000">
-                    </div>
-                    <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold py-2.5 rounded-xl text-xs shadow">حفظ الرحلة</button>
-                </form>
+                </div>
             </div>
         </main>
     </div>
@@ -132,8 +169,56 @@
             if (data) {
                 document.getElementById('loginSection').classList.add('hidden');
                 document.getElementById('mainDashboard').classList.remove('hidden');
+                loadData();
             } else {
                 document.getElementById('loginError').classList.remove('hidden');
+            }
+        }
+
+        async function loadData() {
+            // جلب الرحلات
+            const { data: trips } = await client.from('trips').select('*').order('id', { ascending: false });
+            const tripsTable = document.getElementById('tripsTable');
+            if (trips && trips.length > 0) {
+                tripsTable.innerHTML = trips.map(t => `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-2.5 font-bold text-slate-900">${t.trip_number || '---'}</td>
+                        <td class="p-2.5 font-bold text-amber-600">${t.truck_plate}</td>
+                        <td class="p-2.5">${t.route}</td>
+                        <td class="p-2.5 font-bold">${t.price} ر.س</td>
+                        <td class="p-2.5"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full text-[10px] font-bold">${t.payment_status || 'معلق'}</span></td>
+                    </tr>
+                `).join('');
+            } else {
+                tripsTable.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-slate-400">لا توجد رحلات مسجلة حالياً</td></tr>`;
+            }
+
+            // جلب الشاحنات
+            const { data: trucks } = await client.from('trucks').select('*');
+            const trucksList = document.getElementById('trucksList');
+            if (trucks && trucks.length > 0) {
+                trucksList.innerHTML = trucks.map(tr => `
+                    <div class="flex justify-between items-center bg-slate-50 p-2 rounded-xl">
+                        <span class="font-bold text-slate-900">لوحة: ${tr.plate}</span>
+                        <span class="text-slate-500">${tr.model || 'بدون موديل'}</span>
+                    </div>
+                `).join('');
+            } else {
+                trucksList.innerHTML = `<p class="text-slate-400 text-center">لا توجد شاحنات</p>`;
+            }
+
+            // جلب السائقين
+            const { data: drivers } = await client.from('drivers').select('*');
+            const driversList = document.getElementById('driversList');
+            if (drivers && drivers.length > 0) {
+                driversList.innerHTML = drivers.map(d => `
+                    <div class="flex justify-between items-center bg-slate-50 p-2 rounded-xl">
+                        <span class="font-bold text-slate-900">${d.name}</span>
+                        <span class="text-slate-500">${d.phone || 'بدون جوال'}</span>
+                    </div>
+                `).join('');
+            } else {
+                driversList.innerHTML = `<p class="text-slate-400 text-center">لا توجد سائقين</p>`;
             }
         }
 
@@ -142,7 +227,7 @@
             const plate = document.getElementById('truckPlate').value.trim();
             const model = document.getElementById('truckModel').value.trim();
             const { error } = await client.from('trucks').insert([{ plate, model, status: 'جاهزة' }]);
-            if(!error) { alert('تم إضافة الشاحنة بنجاح!'); e.target.reset(); }
+            if(!error) { alert('تم إضافة الشاحنة بنجاح!'); e.target.reset(); loadData(); }
             else { alert('خطأ: تأكد أن رقم اللوحة غير مكرر'); }
         }
 
@@ -151,7 +236,7 @@
             const name = document.getElementById('driverName').value.trim();
             const phone = document.getElementById('driverPhone').value.trim();
             const { error } = await client.from('drivers').insert([{ name, phone, status: 'متوفر' }]);
-            if(!error) { alert('تم إضافة السائق بنجاح!'); e.target.reset(); }
+            if(!error) { alert('تم إضافة السائق بنجاح!'); e.target.reset(); loadData(); }
             else { alert('حدث خطأ أثناء الحفظ'); }
         }
 
@@ -161,7 +246,7 @@
             const route = document.getElementById('tripRoute').value.trim();
             const price = parseFloat(document.getElementById('tripPrice').value);
             const { error } = await client.from('trips').insert([{ trip_number: 'TRP-' + Math.floor(Math.random()*1000), truck_plate, route, price, payment_status: 'معلق' }]);
-            if(!error) { alert('تم تسجيل الرحلة بنجاح!'); e.target.reset(); }
+            if(!error) { alert('تم تسجيل الرحلة بنجاح!'); e.target.reset(); loadData(); }
             else { alert('حدث خطأ أثناء حفظ الرحلة'); }
         }
 
