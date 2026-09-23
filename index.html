@@ -673,9 +673,14 @@
                 if (trips) {
                     trips.forEach(t => {
                         if (t.status !== 'ملغاة') {
-                            totalRev += parseFloat(t.total_amount || 0);
-                            collected += parseFloat(t.paid_amount || 0);
-                            remaining += parseFloat(t.remaining_amount || 0);
+                            const tTotal = parseFloat(t.total_amount || 0);
+                            let tPaid = parseFloat(t.paid_amount || 0);
+                            if (tPaid > tTotal) tPaid = tTotal; // حماية ضد أي زيادة للمدفوع عن الإجمالي
+                            const tRem = Math.max(0, tTotal - tPaid);
+
+                            totalRev += tTotal;
+                            collected += tPaid;
+                            remaining += tRem;
                         }
                         if (t.status === 'جارية') {
                             activeTripsList.push(t);
@@ -840,9 +845,14 @@
                 if (trips) {
                     trips.forEach(t => {
                         if (t.status !== 'ملغاة') {
-                            totalAmount += parseFloat(t.total_amount || 0);
-                            paidAmount += parseFloat(t.paid_amount || 0);
-                            remainingAmount += parseFloat(t.remaining_amount || 0);
+                            const tTotal = parseFloat(t.total_amount || 0);
+                            let tPaid = parseFloat(t.paid_amount || 0);
+                            if (tPaid > tTotal) tPaid = tTotal;
+                            const tRem = Math.max(0, tTotal - tPaid);
+
+                            totalAmount += tTotal;
+                            paidAmount += tPaid;
+                            remainingAmount += tRem;
                         }
                     });
                 }
@@ -1031,7 +1041,8 @@
             const truck_plate = document.getElementById('tripTruck').value;
             const driver_name = document.getElementById('tripDriver').value;
             const total_amount = parseFloat(document.getElementById('totalAmount').value);
-            const paid_amount = parseFloat(document.getElementById('paidAmount').value);
+            let paid_amount = parseFloat(document.getElementById('paidAmount').value);
+            if (paid_amount > total_amount) paid_amount = total_amount;
             const remaining_amount = total_amount - paid_amount;
             const status = 'جارية';
             const payment_status = remaining_amount === 0 ? 'مسدد بالكامل' : (paid_amount > 0 ? 'سداد جزئي' : 'غير مسدد');
@@ -1089,15 +1100,18 @@
         async function confirmCompleteTrip(e) {
             e.preventDefault();
             const id = document.getElementById('modalTripId').value;
-            const truckPlate = document.getElementById('modalTruckPlate').value;
-            const driverName = document.getElementById('modalDriverName').value;
             const total = parseFloat(document.getElementById('modalTotalAmount').value);
             
-            const { data: tripData } = await client.from('trips').select('paid_amount, status').eq('id', id).single();
-            const currentPaid = tripData ? parseFloat(tripData.paid_amount) : 0;
-            const additionalPayment = parseFloat(document.getElementById('modalPaymentInput').value) || 0;
+            // جلب أحدث بيانات الرحلة للتأكد من اسم الشاحنة والسائق المرتبطين بها فعلياً
+            const { data: tripData } = await client.from('trips').select('paid_amount, status, truck_plate, driver_name').eq('id', id).single();
+            if (!tripData) return;
+
+            const currentPaid = parseFloat(tripData.paid_amount || 0);
+            let additionalPayment = parseFloat(document.getElementById('modalPaymentInput').value) || 0;
             
-            const newPaidAmount = currentPaid + additionalPayment;
+            let newPaidAmount = currentPaid + additionalPayment;
+            if (newPaidAmount > total) newPaidAmount = total; // منع تجاوز الإجمالي
+
             const newRemaining = total - newPaidAmount;
             const payment_status = newRemaining <= 0 ? 'مسدد بالكامل' : 'سداد جزئي';
 
@@ -1111,21 +1125,27 @@
             const { error } = await client.from('trips').update(updateData).eq('id', id);
 
             if (!error) {
-                if (tripData.status === 'جارية') {
-                    await client.from('trucks').update({ status: 'جاهزة للعمل' }).eq('plate', truckPlate);
-                    await client.from('drivers').update({ status: 'متوفر' }).eq('name', driver_name);
+                // تحرير الشاحنة والسائق المرتبطين بالرحلة وإعادتهما للجاهزية والتوفر
+                if (tripData.truck_plate) {
+                    await client.from('trucks').update({ status: 'جاهزة للعمل' }).eq('plate', tripData.truck_plate);
+                }
+                if (tripData.driver_name) {
+                    await client.from('drivers').update({ status: 'متوفر' }).eq('name', tripData.driver_name);
                 }
 
                 closeCompleteModal();
-                alert('تم تسجيل السداد وإنهاء الرحلة بنجاح!');
+                alert('تم تسجيل السداد وإنهاء الرحلة بنجاح، وتم تحرير الشاحنة والسائق!');
                 loadAllData();
             } else {
                 alert('حدث خطأ أثناء حفظ التسوية.');
             }
         }
 
-        async function cancelTrip(id, truckPlate, driverName) {
-            if (confirm('هل أنت متأكد من إلغاء هذه الرحلة؟ (سيتم خصم قيمتها المالية وتعديل حالتها وإعادة الشاحنة والسائق للعمل)')) {
+        async function cancelTrip(id) {
+            if (confirm('هل أنت متأكد من إلغاء هذه الرحلة؟ (سيتم تصفير قيمتها المالية وإعادة الشاحنة والسائق للعمل)')) {
+                const { data: tripData } = await client.from('trips').select('truck_plate, driver_name').eq('id', id).single();
+                if (!tripData) return;
+
                 const { error } = await client.from('trips').update({
                     status: 'ملغاة',
                     total_amount: 0,
@@ -1135,10 +1155,14 @@
                 }).eq('id', id);
 
                 if (!error) {
-                    await client.from('trucks').update({ status: 'جاهزة للعمل' }).eq('plate', truckPlate);
-                    await client.from('drivers').update({ status: 'متوفر' }).eq('name', driver_name);
+                    if (tripData.truck_plate) {
+                        await client.from('trucks').update({ status: 'جاهزة للعمل' }).eq('plate', tripData.truck_plate);
+                    }
+                    if (tripData.driver_name) {
+                        await client.from('drivers').update({ status: 'متوفر' }).eq('name', tripData.driver_name);
+                    }
                     
-                    alert('تم إلغاء الرحلة وخصم مبلغها من الإجمالي المالي بنجاح.');
+                    alert('تم إلغاء الرحلة وتحرير الشاحنة والسائق بنجاح.');
                     loadAllData();
                 } else {
                     alert('حدث خطأ أثناء إلغاء الرحلة.');
