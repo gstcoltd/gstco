@@ -40,8 +40,8 @@
         </form>
     </div>
 
-    <!-- لوحة التحكم الاحترافية (الشاحنات والسائقين) -->
-    <div id="mainDashboard" class="hidden max-w-6xl w-full bg-slate-50 rounded-3xl shadow-2xl overflow-hidden border border-slate-700 min-h-[90vh] flex flex-col">
+    <!-- لوحة التحكم الاحترافية (الشاحنات، السائقين، الرحلات) -->
+    <div id="mainDashboard" class="hidden max-w-6xl w-full bg-slate-50 rounded-3xl shadow-2xl overflow-hidden border border-slate-700 min-h-[92vh] flex flex-col">
         <header class="bg-slate-900 p-4 text-white flex justify-between items-center border-b border-amber-400/30">
             <div class="flex items-center space-x-3 space-x-reverse">
                 <div class="w-10 h-10 bg-amber-400 rounded-xl flex items-center justify-center text-slate-900 font-black">
@@ -52,17 +52,109 @@
                     <p class="text-[10px] text-amber-400">شركة الاختيار العالمي للنقليات</p>
                 </div>
             </div>
-            <div class="flex items-center space-x-2 space-x-reverse">
-                <button onclick="switchTab('trucks')" id="tabTrucksBtn" class="px-3 py-1.5 bg-amber-500 text-slate-900 font-bold rounded-xl text-xs transition">الشاحنات</button>
+            <div class="flex items-center space-x-1.5 space-x-reverse flex-wrap">
+                <button onclick="switchTab('trips')" id="tabTripsBtn" class="px-3 py-1.5 bg-amber-500 text-slate-900 font-bold rounded-xl text-xs transition">الرحلات</button>
+                <button onclick="switchTab('trucks')" id="tabTrucksBtn" class="px-3 py-1.5 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs transition">الشاحنات</button>
                 <button onclick="switchTab('drivers')" id="tabDriversBtn" class="px-3 py-1.5 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs transition">السائقين</button>
-                <button onclick="handleLogout()" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs transition mr-4">
+                <button onclick="handleLogout()" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs transition mr-2">
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
             </div>
         </header>
 
+        <!-- قسم الرحلات (الرئيسي) -->
+        <main id="tripsSection" class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 flex-grow">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 h-fit">
+                <h3 id="tripFormTitle" class="font-bold text-slate-900 text-sm mb-4 flex items-center">
+                    <i class="fa-solid fa-route text-amber-500 ml-2"></i> إضافة رحلة جديدة
+                </h3>
+                <form onsubmit="saveTrip(event)" class="space-y-3">
+                    <input type="hidden" id="tripId">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">اسم العميل</label>
+                        <input type="text" id="clientName" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="مثال: شركة أرامكو السعودية">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">من (المدينة)</label>
+                            <input type="text" id="fromCity" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="جدة">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">إلى (المدينة)</label>
+                            <input type="text" id="toCity" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="الرياض">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">تاريخ المغادرة</label>
+                        <input type="date" id="departureDate" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">الشاحنة المختارة (الجاهزة فقط)</label>
+                        <select id="tripTruck" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                            <option value="">اختر الشاحنة...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">السائق المسند إليه (المتوفر فقط)</label>
+                        <select id="tripDriver" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                            <option value="">اختر السائق...</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">إجمالي المبلغ (ر.س)</label>
+                            <input type="number" id="totalAmount" required oninput="calculateRemaining()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="5000">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">المبلغ المدفوع (ر.س)</label>
+                            <input type="number" id="paidAmount" required oninput="calculateRemaining()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="2000">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">المبلغ المتبقي (تلقائي)</label>
+                        <input type="text" id="remainingAmount" readonly class="w-full p-2.5 bg-slate-100 border border-slate-200 rounded-xl text-xs font-black text-rose-600" value="0">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">حالة الرحلة</label>
+                        <select id="tripStatus" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                            <option value="جارية">جارية</option>
+                            <option value="مكتملة">مكتملة</option>
+                            <option value="ملغاة">ملغاة</option>
+                        </select>
+                    </div>
+                    <div class="flex gap-2 pt-2">
+                        <button type="submit" id="tripSaveBtn" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2.5 rounded-xl text-xs shadow transition">حفظ الرحلة</button>
+                        <button type="button" id="tripCancelBtn" onclick="resetTripForm()" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-3 py-2.5 rounded-xl text-xs transition">إلغاء</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="md:col-span-2 bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-slate-900 text-sm flex items-center"><i class="fa-solid fa-truck-ramp-box text-amber-500 ml-2"></i> سجل الرحلات الجارية والسابقة</h3>
+                    <button onclick="loadTripsData()" class="text-xs text-amber-600 font-bold hover:underline"><i class="fa-solid fa-rotate ml-1"></i> تحديث</button>
+                </div>
+                <div class="overflow-x-auto flex-grow">
+                    <table class="w-full text-right text-xs">
+                        <thead class="bg-slate-100 text-slate-700">
+                            <tr>
+                                <th class="p-3 rounded-r-xl">العميل والوجهة</th>
+                                <th class="p-3">الشاحنة والسائق</th>
+                                <th class="p-3">المبالغ (إجمالي/مدفوع/متبقي)</th>
+                                <th class="p-3">الحالة</th>
+                                <th class="p-3 rounded-l-xl text-center">إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tripsTable" class="divide-y divide-slate-100 text-slate-600">
+                            <tr><td colspan="5" class="text-center p-6 text-slate-400">جاري التحميل...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
         <!-- قسم الشاحنات -->
-        <main id="trucksSection" class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 flex-grow">
+        <main id="trucksSection" class="hidden p-6 grid grid-cols-1 md:grid-cols-3 gap-6 flex-grow">
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 h-fit">
                 <h3 id="formTitle" class="font-bold text-slate-900 text-sm mb-4 flex items-center">
                     <i class="fa-solid fa-circle-plus text-amber-500 ml-2"></i> إضافة شاحنة جديدة
@@ -116,7 +208,7 @@
             </div>
         </main>
 
-        <!-- قسم السائقين (مخفي افتراضياً) -->
+        <!-- قسم السائقين -->
         <main id="driversSection" class="hidden p-6 grid grid-cols-1 md:grid-cols-3 gap-6 flex-grow">
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 h-fit">
                 <h3 id="driverFormTitle" class="font-bold text-slate-900 text-sm mb-4 flex items-center">
@@ -125,12 +217,12 @@
                 <form onsubmit="saveDriver(event)" class="space-y-3">
                     <input type="hidden" id="driverId">
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">اسم السائق الرباعي</label>
-                        <input type="text" id="driverName" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="مثال: سعد محمد القحطاني">
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">اسم السائق</label>
+                        <input type="text" id="driverName" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="مثال: سعد القحطاني">
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold text-slate-600 mb-1">رقم الجوال</label>
-                        <input type="text" id="driverPhone" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="مثال: 0501234567">
+                        <input type="text" id="driverPhone" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="0501234567">
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold text-slate-600 mb-1">حالة السائق</label>
@@ -150,7 +242,7 @@
 
             <div class="md:col-span-2 bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-slate-900 text-sm flex items-center"><i class="fa-solid fa-users text-amber-500 ml-2"></i> السائقين المسجلين في الأسطول</h3>
+                    <h3 class="font-bold text-slate-900 text-sm flex items-center"><i class="fa-solid fa-users text-amber-500 ml-2"></i> السائقين المسجلين</h3>
                     <button onclick="loadDrivers()" class="text-xs text-amber-600 font-bold hover:underline"><i class="fa-solid fa-rotate ml-1"></i> تحديث</button>
                 </div>
                 <div class="overflow-x-auto flex-grow">
@@ -182,47 +274,177 @@
             const u = document.getElementById('username').value.trim();
             const p = document.getElementById('password').value.trim();
 
-            const { data } = await client
-                .from('app_users')
-                .select('*')
-                .eq('username', u)
-                .eq('password', p)
-                .maybeSingle();
-
+            const { data } = await client.from('app_users').select('*').eq('username', u).eq('password', p).maybeSingle();
             if (data) {
                 document.getElementById('loginSection').classList.add('hidden');
                 document.getElementById('mainDashboard').classList.remove('hidden');
-                loadTrucks();
-                loadDrivers();
+                loadAllData();
             } else {
                 document.getElementById('loginError').classList.remove('hidden');
             }
         }
 
-        function switchTab(tab) {
-            const trucksSec = document.getElementById('trucksSection');
-            const driversSec = document.getElementById('driversSection');
-            const trucksBtn = document.getElementById('tabTrucksBtn');
-            const driversBtn = document.getElementById('tabDriversBtn');
+        function loadAllData() {
+            loadTripsData();
+            loadTrucks();
+            loadDrivers();
+            loadDropdowns();
+        }
 
-            if (tab === 'trucks') {
-                trucksSec.classList.remove('hidden');
-                driversSec.classList.add('hidden');
-                trucksBtn.className = 'px-3 py-1.5 bg-amber-500 text-slate-900 font-bold rounded-xl text-xs transition';
-                driversBtn.className = 'px-3 py-1.5 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs transition';
+        function switchTab(tab) {
+            ['tripsSection', 'trucksSection', 'driversSection'].forEach(s => document.getElementById(s).classList.add('hidden'));
+            ['tabTripsBtn', 'tabTrucksBtn', 'tabDriversBtn'].forEach(b => {
+                document.getElementById(b).className = 'px-3 py-1.5 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs transition';
+            });
+
+            if (tab === 'trips') {
+                document.getElementById('tripsSection').classList.remove('hidden');
+                document.getElementById('tabTripsBtn').className = 'px-3 py-1.5 bg-amber-500 text-slate-900 font-bold rounded-xl text-xs transition';
+                loadDropdowns();
+            } else if (tab === 'trucks') {
+                document.getElementById('trucksSection').classList.remove('hidden');
+                document.getElementById('tabTrucksBtn').className = 'px-3 py-1.5 bg-amber-500 text-slate-900 font-bold rounded-xl text-xs transition';
+                loadTrucks();
             } else {
-                trucksSec.classList.add('hidden');
-                driversSec.classList.remove('hidden');
-                driversBtn.className = 'px-3 py-1.5 bg-amber-500 text-slate-900 font-bold rounded-xl text-xs transition';
-                trucksBtn.className = 'px-3 py-1.5 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs transition';
+                document.getElementById('driversSection').classList.remove('hidden');
+                document.getElementById('tabDriversBtn').className = 'px-3 py-1.5 bg-amber-500 text-slate-900 font-bold rounded-xl text-xs transition';
+                loadDrivers();
             }
         }
 
-        // دوام الشاحنات
+        function calculateRemaining() {
+            const total = parseFloat(document.getElementById('totalAmount').value) || 0;
+            const paid = parseFloat(document.getElementById('paidAmount').value) || 0;
+            const remaining = total - paid;
+            document.getElementById('remainingAmount').value = remaining >= 0 ? remaining : 0;
+        }
+
+        // تحميل القوائم المنسدلة للرحلات (الشاحنات "جاهزة للعمل" فقط، والسائقين "متوفر" فقط عند الإضافة الجديدة)
+        async function loadDropdowns() {
+            const { data: trucks } = await client.from('trucks').select('*');
+            const { data: drivers } = await client.from('drivers').select('*');
+            
+            const truckSelect = document.getElementById('tripTruck');
+            const driverSelect = document.getElementById('tripDriver');
+
+            const readyTrucks = trucks ? trucks.filter(t => t.status === 'جاهزة للعمل') : [];
+            const availableDrivers = drivers ? drivers.filter(d => d.status === 'متوفر') : [];
+
+            truckSelect.innerHTML = `<option value="">اختر الشاحنة (الجاهزة للعمل فقط)...</option>` + 
+                readyTrucks.map(t => `<option value="${t.plate}">${t.plate} (${t.model || 'بدون موديل'})</option>`).join('');
+
+            driverSelect.innerHTML = `<option value="">اختر السائق (المتوفر فقط)...</option>` + 
+                availableDrivers.map(d => `<option value="${d.name}">${d.name} (${d.phone})</option>`).join('');
+        }
+
+        // إدارة الرحلات
+        async function loadTripsData() {
+            const { data: trips } = await client.from('trips').select('*').order('id', { ascending: false });
+            const table = document.getElementById('tripsTable');
+            
+            if (trips && trips.length > 0) {
+                table.innerHTML = trips.map(tr => {
+                    let badgeColor = 'bg-blue-100 text-blue-800';
+                    if (tr.status === 'مكتملة') badgeColor = 'bg-emerald-100 text-emerald-800';
+                    if (tr.status === 'ملغاة') badgeColor = 'bg-rose-100 text-rose-800';
+
+                    return `
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-3">
+                                <div class="font-black text-slate-900">${tr.client_name}</div>
+                                <div class="text-[10px] text-slate-500"><i class="fa-solid fa-location-dot ml-1 text-amber-500"></i> من ${tr.from_city} إلى ${tr.to_city}</div>
+                                <div class="text-[10px] text-slate-400">التاريخ: ${tr.departure_date}</div>
+                            </td>
+                            <td class="p-3">
+                                <div class="font-bold text-slate-800"><i class="fa-solid fa-truck ml-1 text-amber-500"></i> لوحة: ${tr.truck_plate}</div>
+                                <div class="text-[10px] text-slate-600"><i class="fa-solid fa-user ml-1 text-amber-500"></i> السائق: ${tr.driver_name}</div>
+                            </td>
+                            <td class="p-3 font-mono text-[11px]">
+                                <div>إجمالي: <span class="font-bold text-slate-900">${tr.total_amount} ر.س</span></div>
+                                <div>مدفوع: <span class="text-emerald-600 font-bold">${tr.paid_amount} ر.س</span></div>
+                                <div>متبقي: <span class="text-rose-600 font-bold">${tr.remaining_amount} ر.س</span></div>
+                            </td>
+                            <td class="p-3"><span class="${badgeColor} px-2.5 py-1 rounded-full text-[10px] font-bold">${tr.status}</span></td>
+                            <td class="p-3 text-center">
+                                <button onclick="deleteTrip(${tr.id}, '${tr.truck_plate}', '${tr.driver_name}')" class="text-rose-500 hover:text-rose-700 font-bold p-1" title="حذف وإلغاء الرحلة"><i class="fa-solid fa-trash-can"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } else {
+                table.innerHTML = `<tr><td colspan="5" class="text-center p-6 text-slate-400">لا توجد رحلات مسجلة حالياً</td></tr>`;
+            }
+        }
+
+        async function saveTrip(e) {
+            e.preventDefault();
+            const client_name = document.getElementById('clientName').value.trim();
+            const from_city = document.getElementById('fromCity').value.trim();
+            const to_city = document.getElementById('toCity').value.trim();
+            const departure_date = document.getElementById('departureDate').value;
+            const truck_plate = document.getElementById('tripTruck').value;
+            const driver_name = document.getElementById('tripDriver').value;
+            const total_amount = parseFloat(document.getElementById('totalAmount').value);
+            const paid_amount = parseFloat(document.getElementById('paidAmount').value);
+            const remaining_amount = total_amount - paid_amount;
+            const status = document.getElementById('tripStatus').value;
+
+            // التحقق الذكي من أن الشاحنة جاهزة والسائق متوفر وغير مشغولين في رحلة أخرى جارية
+            const { data: activeTrips } = await client.from('trips').select('*').eq('status', 'جارية');
+            if (activeTrips) {
+                const truckBusy = activeTrips.some(t => t.truck_plate === truck_plate);
+                const driverBusy = activeTrips.some(d => d.driver_name === driver_name);
+
+                if (truckBusy) {
+                    alert('عذراً، هذه الشاحنة مسندة بالفعل إلى رحلة جارية أخرى ولا يمكن إسنادها لرحلتين في نفس الوقت!');
+                    return;
+                }
+                if (driverBusy) {
+                    alert('عذراً، هذا السائق مشغول بالفعل في رحلة جارية أخرى ولا يمكن إسناده لرحلتين في نفس الوقت!');
+                    return;
+                }
+            }
+
+            // حفظ الرحلة
+            const { error } = await client.from('trips').insert([{
+                client_name, from_city, to_city, departure_date, truck_plate, driver_name, total_amount, paid_amount, remaining_amount, status
+            }]);
+
+            if (!error) {
+                // تحديث حالة الشاحنة إلى "في رحلة" والسائق إلى "في رحلة"
+                await client.from('trucks').update({ status: 'في رحلة' }).eq('plate', truck_plate);
+                await client.from('drivers').update({ status: 'في رحلة' }).eq('name', driver_name);
+
+                alert('تمت إضافة الرحلة وتحديث حالة الأسطول بنجاح!');
+                resetTripForm();
+                loadAllData();
+            } else {
+                alert('حدث خطأ أثناء حفظ الرحلة.');
+            }
+        }
+
+        function resetTripForm() {
+            document.querySelector('#tripsSection form').reset();
+            document.getElementById('remainingAmount').value = '0';
+            loadDropdowns();
+        }
+
+        async function deleteTrip(id, truckPlate, driverName) {
+            if (confirm('هل أنت متأكد من حذف هذه الرحلة؟ (سيتم إعادة الشاحنة والسائق لحالتهم الطبيعية)')) {
+                const { error } = await client.from('trips').delete().eq('id', id);
+                if (!error) {
+                    // إعادة الشاحنة والسائق إلى جاهز/متوفر
+                    await client.from('trucks').update({ status: 'جاهزة للعمل' }).eq('plate', truckPlate);
+                    await client.from('drivers').update({ status: 'متوفر' }).eq('name', driverName);
+                    loadAllData();
+                }
+            }
+        }
+
+        // إدارة الشاحنات
         async function loadTrucks() {
             const { data: trucks } = await client.from('trucks').select('*').order('id', { ascending: false });
             const table = document.getElementById('trucksTable');
-            
             if (trucks && trucks.length > 0) {
                 table.innerHTML = trucks.map(tr => {
                     let badgeColor = 'bg-emerald-100 text-emerald-800';
@@ -256,12 +478,10 @@
 
             if (id) {
                 const { error } = await client.from('trucks').update({ plate, model, status }).eq('id', id);
-                if (!error) { alert('تم التحديث بنجاح!'); resetForm(); loadTrucks(); }
-                else { alert('تعذر التحديث، تأكد من عدم تكرار رقم اللوحة.'); }
+                if (!error) { alert('تم التحديث بنجاح!'); resetForm(); loadAllData(); }
             } else {
                 const { error } = await client.from('trucks').insert([{ plate, model, status }]);
-                if (!error) { alert('تمت الإضافة بنجاح!'); resetForm(); loadTrucks(); }
-                else { alert('خطأ في الحفظ.'); }
+                if (!error) { alert('تمت الإضافة بنجاح!'); resetForm(); loadAllData(); }
             }
         }
 
@@ -286,15 +506,14 @@
         async function deleteTruck(id) {
             if (confirm('هل أنت متأكد من الحذف؟')) {
                 const { error } = await client.from('trucks').delete().eq('id', id);
-                if (!error) loadTrucks();
+                if (!error) loadAllData();
             }
         }
 
-        // دوام السائقين
+        // إدارة السائقين
         async function loadDrivers() {
             const { data: drivers } = await client.from('drivers').select('*').order('id', { ascending: false });
             const table = document.getElementById('driversTable');
-            
             if (drivers && drivers.length > 0) {
                 table.innerHTML = drivers.map(dr => {
                     let badgeColor = 'bg-emerald-100 text-emerald-800';
@@ -328,12 +547,10 @@
 
             if (id) {
                 const { error } = await client.from('drivers').update({ name, phone, status }).eq('id', id);
-                if (!error) { alert('تم تحديث السائق بنجاح!'); resetDriverForm(); loadDrivers(); }
-                else { alert('تعذر التحديث.'); }
+                if (!error) { alert('تم التحديث بنجاح!'); resetDriverForm(); loadAllData(); }
             } else {
                 const { error } = await client.from('drivers').insert([{ name, phone, status }]);
-                if (!error) { alert('تمت إضافة السائق بنجاح!'); resetDriverForm(); loadDrivers(); }
-                else { alert('خطأ في الحفظ.'); }
+                if (!error) { alert('تمت الإضافة بنجاح!'); resetDriverForm(); loadAllData(); }
             }
         }
 
@@ -342,7 +559,7 @@
             document.getElementById('driverName').value = name;
             document.getElementById('driverPhone').value = phone;
             document.getElementById('driverStatus').value = status;
-            document.getElementById('driverFormTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-500 ml-2"></i> تعديل بيانات السائق`;
+            document.getElementById('driverFormTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-500 ml-2"></i> تعديل سائق`;
             document.getElementById('driverSaveBtn').innerText = 'تحديث';
             document.getElementById('driverCancelBtn').classList.remove('hidden');
         }
@@ -356,9 +573,9 @@
         }
 
         async function deleteDriver(id) {
-            if (confirm('هل أنت متأكد من حذف هذا السائق؟')) {
+            if (confirm('هل أنت متأكد من الحذف؟')) {
                 const { error } = await client.from('drivers').delete().eq('id', id);
-                if (!error) loadDrivers();
+                if (!error) loadAllData();
             }
         }
 
