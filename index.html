@@ -19,7 +19,7 @@
                 <i class="fa-solid fa-truck-front text-amber-400 text-2xl"></i>
             </div>
             <h2 class="text-xl font-black text-slate-900">شركة الاختيار العالمي للنقليات</h2>
-            <p class="text-xs text-amber-600 font-bold mt-1">نظام إدارة الأسطول - أبو سعيد</p>
+            <p class="text-xs text-amber-600 font-bold mt-1">نظام إدارة الأسطول</p>
         </div>
         
         <form onsubmit="handleLogin(event)" class="space-y-4">
@@ -49,7 +49,7 @@
                 </div>
                 <div>
                     <h1 class="font-black text-sm">إدارة أسطول الشاحنات</h1>
-                    <p class="text-[10px] text-amber-400">المدير التنفيذي: أبو سعيد</p>
+                    <p class="text-[10px] text-amber-400">شركة الاختيار العالمي للنقليات</p>
                 </div>
             </div>
             <button onclick="handleLogout()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs transition">
@@ -68,7 +68,7 @@
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold text-slate-600 mb-1">الموديل / المواصفات</label>
-                        <input type="text" id="truckModel" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="مثال: مرسيدس أكتروس 2024">
+                        <input type="text" id="truckModel" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="مثال: مرسيدس أكتروس">
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold text-slate-600 mb-1">حالة الشاحنة</label>
@@ -110,7 +110,7 @@
 
     <script>
         const SUPABASE_URL = 'https://hmttwtlaeczvfjozsama.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhtdHR3dGxhZWN6dmZqb3pzYW1hIiwicm9sZSI6ImFub24i'$.replace('$', 'YmlhdCI6MTc5MDE1NTk2MiwiZXhwIjoyMTA1NzMxOTYyfQ.0-M1LVkNnbVSbUeYX_RueqUUcHNRbCtipCn5nGSuVNc');
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhtdHR3dGxhZWN6dmZqb3pzYW1hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNTU5NjIsImV4cCI6MjEwNTczMTk2Mn0.0-M1LVkNnbVSbUeYX_RueqUUcHNRbCtipCn5nGSuVNc';
         const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         async function handleLogin(e) {
