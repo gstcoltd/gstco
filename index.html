@@ -306,7 +306,24 @@
         let trips = [];
         let currentUser = null;
 
-        // التحميل الإجباري من القاعدة فوراً عند تشغيل الصفحة
+        // التحقق عند فتح الصفحة إذا كان المستخدم مسجلاً مسبقاً
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadFromSupabase();
+            const savedUser = sessionStorage.getItem('gc_current_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('mainDashboard').classList.remove('hidden');
+                document.getElementById('currentUserName').innerText = currentUser.fullName;
+                if(currentUser.role !== 'admin') {
+                    document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
+                } else {
+                    document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+                }
+                renderAll();
+            }
+        });
+
         async function loadFromSupabase() {
             const { data, error } = await client.from('fleet_data').select('*').eq('data_key', 'main_store').maybeSingle();
             if (data && data.payload) {
@@ -315,7 +332,6 @@
                 if(data.payload.drivers) drivers = data.payload.drivers;
                 if(data.payload.trips) trips = data.payload.trips;
             } else {
-                // إذا كانت القاعدة فارغة لأول مرة، قم بحفظ الحالة الافتتاحية سحابياً
                 await syncToCloud();
             }
         }
@@ -330,7 +346,7 @@
 
         async function handleLogin(e) {
             e.preventDefault();
-            await loadFromSupabase(); // جلب أحدث البيانات قبل التحقق من الدخول
+            await loadFromSupabase();
 
             const u = document.getElementById('username').value.trim().toLowerCase();
             const p = document.getElementById('password').value.trim();
@@ -338,6 +354,7 @@
             const found = users.find(x => x.username.toLowerCase() === u && x.password === p && x.status !== 'موقوف');
             if (found) {
                 currentUser = found;
+                sessionStorage.setItem('gc_current_user', JSON.stringify(currentUser)); // حفظ الجلسة لتستمر عند التحديث
                 document.getElementById('loginSection').classList.add('hidden');
                 document.getElementById('mainDashboard').classList.remove('hidden');
                 document.getElementById('currentUserName').innerText = currentUser.fullName;
@@ -356,6 +373,7 @@
 
         function handleLogout() {
             currentUser = null;
+            sessionStorage.removeItem('gc_current_user');
             document.getElementById('mainDashboard').classList.add('hidden');
             document.getElementById('loginSection').classList.remove('hidden');
         }
@@ -364,7 +382,7 @@
         function closeForgotPasswordModal() { document.getElementById('forgotPasswordModal').classList.add('hidden'); }
 
         async function switchTab(tab) {
-            await loadFromSupabase(); // تحديث سحابي عند التنقل لضمان رؤية تعديلات الأجهزة الأخرى
+            await loadFromSupabase();
             ['dashboard', 'trips', 'trucks', 'drivers', 'users', 'reports'].forEach(t => {
                 document.getElementById(`sec-${t}`)?.classList.add('hidden');
                 document.getElementById(`nav-${t}`)?.classList.remove('bg-slate-800', 'text-amber-400');
@@ -412,7 +430,7 @@
         function closeTruckModal() { document.getElementById('truckModal').classList.add('hidden'); }
         async function saveTruck(e) {
             e.preventDefault();
-            await loadFromSupabase(); // تحديث أولاً لمنع الكتابة فوق تعديلات جهاز آخر
+            await loadFromSupabase();
             const id = document.getElementById('truckEditId').value;
             const plate = document.getElementById('truckPlate').value.trim();
             const model = document.getElementById('truckModel').value.trim();
