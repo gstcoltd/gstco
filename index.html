@@ -66,7 +66,7 @@
 
                 <nav class="space-y-2">
                     <button onclick="switchTab('dashboard')" id="tabDashboardBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition bg-amber-500 text-slate-900 shadow-sm">
-                        <i class="fa-solid fa-chart-pie text-base"></i> لوحة المؤشرات والتحكم
+                        <i class="fa-solid fa-chart-pie text-base"></i> لوحة التحكم
                     </button>
                     <button onclick="switchTab('trips')" id="tabTripsBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition text-slate-300 hover:bg-slate-800 hover:text-white">
                         <i class="fa-solid fa-route text-base"></i> إدارة الرحلات
@@ -96,18 +96,19 @@
         <!-- المحتوى الرئيسي الواسع -->
         <div class="flex-grow flex flex-col bg-slate-50 overflow-hidden">
             <header class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center text-slate-900 shadow-sm">
-                <h2 id="pageTitle" class="text-sm font-black text-slate-800">لوحة المؤشرات والتحكم</h2>
+                <h2 id="pageTitle" class="text-sm font-black text-slate-800">لوحة التحكم</h2>
                 <button onclick="loadAllData()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition border border-slate-200 flex items-center gap-1.5">
                     <i class="fa-solid fa-rotate"></i> تحديث البيانات
                 </button>
             </header>
 
-            <!-- قسم لوحة المؤشرات والتحكم (الشاشة الافتراضية) -->
+            <!-- قسم لوحة التحكم (الشاشة الافتراضية) -->
             <main id="dashboardSection" class="p-6 md:p-8 flex flex-col flex-grow overflow-y-auto space-y-6">
+                <!-- بطاقات الملخص المالي والتشغيلي العليا -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
                         <div>
-                            <span class="block text-[11px] font-bold text-slate-500">إجمالي الإيرادات المالية</span>
+                            <span class="block text-[11px] font-bold text-slate-500">إجمالي الإيرادات</span>
                             <h3 id="dashTotalRevenue" class="text-lg font-black text-slate-900 font-mono mt-1">0 ر.س</h3>
                         </div>
                         <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500 text-xl font-bold">
@@ -116,7 +117,7 @@
                     </div>
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
                         <div>
-                            <span class="block text-[11px] font-bold text-slate-500">المبالغ المحصلة (المدفوعة)</span>
+                            <span class="block text-[11px] font-bold text-slate-500">المبالغ المدفوعة</span>
                             <h3 id="dashCollectedAmount" class="text-lg font-black text-emerald-600 font-mono mt-1">0 ر.س</h3>
                         </div>
                         <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 text-xl font-bold">
@@ -125,7 +126,7 @@
                     </div>
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
                         <div>
-                            <span class="block text-[11px] font-bold text-slate-500">المبالغ غير المحصلة (المتبقية)</span>
+                            <span class="block text-[11px] font-bold text-slate-500">المبالغ غير المدفوعة</span>
                             <h3 id="dashRemainingAmount" class="text-lg font-black text-rose-600 font-mono mt-1">0 ر.س</h3>
                         </div>
                         <div class="w-12 h-12 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600 text-xl font-bold">
@@ -143,10 +144,11 @@
                     </div>
                 </div>
 
+                <!-- إحصائيات الأسطول السريعة -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
                         <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
-                            <h4 class="font-bold text-slate-900 text-xs flex items-center"><i class="fa-solid fa-truck-moving text-amber-500 ml-2"></i> حالة أسطول الشاحنات</h4>
+                            <h4 class="font-bold text-slate-900 text-xs flex items-center"><i class="fa-solid fa-truck-moving text-amber-500 ml-2"></i> الشاحنات</h4>
                             <span id="dashTotalTrucksBadge" class="bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full text-[10px] font-bold">إجمالي: 0</span>
                         </div>
                         <div class="grid grid-cols-3 gap-3 text-center">
@@ -167,7 +169,7 @@
 
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
                         <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
-                            <h4 class="font-bold text-slate-900 text-xs flex items-center"><i class="fa-solid fa-users text-amber-500 ml-2"></i> حالة أسطول السائقين</h4>
+                            <h4 class="font-bold text-slate-900 text-xs flex items-center"><i class="fa-solid fa-users text-amber-500 ml-2"></i> السائقين</h4>
                             <span id="dashTotalDriversBadge" class="bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full text-[10px] font-bold">إجمالي: 0</span>
                         </div>
                         <div class="grid grid-cols-3 gap-3 text-center">
@@ -187,6 +189,7 @@
                     </div>
                 </div>
 
+                <!-- آخر الرحلات الجارية والنشطة -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col flex-grow">
                     <h4 class="font-bold text-slate-900 text-xs mb-4 flex items-center border-b border-slate-100 pb-3">
                         <i class="fa-solid fa-bolt text-amber-500 ml-2"></i> الرحلات الجارية حالياً في الميدان
@@ -346,11 +349,11 @@
                             <span id="repTotalAmount" class="text-base font-black text-slate-900 font-mono">0 ر.س</span>
                         </div>
                         <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
-                            <span class="block text-[11px] text-slate-500 font-bold">المبالغ المحصلة (المدفوع)</span>
+                            <span class="block text-[11px] text-slate-500 font-bold">المبالغ المدفوعة</span>
                             <span id="repPaidAmount" class="text-base font-black text-emerald-600 font-mono">0 ر.س</span>
                         </div>
                         <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
-                            <span class="block text-[11px] text-slate-500 font-bold">المبالغ المتبقية</span>
+                            <span class="block text-[11px] text-slate-500 font-bold">المبالغ غير المدفوعة</span>
                             <span id="repRemainingAmount" class="text-base font-black text-rose-600 font-mono">0 ر.س</span>
                         </div>
                     </div>
@@ -773,7 +776,7 @@
             if (tab === 'dashboard') {
                 document.getElementById('dashboardSection').classList.remove('hidden');
                 document.getElementById('tabDashboardBtn').className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition bg-amber-500 text-slate-900 shadow-sm';
-                document.getElementById('pageTitle').innerText = 'لوحة المؤشرات والتحكم';
+                document.getElementById('pageTitle').innerText = 'لوحة التحكم';
                 loadDashboardData();
             } else if (tab === 'trips') {
                 document.getElementById('tripsSection').classList.remove('hidden');
@@ -940,7 +943,6 @@
                         const total = parseFloat(tr.total_amount || 0);
                         const remaining = parseFloat(tr.remaining_amount || 0);
 
-                        // تحديد شارات السداد بالألوان المطلوبة
                         if (remaining <= 0 || paid >= total) {
                             paymentBadge = '<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full text-[10px] font-bold">مسدد</span>';
                         } else if (paid > 0) {
@@ -949,7 +951,6 @@
                             paymentBadge = '<span class="bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-full text-[10px] font-bold">غير مسدد</span>';
                         }
 
-                        // تحديد حالة الرحلة
                         if (tr.status === 'جارية') {
                             statusBadge = '<span class="bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 rounded-full text-[10px] font-bold">جارية</span>';
                         } else if (tr.status === 'مكتملة') {
@@ -958,7 +959,6 @@
                             statusBadge = '<span class="bg-rose-50 text-rose-700 border border-rose-200 px-2.5 py-1 rounded-full text-[10px] font-bold">ملغاة</span>';
                         }
 
-                        // تحديد ما إذا كان زر التسوية والسداد ظاهراً (للجارية أو المنتهية التي لم تسدد بالكامل)
                         let actionButtons = '';
                         if (tr.status === 'جارية') {
                             actionButtons = `
@@ -1111,10 +1111,9 @@
             const { error } = await client.from('trips').update(updateData).eq('id', id);
 
             if (!error) {
-                // إذا كانت الرحلة جارية وتم إنهاؤها، نعيد الشاحنة والسائق للجاهزية
                 if (tripData.status === 'جارية') {
                     await client.from('trucks').update({ status: 'جاهزة للعمل' }).eq('plate', truckPlate);
-                    await client.from('drivers').update({ status: 'متوفر' }).eq('name', driverName);
+                    await client.from('drivers').update({ status: 'متوفر' }).eq('name', driver_name);
                 }
 
                 closeCompleteModal();
@@ -1137,7 +1136,7 @@
 
                 if (!error) {
                     await client.from('trucks').update({ status: 'جاهزة للعمل' }).eq('plate', truckPlate);
-                    await client.from('drivers').update({ status: 'متوفر' }).eq('name', driverName);
+                    await client.from('drivers').update({ status: 'متوفر' }).eq('name', driver_name);
                     
                     alert('تم إلغاء الرحلة وخصم مبلغها من الإجمالي المالي بنجاح.');
                     loadAllData();
