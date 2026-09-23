@@ -33,11 +33,11 @@
         <form onsubmit="handleLogin(event)" class="space-y-4">
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">اسم المستخدم</label>
-                <input type="text" id="username" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm" placeholder="admin">
+                <input type="text" id="usernameInput" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm" placeholder="admin">
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">كلمة المرور</label>
-                <input type="password" id="password" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm" placeholder="admin123">
+                <input type="password" id="passwordInput" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm" placeholder="admin123">
             </div>
             <div id="loginError" class="hidden text-rose-600 text-xs font-bold text-center bg-rose-50 py-2.5 rounded-xl border border-rose-200">
                 خطأ في اسم المستخدم أو كلمة المرور.
@@ -609,20 +609,41 @@
 
         let currentLoggedInUser = { username: 'admin', employee_name: 'محمد القحطاني', role: 'admin' };
 
-        function handleLogin(e) {
+        async function handleLogin(e) {
             e.preventDefault();
-            const u = document.getElementById('username').value.trim();
-            const p = document.getElementById('password').value.trim();
+            const u = document.getElementById('usernameInput').value.trim();
+            const p = document.getElementById('passwordInput').value.trim();
 
-            if ((u === 'admin' && p === 'admin123') || (u === 'mohammad' && p === '123456')) {
-                currentLoggedInUser = { username: u, employee_name: 'محمد القحطاني', role: 'admin' };
+            try {
+                // التحقق من جدول app_users في Supabase أولاً
+                const { data, error } = await client.from('app_users').select('*').eq('username', u).eq('password', p).maybeSingle();
+
+                if (data) {
+                    if (data.status === 'موقوف') {
+                        document.getElementById('loginError').innerText = 'عذراً، هذا الحساب موقوف حالياً.';
+                        document.getElementById('loginError').classList.remove('hidden');
+                        return;
+                    }
+                    currentLoggedInUser = data;
+                } else {
+                    // دخول احتياطي فوري للإدارة في حال عدم توفر الاتصال الفوري بالجدول
+                    if ((u === 'admin' && p === 'admin123') || (u === 'mohammad' && p === '123456')) {
+                        currentLoggedInUser = { username: u, employee_name: 'محمد القحطاني', role: 'admin' };
+                    } else {
+                        document.getElementById('loginError').innerText = 'خطأ في اسم المستخدم أو كلمة المرور.';
+                        document.getElementById('loginError').classList.remove('hidden');
+                        return;
+                    }
+                }
+
                 document.getElementById('loginSection').classList.add('hidden');
                 document.getElementById('mainDashboard').classList.remove('hidden');
+                document.getElementById('currentUserBadge').innerText = (currentLoggedInUser.employee_name || u) + (currentLoggedInUser.role === 'admin' ? ' (مدير)' : ' (مستخدم)');
                 
-                document.getElementById('currentUserBadge').innerText = 'محمد القحطاني (مدير)';
                 loadAllData();
-            } else {
-                document.getElementById('loginError').innerText = 'خطأ في اسم المستخدم أو كلمة المرور (استخدم admin / admin123)';
+            } catch (err) {
+                console.error("Login error:", err);
+                document.getElementById('loginError').innerText = 'حدث خطأ في الاتصال، حاول مرة أخرى.';
                 document.getElementById('loginError').classList.remove('hidden');
             }
         }
@@ -647,7 +668,6 @@
                 let totalRev = 0;
                 let collected = 0;
                 let remaining = 0;
-                let activeCount = 0;
 
                 const activeTable = document.getElementById('dashActiveTripsTable');
                 let activeTripsList = [];
@@ -660,7 +680,6 @@
                             remaining += parseFloat(t.remaining_amount || 0);
                         }
                         if (t.status === 'جارية') {
-                            activeCount++;
                             activeTripsList.push(t);
                         }
                     });
@@ -671,7 +690,6 @@
                 document.getElementById('dashRemainingAmount').innerText = remaining.toLocaleString() + ' ر.س';
                 document.getElementById('dashTotalTrips').innerText = trips ? trips.length : 0;
 
-                // إحصائيات الشاحنات
                 const totalTrucks = trucks ? trucks.length : 0;
                 const readyTrucks = trucks ? trucks.filter(t => t.status === 'جاهزة للعمل').length : 0;
                 const busyTrucks = trucks ? trucks.filter(t => t.status === 'في رحلة').length : 0;
@@ -682,7 +700,6 @@
                 document.getElementById('dashBusyTrucks').innerText = busyTrucks;
                 document.getElementById('dashMaintTrucks').innerText = maintTrucks;
 
-                // إحصائيات السائقين
                 const totalDrivers = drivers ? drivers.length : 0;
                 const readyDrivers = drivers ? drivers.filter(d => d.status === 'متوفر').length : 0;
                 const busyDrivers = drivers ? drivers.filter(d => d.status === 'في رحلة').length : 0;
@@ -693,7 +710,6 @@
                 document.getElementById('dashBusyDrivers').innerText = busyDrivers;
                 document.getElementById('dashOffDrivers').innerText = offDrivers;
 
-                // جدول الرحلات النشطة
                 if (activeTripsList.length > 0) {
                     activeTable.innerHTML = activeTripsList.map(tr => `
                         <tr class="hover:bg-slate-50 transition">
@@ -1325,7 +1341,7 @@
 
         async function deleteUser(id) {
             if (confirm('هل أنت متأكد من حذف هذا المستخدم نهائياً؟')) {
-                The { error } = await client.from('app_users').delete().eq('id', id);
+                const { error } = await client.from('app_users').delete().eq('id', id);
                 if (!error) loadUsers();
             }
         }
@@ -1333,8 +1349,8 @@
         function handleLogout() {
             document.getElementById('mainDashboard').classList.add('hidden');
             document.getElementById('loginSection').classList.remove('hidden');
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
+            document.getElementById('usernameInput').value = '';
+            document.getElementById('passwordInput').value = '';
         }
     </script>
 </body>
