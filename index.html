@@ -8,7 +8,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style> body { font-family: 'Cairo', sans-serif; } </style>
+    <style> 
+        body { font-family: 'Cairo', sans-serif; } 
+        @media print {
+            body * { visibility: hidden; }
+            #printableReport, #printableReport * { visibility: visible; }
+            #printableReport { position: absolute; left: 0; top: 0; width: 100%; }
+            .no-print { display: none !important; }
+        }
+    </style>
 </head>
 <body class="bg-slate-100 min-h-screen flex items-center justify-center p-2 md:p-4">
 
@@ -65,6 +73,9 @@
                     </button>
                     <button onclick="switchTab('drivers')" id="tabDriversBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition text-slate-300 hover:bg-slate-800 hover:text-white">
                         <i class="fa-solid fa-users text-base"></i> السائقين
+                    </button>
+                    <button onclick="switchTab('reports')" id="tabReportsBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition text-slate-300 hover:bg-slate-800 hover:text-white">
+                        <i class="fa-solid fa-chart-line text-base"></i> التقارير والطباعة
                     </button>
                     <button onclick="switchTab('users')" id="tabUsersBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition text-slate-300 hover:bg-slate-800 hover:text-white">
                         <i class="fa-solid fa-user-shield text-base"></i> المستخدمين
@@ -159,7 +170,6 @@
                         <h3 class="font-bold text-slate-900 text-sm flex items-center">
                             <i class="fa-solid fa-list-check text-amber-500 ml-2"></i> سجل الرحلات الجارية والسابقة
                         </h3>
-                        <!-- زر تصفير عداد الرحلات (يظهر للآدمن فقط) -->
                         <div id="resetCounterContainer"></div>
                     </div>
                     <div class="overflow-x-auto flex-grow">
@@ -178,6 +188,102 @@
                                 <tr><td colspan="6" class="text-center p-8 text-slate-400">جاري التحميل...</td></tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </main>
+
+            <!-- قسم التقارير والطباعة الجديد -->
+            <main id="reportsSection" class="hidden p-6 md:p-8 flex flex-col flex-grow overflow-y-auto">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-6 no-print">
+                    <h3 class="font-bold text-slate-900 text-sm mb-4 flex items-center border-b border-slate-100 pb-3">
+                        <i class="fa-solid fa-filter text-amber-500 ml-2"></i> تحديد فترة التقرير والفلترة
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">من تاريخ</label>
+                            <input type="date" id="reportStartDate" class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">إلى تاريخ</label>
+                            <input type="date" id="reportEndDate" class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500">
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="generateReport()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-3 rounded-xl text-xs transition shadow-sm">
+                                <i class="fa-solid fa-magnifying-glass ml-1"></i> عرض التقرير
+                            </button>
+                            <button onclick="window.print()" class="bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold px-4 py-3 rounded-xl text-xs transition shadow-sm" title="طباعة التقرير">
+                                <i class="fa-solid fa-print"></i> طباعة
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- محتوى التقرير القابل للطباعة -->
+                <div id="printableReport" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex-grow flex flex-col">
+                    <div class="text-center border-b border-slate-200 pb-6 mb-6">
+                        <h2 class="text-lg font-black text-slate-900">شركة الاختيار العالمي للنقليات</h2>
+                        <p class="text-xs text-amber-600 font-bold mt-1">تقرير أداء الأسطول (الشاحنات والسائقين والمبالغ المالية)</p>
+                        <p id="reportPeriodLabel" class="text-[11px] text-slate-500 mt-1">الفترة: جميع الرحلات المسجلة</p>
+                    </div>
+
+                    <!-- إحصائيات عامة -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
+                            <span class="block text-[11px] text-slate-500 font-bold">إجمالي عدد الرحلات</span>
+                            <span id="repTotalTrips" class="text-base font-black text-slate-900">0</span>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
+                            <span class="block text-[11px] text-slate-500 font-bold">إجمالي المبالغ</span>
+                            <span id="repTotalAmount" class="text-base font-black text-slate-900 font-mono">0 ر.س</span>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
+                            <span class="block text-[11px] text-slate-500 font-bold">المبالغ المحصلة (المدفوع)</span>
+                            <span id="repPaidAmount" class="text-base font-black text-emerald-600 font-mono">0 ر.س</span>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
+                            <span class="block text-[11px] text-slate-500 font-bold">المبالغ المتبقية</span>
+                            <span id="repRemainingAmount" class="text-base font-black text-rose-600 font-mono">0 ر.س</span>
+                        </div>
+                    </div>
+
+                    <!-- تقرير الشاحنات -->
+                    <div class="mb-8">
+                        <h4 class="font-bold text-slate-900 text-xs mb-3 flex items-center"><i class="fa-solid fa-truck text-amber-500 ml-2"></i> تفاصيل رحلات ومبالغ الشاحنات</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-right text-xs text-slate-700 border border-slate-200 rounded-xl overflow-hidden">
+                                <thead class="bg-slate-100 text-slate-700">
+                                    <tr>
+                                        <th class="p-3">رقم اللوحة</th>
+                                        <th class="p-3">الموديل</th>
+                                        <th class="p-3 text-center">عدد الرحلات</th>
+                                        <th class="p-3">إجمالي مبالغ الشاحنة</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="truckReportTable" class="divide-y divide-slate-100">
+                                    <tr><td colspan="4" class="text-center p-4 text-slate-400">جاري الحساب...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- تقرير السائقين -->
+                    <div class="mb-4">
+                        <h4 class="font-bold text-slate-900 text-xs mb-3 flex items-center"><i class="fa-solid fa-users text-amber-500 ml-2"></i> تفاصيل رحلات ومبالغ السائقين</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-right text-xs text-slate-700 border border-slate-200 rounded-xl overflow-hidden">
+                                <thead class="bg-slate-100 text-slate-700">
+                                    <tr>
+                                        <th class="p-3">اسم السائق</th>
+                                        <th class="p-3">رقم الجوال</th>
+                                        <th class="p-3 text-center">عدد الرحلات</th>
+                                        <th class="p-3">إجمالي مبالغ السائق</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="driverReportTable" class="divide-y divide-slate-100">
+                                    <tr><td colspan="4" class="text-center p-4 text-slate-400">جاري الحساب...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </main>
@@ -424,6 +530,7 @@
             loadUsers();
             loadDropdowns();
             renderAdminControls();
+            generateReport();
         }
 
         function renderAdminControls() {
@@ -457,9 +564,10 @@
         }
 
         function switchTab(tab) {
-            ['tripsSection', 'trucksSection', 'driversSection', 'usersSection'].forEach(s => document.getElementById(s).classList.add('hidden'));
-            ['tabTripsBtn', 'tabTrucksBtn', 'tabDriversBtn', 'tabUsersBtn'].forEach(b => {
-                document.getElementById(b).className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition text-slate-300 hover:bg-slate-800 hover:text-white';
+            ['tripsSection', 'trucksSection', 'driversSection', 'reportsSection', 'usersSection'].forEach(s => document.getElementById(s).classList.add('hidden'));
+            ['tabTripsBtn', 'tabTrucksBtn', 'tabDriversBtn', 'tabReportsBtn', 'tabUsersBtn'].forEach(b => {
+                const el = document.getElementById(b);
+                if(el) el.className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition text-slate-300 hover:bg-slate-800 hover:text-white';
             });
 
             if (tab === 'trips') {
@@ -477,11 +585,106 @@
                 document.getElementById('tabDriversBtn').className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition bg-amber-500 text-slate-900 shadow-sm';
                 document.getElementById('pageTitle').innerText = 'إدارة أسطول السائقين';
                 loadDrivers();
+            } else if (tab === 'reports') {
+                document.getElementById('reportsSection').classList.remove('hidden');
+                document.getElementById('tabReportsBtn').className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition bg-amber-500 text-slate-900 shadow-sm';
+                document.getElementById('pageTitle').innerText = 'تقارير الأسطول والطباعة';
+                generateReport();
             } else {
                 document.getElementById('usersSection').classList.remove('hidden');
                 document.getElementById('tabUsersBtn').className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition bg-amber-500 text-slate-900 shadow-sm';
                 document.getElementById('pageTitle').innerText = 'إدارة مستخدمي النظام';
                 loadUsers();
+            }
+        }
+
+        // محرك توليد وفلترة التقارير
+        async function generateReport() {
+            const startDate = document.getElementById('reportStartDate').value;
+            const endDate = document.getElementById('reportEndDate').value;
+            
+            const periodLabel = document.getElementById('reportPeriodLabel');
+            if (startDate && endDate) {
+                periodLabel.innerText = `الفترة من: ${startDate} إلى: ${endDate}`;
+            } else if (startDate) {
+                periodLabel.innerText = `الفترة ابتداءً من: ${startDate}`;
+            } else if (endDate) {
+                periodLabel.innerText = `الفترة حتى تاريخ: ${endDate}`;
+            } else {
+                periodLabel.innerText = `الفترة: جميع الرحلات المسجلة`;
+            }
+
+            try {
+                let query = client.from('trips').select('*');
+                if (startDate) query = query.gte('departure_date', startDate);
+                if (endDate) query = query.lte('departure_date', endDate);
+
+                const { data: trips, error } = await query;
+                if (error) throw error;
+
+                const { data: trucks } = await client.from('trucks').select('*');
+                const { data: drivers } = await client.from('drivers').select('*');
+
+                let totalTrips = trips ? trips.length : 0;
+                let totalAmount = 0;
+                let paidAmount = 0;
+                let remainingAmount = 0;
+
+                if (trips) {
+                    trips.forEach(t => {
+                        if (t.status !== 'ملغاة') {
+                            totalAmount += parseFloat(t.total_amount || 0);
+                            paidAmount += parseFloat(t.paid_amount || 0);
+                            remainingAmount += parseFloat(t.remaining_amount || 0);
+                        }
+                    });
+                }
+
+                document.getElementById('repTotalTrips').innerText = totalTrips;
+                document.getElementById('repTotalAmount').innerText = totalAmount.toLocaleString() + ' ر.س';
+                document.getElementById('repPaidAmount').innerText = paidAmount.toLocaleString() + ' ر.س';
+                document.getElementById('repRemainingAmount').innerText = remainingAmount.toLocaleString() + ' ر.س';
+
+                // تقارير الشاحنات
+                const truckTable = document.getElementById('truckReportTable');
+                if (trucks && trucks.length > 0) {
+                    truckTable.innerHTML = trucks.map(tr => {
+                        const truckTrips = trips ? trips.filter(t => t.truck_plate === tr.plate && t.status !== 'ملغاة') : [];
+                        const truckSum = truckTrips.reduce((acc, curr) => acc + parseFloat(curr.total_amount || 0), 0);
+                        return `
+                            <tr>
+                                <td class="p-3 font-bold text-slate-900">لوحة: ${tr.plate}</td>
+                                <td class="p-3 text-slate-600">${tr.model || '---'}</td>
+                                <td class="p-3 text-center font-bold text-amber-600">${truckTrips.length} رحلات</td>
+                                <td class="p-3 font-mono font-bold text-slate-900">${truckSum.toLocaleString()} ر.س</td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    truckTable.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-400">لا توجد شاحنات مسجلة</td></tr>`;
+                }
+
+                // تقارير السائقين
+                const driverTable = document.getElementById('driverReportTable');
+                if (drivers && drivers.length > 0) {
+                    driverTable.innerHTML = drivers.map(dr => {
+                        const drTrips = trips ? trips.filter(t => t.driver_name === dr.name && t.status !== 'ملغاة') : [];
+                        const drSum = drTrips.reduce((acc, curr) => acc + parseFloat(curr.total_amount || 0), 0);
+                        return `
+                            <tr>
+                                <td class="p-3 font-bold text-slate-900">${dr.name}</td>
+                                <td class="p-3 text-slate-600 font-mono">${dr.phone}</td>
+                                <td class="p-3 text-center font-bold text-amber-600">${drTrips.length} رحلات</td>
+                                <td class="p-3 font-mono font-bold text-slate-900">${drSum.toLocaleString()} ر.س</td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    driverTable.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-400">لا توجد سائقين مسجلين</td></tr>`;
+                }
+
+            } catch (err) {
+                console.error("Error generating report:", err);
             }
         }
 
@@ -926,7 +1129,7 @@
 
         function resetUserForm() {
             document.getElementById('appUserId').value = '';
-            document.querySelector('#usersSection form').reset();
+            document.querySelector('#usersSection form'].reset();
             document.getElementById('userFormTitle').innerHTML = `<i class="fa-solid fa-user-plus text-amber-500 ml-2"></i> إضافة مستخدم جديد`;
             document.getElementById('saveUserBtn').innerText = 'حفظ المستخدم';
             document.getElementById('cancelUserBtn').classList.add('hidden');
