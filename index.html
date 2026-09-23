@@ -42,7 +42,7 @@
                 </div>
                 <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">شركة الاختيار العالمي للنقليات</h2>
                 <p class="text-amber-600 font-semibold text-[10px] sm:text-xs tracking-wider uppercase mt-1">Global Choice Transportation</p>
-                <p class="text-gray-400 text-xs mt-1">نظام متابعة أسطول الشاحنات والرحلات اللوجستية (متزامن سحابياً)</p>
+                <p class="text-gray-400 text-xs mt-1">نظام متابعة أسطول الشاحنات والرحلات (متزامن سحابياً بالكامل)</p>
             </div>
             
             <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4 sm:space-y-5">
@@ -116,7 +116,6 @@
                 </nav>
             </div>
 
-            <!-- أزرار النسخ الاحتياطي وإدارة الحساب -->
             <div class="p-3 sm:p-4 border-t border-slate-800/80 space-y-2">
                 <div class="flex items-center justify-between px-2 text-xs text-slate-400">
                     <span>المستخدم:</span>
@@ -146,10 +145,10 @@
                 <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                     <div>
                         <div class="inline-flex items-center gap-1.5 px-3 py-0.5 bg-emerald-500/20 border border-emerald-400/40 rounded-full text-emerald-300 text-[10px] font-bold mb-1.5">
-                            <i class="fa-solid fa-bolt text-amber-400 animate-pulse"></i> نظام إدارة الأسطول والرحلات (متزامن سحابياً لجميع الأجهزة)
+                            <i class="fa-solid fa-bolt text-amber-400 animate-pulse"></i> نظام إدارة الأسطول والرحلات (متزامن سحابياً لحظياً)
                         </div>
                         <h1 class="text-xl md:text-3xl font-black text-white">شركة الاختيار العالمي للنقليات</h1>
-                        <p class="text-slate-300 text-[11px] sm:text-xs mt-0.5">إدارة حركة الشاحنات والرحلات والمستحقات المالية لحظياً</p>
+                        <p class="text-slate-300 text-[11px] sm:text-xs mt-0.5">متابعة الأسطول والماليات والتزامن الفوري بين الأجهزة</p>
                     </div>
                 </div>
             </div>
@@ -222,7 +221,7 @@
                 <!-- 3. الشاحنات -->
                 <section id="sec-trucks" class="hidden space-y-4">
                     <div class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm">
-                        <h2 class="text-lg font-bold text-slate-900">إدارة أسطول الشاحنات (اللوحات كنص متكامل)</h2>
+                        <h2 class="text-lg font-bold text-slate-900">إدارة أسطول الشاحنات</h2>
                         <button onclick="openTruckModal()" class="bg-amber-600 text-white font-bold py-2.5 px-4 rounded-xl text-xs"><i class="fa-solid fa-plus"></i> إضافة شاحنة</button>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="trucks-grid"></div>
@@ -272,7 +271,6 @@
                             </button>
                         </div>
 
-                        <!-- أدوات الفلترة بالفترة -->
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-4 rounded-2xl border">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">من تاريخ</label>
@@ -287,7 +285,6 @@
                             </div>
                         </div>
 
-                        <!-- جدول تقارير الشاحنات -->
                         <div class="space-y-2">
                             <h3 class="font-bold text-sm text-slate-800"><i class="fa-solid fa-truck text-amber-500 ml-1"></i> تقرير الشاحنات على حدة</h3>
                             <div class="overflow-x-auto border rounded-2xl p-2">
@@ -307,7 +304,6 @@
                             </div>
                         </div>
 
-                        <!-- جدول تقارير السائقين -->
                         <div class="space-y-2 pt-2">
                             <h3 class="font-bold text-sm text-slate-800"><i class="fa-solid fa-user-tie text-purple-500 ml-1"></i> تقرير السائقين على حدة</h3>
                             <div class="overflow-x-auto border rounded-2xl p-2">
@@ -332,11 +328,11 @@
         </main>
     </div>
 
-    <!-- نافذة نسيت كلمة المرور -->
+    <!-- النافذة المنسدلة لاستعادة كلمة المرور -->
     <div id="forgotPasswordModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl">
             <h3 class="text-lg font-bold text-slate-900 mb-2">استعادة كلمة المرور</h3>
-            <p class="text-xs text-slate-500 mb-4">يرجى التواصل مع مدير النظام (الأدمن - أبو سعيد) لإعادة تعيين كلمة المرور الخاصة بحسابك.</p>
+            <p class="text-xs text-slate-500 mb-4">يرجى التواصل مع مدير النظام (أبو سعيد) لإعادة تعيين كلمة المرور.</p>
             <div class="flex justify-end pt-2">
                 <button type="button" onclick="closeForgotPasswordModal()" class="px-5 py-2.5 bg-slate-900 text-amber-400 font-bold rounded-xl text-xs">حسناً، فهمت</button>
             </div>
@@ -434,8 +430,8 @@
             <h3 class="text-lg font-bold text-slate-900 mb-4">إدارة شاحنة</h3>
             <form onsubmit="saveTruck(event)" class="space-y-3">
                 <input type="hidden" id="truckEditId">
-                <div><input type="text" id="truckPlate" required placeholder="رقم اللوحة (مثال: أ ب ج 2841 أو 2841)" class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></div>
-                <div><input type="text" id="truckModel" required placeholder="الموديل (مثال: مرسيدس)" class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></div>
+                <div><input type="text" id="truckPlate" required placeholder="رقم اللوحة (مثال: 2841)" class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></div>
+                <div><input type="text" id="truckModel" required placeholder="الموديل" class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></div>
                 <div>
                     <select id="truckStatus" class="w-full p-3 bg-slate-50 border rounded-xl text-xs">
                         <option value="جاهزة للتحميل">جاهزة للتحميل</option>
@@ -489,7 +485,7 @@
     </div>
 
     <script>
-        // إعدادات ربط Firebase السحابي المشترك (يتزامن لحظياً بين الكمبيوتر والجوال والايباد)
+        // إعدادات الاتصال بقاعدة البيانات السحابية المشتركة (تزامن لحظي بين الكمبيوتر، الجوال، والايباد)
         const firebaseConfig = {
             databaseURL: "https://global-choice-fleet-default-rtdb.asia-southeast1.firebasedatabase.app"
         };
@@ -502,7 +498,7 @@
         let trips = [];
         let currentUser = null;
 
-        // الاستماع الفوري للتغييرات السحابية عبر جميع الأجهزة المتصلة
+        // الاستماع الفوري للبيانات من السحابة وتحديث الشاشة تلقائياً دون الحاجة لتحديث الصفحة
         db.ref('fleetData').on('value', (snapshot) => {
             const val = snapshot.val();
             if (val) {
@@ -510,10 +506,13 @@
                 if(val.trucks) trucks = val.trucks;
                 if(val.drivers) drivers = val.drivers;
                 if(val.trips) trips = val.trips;
-                if (currentUser) renderAll();
+                if (currentUser) {
+                    renderAll();
+                }
             }
         });
 
+        // دالة الحفظ السحابي الإلزامي
         function syncToCloud() {
             db.ref('fleetData').set({ users, trucks, drivers, trips });
         }
@@ -738,7 +737,7 @@
             const availableDrivers = drivers.filter(d => d.status !== 'في رحلة نشطة' && d.status !== 'في إجازة');
 
             document.getElementById('tripTruckId').innerHTML = availableTrucks.length ? availableTrucks.map(t => `<option value="${t.id}">لوحة: ${t.plate} (${t.model})</option>`).join('') : '<option value="">لا توجد شاحنات متاحة حالياً</option>';
-            document.getElementById('tripDriverId').innerHTML = availableDrivers.length ? availableDrivers.map(d => `<option value="${d.id}">${d.name}</option>`).join('') : '<option value="">لا توجد سائقين متاحيين حالياً</option>';
+            document.getElementById('tripDriverId').innerHTML = availableDrivers.length ? availableDrivers.map(d => `<option value="${d.id}">${d.name}</option>`).join('') : '<option value="">لا توجد سائقين متاحين حالياً</option>';
             
             document.getElementById('tripModal').classList.remove('hidden');
         }
@@ -785,7 +784,6 @@
             closeTripModal();
         }
 
-        // تصفير سجل الرحلات (للأدمن فقط)
         function resetAllTrips() {
             if(currentUser.role !== 'admin') {
                 alert('هذا الإجراء مخصص لمدير النظام (الأدمن) فقط.');
@@ -799,7 +797,6 @@
             }
         }
 
-        // سداد دفعة مالية
         function openPaymentModal(tripId) {
             const t = trips.find(x => x.id == tripId);
             if(t) {
@@ -831,7 +828,6 @@
             }
         }
 
-        // إنهاء الرحلة وتحرير الشاحنة والسائق
         function finishTrip(tripId) {
             if(confirm('هل أنت متأكد من إنهاء هذه الرحلة وتحرير الشاحنة والسائق؟')) {
                 const t = trips.find(x => x.id == tripId);
@@ -846,7 +842,6 @@
             }
         }
 
-        // إلغاء الرحلة
         function cancelTrip(tripId) {
             if(confirm('هل تريد إلغاء هذه الرحلة وسيتم خصم مبالغها المعلقة؟')) {
                 const t = trips.find(x => x.id == tripId);
@@ -900,7 +895,6 @@
             }).join('');
         }
 
-        // التقارير المتقدمة
         function generateAdvancedReports() {
             const startDate = document.getElementById('repStartDate').value;
             const endDate = document.getElementById('repEndDate').value;
@@ -959,7 +953,6 @@
             generateAdvancedReports();
         }
 
-        // المستخدمين والصلاحيات
         function openUserModal() {
             document.getElementById('newUsername').value = '';
             document.getElementById('newFullName').value = '';
