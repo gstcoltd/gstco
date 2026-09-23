@@ -58,10 +58,13 @@
         </header>
 
         <main class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 flex-grow">
-            <!-- نموذج إضافة شاحنة -->
+            <!-- نموذج إضافة أو تعديل شاحنة -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 h-fit">
-                <h3 class="font-bold text-slate-900 text-sm mb-4 flex items-center"><i class="fa-solid fa-circle-plus text-amber-500 ml-2"></i> إضافة شاحنة جديدة</h3>
-                <form onsubmit="addTruck(event)" class="space-y-3">
+                <h3 id="formTitle" class="font-bold text-slate-900 text-sm mb-4 flex items-center">
+                    <i class="fa-solid fa-circle-plus text-amber-500 ml-2"></i> إضافة شاحنة جديدة
+                </h3>
+                <form onsubmit="saveTruck(event)" class="space-y-3">
+                    <input type="hidden" id="truckId">
                     <div>
                         <label class="block text-[11px] font-bold text-slate-600 mb-1">رقم اللوحة (أحرف وأرقام)</label>
                         <input type="text" id="truckPlate" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="مثال: أ ب ج 2841">
@@ -79,7 +82,10 @@
                             <option value="عطلانة">عطلانة</option>
                         </select>
                     </div>
-                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2.5 rounded-xl text-xs shadow transition">حفظ وإضافة الشاحنة</button>
+                    <div class="flex gap-2">
+                        <button type="submit" id="saveBtn" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2.5 rounded-xl text-xs shadow transition">حفظ</button>
+                        <button type="button" id="cancelBtn" onclick="resetForm()" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-3 py-2.5 rounded-xl text-xs transition">إلغاء</button>
+                    </div>
                 </form>
             </div>
 
@@ -118,7 +124,7 @@
             const u = document.getElementById('username').value.trim();
             const p = document.getElementById('password').value.trim();
 
-            const { data, error } = await client
+            const { data } = await client
                 .from('app_users')
                 .select('*')
                 .eq('username', u)
@@ -135,7 +141,7 @@
         }
 
         async function loadTrucks() {
-            const { data: trucks, error } = await client.from('trucks').select('*').order('id', { ascending: false });
+            const { data: trucks } = await client.from('trucks').select('*').order('id', { ascending: false });
             const table = document.getElementById('trucksTable');
             
             if (trucks && trucks.length > 0) {
@@ -150,8 +156,9 @@
                             <td class="p-3 font-black text-slate-900">${tr.plate}</td>
                             <td class="p-3 text-slate-600">${tr.model || '---'}</td>
                             <td class="p-3"><span class="${badgeColor} px-2.5 py-1 rounded-full text-[10px] font-bold">${tr.status}</span></td>
-                            <td class="p-3 text-center">
-                                <button onclick="deleteTruck(${tr.id})" class="text-rose-500 hover:text-rose-700 font-bold p-1"><i class="fa-solid fa-trash-can"></i></button>
+                            <td class="p-3 text-center space-x-1 space-x-reverse">
+                                <button onclick="editTruck(${tr.id}, '${tr.plate}', '${tr.model || ''}', '${tr.status}')" class="text-amber-600 hover:text-amber-800 font-bold p-1" title="تعديل"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button onclick="deleteTruck(${tr.id})" class="text-rose-500 hover:text-rose-700 font-bold p-1" title="حذف"><i class="fa-solid fa-trash-can"></i></button>
                             </td>
                         </tr>
                     `;
@@ -161,20 +168,53 @@
             }
         }
 
-        async function addTruck(e) {
+        async function saveTruck(e) {
             e.preventDefault();
+            const id = document.getElementById('truckId').value;
             const plate = document.getElementById('truckPlate').value.trim();
             const model = document.getElementById('truckModel').value.trim();
             const status = document.getElementById('truckStatus').value;
 
-            const { error } = await client.from('trucks').insert([{ plate, model, status }]);
-            if (!error) {
-                alert('تمت إضافة الشاحنة بنجاح!');
-                e.target.reset();
-                loadTrucks();
+            if (id) {
+                // تحديث شاحنة موجودة
+                const { error } = await client.from('trucks').update({ plate, model, status }).eq('id', id);
+                if (!error) {
+                    alert('تم تحديث بيانات الشاحنة بنجاح!');
+                    resetForm();
+                    loadTrucks();
+                } else {
+                    alert('تعذر التحديث، تأكد من عدم تكرار رقم اللوحة.');
+                }
             } else {
-                alert('خطأ: رقم اللوحة موجود مسبقاً أو حدث مشكلة في الحفظ.');
+                // إضافة شاحنة جديدة
+                const { error } = await client.from('trucks').insert([{ plate, model, status }]);
+                if (!error) {
+                    alert('تمت إضافة الشاحنة بنجاح!');
+                    resetForm();
+                    loadTrucks();
+                } else {
+                    alert('خطأ: رقم اللوحة موجود مسبقاً أو حدث مشكلة في الحفظ.');
+                }
             }
+        }
+
+        function editTruck(id, plate, model, status) {
+            document.getElementById('truckId').value = id;
+            document.getElementById('truckPlate').value = plate;
+            document.getElementById('truckModel').value = model;
+            document.getElementById('truckStatus').value = status;
+            
+            document.getElementById('formTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-500 ml-2"></i> تعديل بيانات الشاحنة`;
+            document.getElementById('saveBtn').innerText = 'تحديث البيانات';
+            document.getElementById('cancelBtn').classList.remove('hidden');
+        }
+
+        function resetForm() {
+            document.getElementById('truckId').value = '';
+            document.querySelector('form').reset();
+            document.getElementById('formTitle').innerHTML = `<i class="fa-solid fa-circle-plus text-amber-500 ml-2"></i> إضافة شاحنة جديدة`;
+            document.getElementById('saveBtn').innerText = 'حفظ';
+            document.getElementById('cancelBtn').classList.add('hidden');
         }
 
         async function deleteTruck(id) {
