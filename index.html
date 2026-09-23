@@ -33,10 +33,10 @@
                 </div>
                 <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">شركة الاختيار العالمي للنقليات</h2>
                 <p class="text-amber-600 font-semibold text-[10px] sm:text-xs tracking-wider uppercase mt-1">Global Choice Transportation</p>
-                <p class="text-gray-400 text-xs mt-1">نظام متابعة أسطول الشاحنات والرحلات (متزامن سحابياً)</p>
+                <p class="text-gray-400 text-xs mt-1">نظام إدارة الأسطول (قاعدة بيانات سحابية مترابطة)</p>
             </div>
             
-            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4 sm:space-y-5">
+            <form onsubmit="handleLogin(event)" class="space-y-4 sm:space-y-5">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1.5">اسم المستخدم</label>
                     <div class="relative">
@@ -93,10 +93,6 @@
                     <span>المستخدم:</span>
                     <span id="currentUserName" class="font-bold text-amber-400">الآدمن</span>
                 </div>
-                <div class="grid grid-cols-2 gap-1">
-                    <button onclick="exportBackup()" class="bg-amber-600 hover:bg-amber-700 text-slate-950 py-2 px-1 rounded-xl transition text-[10px] font-bold shadow-md flex items-center justify-center gap-1"><i class="fa-solid fa-download"></i> تصدير</button>
-                    <label class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-1 rounded-xl transition text-[10px] font-bold shadow-md flex items-center justify-center gap-1 cursor-pointer"><i class="fa-solid fa-upload"></i> استعادة<input type="file" id="importFile" onchange="importBackup(event)" accept=".json" class="hidden"></label>
-                </div>
                 <button onclick="handleLogout()" class="w-full flex items-center justify-center gap-1.5 bg-rose-600 hover:bg-rose-700 text-white py-2 rounded-xl transition text-[11px] font-bold shadow-md"><i class="fa-solid fa-right-from-bracket"></i> تسجيل خروج</button>
             </div>
         </aside>
@@ -105,11 +101,16 @@
             <div class="relative bg-slate-900 text-white px-4 py-6 md:px-10 md:py-10 shadow-lg overflow-hidden">
                 <div class="absolute inset-0 z-0 opacity-20 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?q=80&w=1920&auto=format&fit=crop');"></div>
                 <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/90 to-transparent z-0"></div>
-                <div class="relative z-10">
-                    <div class="inline-flex items-center gap-1.5 px-3 py-0.5 bg-emerald-500/20 border border-emerald-400/40 rounded-full text-emerald-300 text-[10px] font-bold mb-1.5">
-                        <i class="fa-solid fa-bolt text-amber-400"></i> النظام متزامن سحابياً لحظياً
+                <div class="relative z-10 flex justify-between items-center">
+                    <div>
+                        <div class="inline-flex items-center gap-1.5 px-3 py-0.5 bg-emerald-500/20 border border-emerald-400/40 rounded-full text-emerald-300 text-[10px] font-bold mb-1.5">
+                            <i class="fa-solid fa-bolt text-amber-400"></i> قاعدة بيانات الجداول المباشرة (عبر Supabase)
+                        </div>
+                        <h1 class="text-xl md:text-3xl font-black text-white">شركة الاختيار العالمي للنقليات</h1>
                     </div>
-                    <h1 class="text-xl md:text-3xl font-black text-white">شركة الاختيار العالمي للنقليات</h1>
+                    <button onclick="loadAllDataFromCloud()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 px-3.5 py-2 rounded-xl text-xs font-bold shadow flex items-center gap-1.5">
+                        <i class="fa-solid fa-rotate"></i> تحديث البيانات
+                    </button>
                 </div>
             </div>
 
@@ -232,8 +233,8 @@
                     <div><label class="block text-xs font-bold mb-1">إلى (التفريغ)</label><input type="text" id="tripTo" required class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></div>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
-                    <div><label class="block text-xs font-bold mb-1">الشاحنة</label><select id="tripTruckId" required class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></select></div>
-                    <div><label class="block text-xs font-bold mb-1">السائق</label><select id="tripDriverId" required class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></select></div>
+                    <div><label class="block text-xs font-bold mb-1">الشاحنة</label><select id="tripTruckPlate" required class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></select></div>
+                    <div><label class="block text-xs font-bold mb-1">السائق</label><select id="tripDriverName" required class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></select></div>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div><label class="block text-xs font-bold mb-1">المبلغ الإجمالي</label><input type="number" id="tripTotal" oninput="calcTrip()" required class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></div>
@@ -300,21 +301,20 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhtdHR3dGxhZWN6dmZqb3pzYW1hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNTU5NjIsImV4cCI6MjEwNTczMTk2Mn0.0-M1LVkNnbVSbUeYX_RueqUUcHNRbCtipCn5nGSuVNc';
         const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let users = [ { id: 1, username: 'admin', password: 'admin123', fullName: 'أبو سعيد (المدير)', role: 'admin', status: 'نشط' } ];
-        let trucks = [ { id: 101, plate: '2841', model: 'مرسيدس أكتروس', status: 'جاهزة للتحميل' } ];
-        let drivers = [ { id: 1, name: 'محمد علي', phone: '0501234567', status: 'متوفر' } ];
+        let trucks = [];
+        let drivers = [];
         let trips = [];
+        let users = [];
         let currentUser = null;
 
-        // التحقق عند فتح الصفحة إذا كان المستخدم مسجلاً مسبقاً
         window.addEventListener('DOMContentLoaded', async () => {
-            await loadFromSupabase();
+            await loadAllDataFromCloud();
             const savedUser = sessionStorage.getItem('gc_current_user');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
                 document.getElementById('loginSection').classList.add('hidden');
                 document.getElementById('mainDashboard').classList.remove('hidden');
-                document.getElementById('currentUserName').innerText = currentUser.fullName;
+                document.getElementById('currentUserName').innerText = currentUser.full_name;
                 if(currentUser.role !== 'admin') {
                     document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
                 } else {
@@ -324,29 +324,26 @@
             }
         });
 
-        async function loadFromSupabase() {
-            const { data, error } = await client.from('fleet_data').select('*').eq('data_key', 'main_store').maybeSingle();
-            if (data && data.payload) {
-                if(data.payload.users) users = data.payload.users;
-                if(data.payload.trucks) trucks = data.payload.trucks;
-                if(data.payload.drivers) drivers = data.payload.drivers;
-                if(data.payload.trips) trips = data.payload.trips;
-            } else {
-                await syncToCloud();
-            }
-        }
+        // جلب البيانات من الجداول المستقلة سحابياً
+        async function loadAllDataFromCloud() {
+            const resTrucks = await client.from('trucks').select('*');
+            if(resTrucks.data) trucks = resTrucks.data;
 
-        async function syncToCloud() {
-            await client.from('fleet_data').upsert({ 
-                data_key: 'main_store', 
-                payload: { users, trucks, drivers, trips }, 
-                updated_at: new Date() 
-            }, { onConflict: 'data_key' });
+            const resDrivers = await client.from('drivers').select('*');
+            if(resDrivers.data) drivers = resDrivers.data;
+
+            const resTrips = await client.from('trips').select('*');
+            if(resTrips.data) trips = resTrips.data;
+
+            const resUsers = await client.from('app_users').select('*');
+            if(resUsers.data) users = resUsers.data;
+
+            renderAll();
         }
 
         async function handleLogin(e) {
             e.preventDefault();
-            await loadFromSupabase();
+            await loadAllDataFromCloud();
 
             const u = document.getElementById('username').value.trim().toLowerCase();
             const p = document.getElementById('password').value.trim();
@@ -354,17 +351,16 @@
             const found = users.find(x => x.username.toLowerCase() === u && x.password === p && x.status !== 'موقوف');
             if (found) {
                 currentUser = found;
-                sessionStorage.setItem('gc_current_user', JSON.stringify(currentUser)); // حفظ الجلسة لتستمر عند التحديث
+                sessionStorage.setItem('gc_current_user', JSON.stringify(currentUser));
                 document.getElementById('loginSection').classList.add('hidden');
                 document.getElementById('mainDashboard').classList.remove('hidden');
-                document.getElementById('currentUserName').innerText = currentUser.fullName;
+                document.getElementById('currentUserName').innerText = currentUser.full_name;
                 
                 if(currentUser.role !== 'admin') {
                     document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
                 } else {
                     document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
                 }
-
                 renderAll();
             } else {
                 document.getElementById('loginError').classList.remove('hidden');
@@ -382,7 +378,7 @@
         function closeForgotPasswordModal() { document.getElementById('forgotPasswordModal').classList.add('hidden'); }
 
         async function switchTab(tab) {
-            await loadFromSupabase();
+            await loadAllDataFromCloud();
             ['dashboard', 'trips', 'trucks', 'drivers', 'users', 'reports'].forEach(t => {
                 document.getElementById(`sec-${t}`)?.classList.add('hidden');
                 document.getElementById(`nav-${t}`)?.classList.remove('bg-slate-800', 'text-amber-400');
@@ -411,7 +407,7 @@
             document.getElementById('stat-pending-amount').innerText = pending.toLocaleString() + ' ر.س';
         }
 
-        // الشاحنات
+        // إدارة الشاحنات (جدول trucks المستقل)
         function openTruckModal(id = null) {
             document.getElementById('truckEditId').value = '';
             document.getElementById('truckPlate').value = '';
@@ -428,32 +424,30 @@
             document.getElementById('truckModal').classList.remove('hidden');
         }
         function closeTruckModal() { document.getElementById('truckModal').classList.add('hidden'); }
+        
         async function saveTruck(e) {
             e.preventDefault();
-            await loadFromSupabase();
             const id = document.getElementById('truckEditId').value;
             const plate = document.getElementById('truckPlate').value.trim();
             const model = document.getElementById('truckModel').value.trim();
             const status = document.getElementById('truckStatus').value;
 
             if(id) {
-                const t = trucks.find(x => x.id == id);
-                if(t) { t.plate = plate; t.model = model; if(t.status !== 'في رحلة نشطة') t.status = status; }
+                await client.from('trucks').update({ plate, model, status }).eq('id', id);
             } else {
-                trucks.push({ id: Date.now(), plate, model, status });
+                await client.from('trucks').insert([{ plate, model, status }]);
             }
-            await syncToCloud();
             closeTruckModal();
-            renderAll();
+            await loadAllDataFromCloud();
         }
+
         async function deleteTruck(id) {
             if(confirm('هل أنت متأكد من حذف هذه الشاحنة؟')) {
-                await loadFromSupabase();
-                trucks = trucks.filter(x => x.id != id);
-                await syncToCloud();
-                renderAll();
+                await client.from('trucks').delete().eq('id', id);
+                await loadAllDataFromCloud();
             }
         }
+
         function renderTrucks() {
             document.getElementById('trucks-grid').innerHTML = trucks.map(t => `
                 <div class="bg-white p-4 rounded-2xl shadow-sm border space-y-2">
@@ -467,7 +461,7 @@
             `).join('');
         }
 
-        // السائقون
+        // إدارة السائقين (جدول drivers المستقل)
         function openDriverModal(id = null) {
             document.getElementById('driverEditId').value = '';
             document.getElementById('driverName').value = '';
@@ -484,32 +478,30 @@
             document.getElementById('driverModal').classList.remove('hidden');
         }
         function closeDriverModal() { document.getElementById('driverModal').classList.add('hidden'); }
+
         async function saveDriver(e) {
             e.preventDefault();
-            await loadFromSupabase();
             const id = document.getElementById('driverEditId').value;
             const name = document.getElementById('driverName').value.trim();
             const phone = document.getElementById('driverPhone').value.trim();
             const status = document.getElementById('driverStatus').value;
 
             if(id) {
-                const d = drivers.find(x => x.id == id);
-                if(d) { d.name = name; d.phone = phone; if(d.status !== 'في رحلة نشطة') d.status = status; }
+                await client.from('drivers').update({ name, phone, status }).eq('id', id);
             } else {
-                drivers.push({ id: Date.now(), name, phone, status });
+                await client.from('drivers').insert([{ name, phone, status }]);
             }
-            await syncToCloud();
             closeDriverModal();
-            renderAll();
+            await loadAllDataFromCloud();
         }
+
         async function deleteDriver(id) {
             if(confirm('هل أنت متأكد من حذف هذا السائق؟')) {
-                await loadFromSupabase();
-                drivers = drivers.filter(x => x.id != id);
-                await syncToCloud();
-                renderAll();
+                await client.from('drivers').delete().eq('id', id);
+                await loadAllDataFromCloud();
             }
         }
+
         function renderDrivers() {
             document.getElementById('drivers-grid').innerHTML = drivers.map(d => `
                 <div class="bg-white p-4 rounded-2xl shadow-sm border space-y-2">
@@ -523,7 +515,7 @@
             `).join('');
         }
 
-        // الرحلات
+        // إدارة الرحلات (جدول trips المستقل)
         function openTripModal() {
             document.getElementById('tripCustomer').value = '';
             document.getElementById('tripDate').valueAsDate = new Date();
@@ -536,8 +528,8 @@
             const availableTrucks = trucks.filter(t => t.status !== 'في رحلة نشطة' && t.status !== 'عطلانة/صيانة');
             const availableDrivers = drivers.filter(d => d.status !== 'في رحلة نشطة' && d.status !== 'في إجازة');
 
-            document.getElementById('tripTruckId').innerHTML = availableTrucks.length ? availableTrucks.map(t => `<option value="${t.id}">لوحة: ${t.plate} (${t.model})</option>`).join('') : '<option value="">لا توجد شاحنات متاحة حالياً</option>';
-            document.getElementById('tripDriverId').innerHTML = availableDrivers.length ? availableDrivers.map(d => `<option value="${d.id}">${d.name}</option>`).join('') : '<option value="">لا توجد سائقين متاحين حالياً</option>';
+            document.getElementById('tripTruckPlate').innerHTML = availableTrucks.length ? availableTrucks.map(t => `<option value="${t.plate}">لوحة: ${t.plate} (${t.model})</option>`).join('') : '<option value="">لا توجد شاحنات متاحة</option>';
+            document.getElementById('tripDriverName').innerHTML = availableDrivers.length ? availableDrivers.map(d => `<option value="${d.name}">${d.name}</option>`).join('') : '<option value="">لا توجد سائقين متاحين</option>';
             document.getElementById('tripModal').classList.remove('hidden');
         }
         function closeTripModal() { document.getElementById('tripModal').classList.add('hidden'); }
@@ -546,53 +538,59 @@
             const paid = parseFloat(document.getElementById('tripPaid').value) || 0;
             document.getElementById('tripPending').value = Math.max(0, total - paid);
         }
+
         async function saveTrip(e) {
             e.preventDefault();
-            await loadFromSupabase();
             const customer = document.getElementById('tripCustomer').value.trim();
-            const date = document.getElementById('tripDate').value;
-            const type = document.getElementById('tripType').value;
-            const fromLoc = document.getElementById('tripFrom').value.trim();
-            const toLoc = document.getElementById('tripTo').value.trim();
-            const truckId = document.getElementById('tripTruckId').value;
-            const driverId = document.getElementById('tripDriverId').value;
+            const trip_date = document.getElementById('tripDate').value;
+            const trip_type = document.getElementById('tripType').value;
+            const from_loc = document.getElementById('tripFrom').value.trim();
+            const to_loc = document.getElementById('tripTo').value.trim();
+            const truck_plate = document.getElementById('tripTruckPlate').value;
+            const driver_name = document.getElementById('tripDriverName').value;
             const total = parseFloat(document.getElementById('tripTotal').value) || 0;
             const paid = parseFloat(document.getElementById('tripPaid').value) || 0;
             const pending = total - paid;
 
-            if(!truckId || !driverId) {
-                alert('يجب توفر شاحنة وسائق متاحين.');
+            if(!truck_plate || !driver_name) {
+                alert('يجب اختيار شاحنة وسائق متاحين.');
                 return;
             }
 
-            const trk = trucks.find(x => x.id == truckId);
-            const drv = drivers.find(x => x.id == driverId);
-            if(trk) trk.status = 'في رحلة نشطة';
-            if(drv) drv.status = 'في رحلة نشطة';
+            let pay_status = 'معلق بالكامل';
+            if(paid === total) pay_status = 'مدفوع بالكامل';
+            else if(paid > 0) pay_status = 'سداد جزئي';
 
-            let payStatus = 'معلق بالكامل';
-            if(paid === total) payStatus = 'مدفوع بالكامل';
-            else if(paid > 0) payStatus = 'سداد جزئي';
+            const trip_number = 'TRP-' + (trips.length + 101);
 
-            trips.push({
-                id: Date.now(),
-                tripNumber: 'TRP-' + (trips.length + 101),
-                customer, date, type, fromLoc, toLoc, truckId, driverId, total, paid, pending,
-                payStatus, status: 'نشطة'
-            });
-            await syncToCloud();
+            // حفظ الرحلة
+            await client.from('trips').insert([{
+                trip_number, customer, trip_date, trip_type, from_loc, to_loc,
+                truck_plate, driver_name, total, paid, pending, pay_status, status: 'نشطة'
+            }]);
+
+            // تحديث حالة الشاحنة والسائق إلى "في رحلة نشطة"
+            const trk = trucks.find(x => x.plate === truck_plate);
+            if(trk) await client.from('trucks').update({ status: 'في رحلة نشطة' }).eq('id', trk.id);
+
+            const drv = drivers.find(x => x.name === driver_name);
+            if(drv) await client.from('drivers').update({ status: 'في رحلة نشطة' }).eq('id', drv.id);
+
             closeTripModal();
-            renderAll();
+            await loadAllDataFromCloud();
         }
 
         async function resetAllTrips() {
             if(currentUser.role !== 'admin') return;
-            if(confirm('تصفير سجل الرحلات؟')) {
-                trips = [];
-                trucks.forEach(t => t.status = 'جاهزة للتحميل');
-                drivers.forEach(d => d.status = 'متوفر');
-                await syncToCloud();
-                renderAll();
+            if(confirm('تصفير سجل الرحلات بالكامل؟')) {
+                await client.from('trips').delete().neq('id', 0);
+                for(let t of trucks) {
+                    await client.from('trucks').update({ status: 'جاهزة للتحميل' }).eq('id', t.id);
+                }
+                for(let d of drivers) {
+                    await client.from('drivers').update({ status: 'متوفر' }).eq('id', d.id);
+                }
+                await loadAllDataFromCloud();
             }
         }
 
@@ -606,9 +604,9 @@
             }
         }
         function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
+
         async function savePayment(e) {
             e.preventDefault();
-            await loadFromSupabase();
             const tripId = document.getElementById('payTripId').value;
             const payAmount = parseFloat(document.getElementById('payAmountInput').value) || 0;
             const t = trips.find(x => x.id == tripId);
@@ -617,67 +615,64 @@
                     alert('المبلغ المدفوع أكبر من المعلق!');
                     return;
                 }
-                t.paid += payAmount;
-                t.pending -= payAmount;
-                if(t.pending === 0) t.payStatus = 'مدفوع بالكامل';
-                else t.payStatus = 'سداد جزئي';
+                const newPaid = t.paid + payAmount;
+                const newPending = t.pending - payAmount;
+                let pay_status = newPending === 0 ? 'مدفوع بالكامل' : 'سداد جزئي';
 
-                await syncToCloud();
+                await client.from('trips').update({ paid: newPaid, pending: newPending, pay_status }).eq('id', t.id);
                 closePaymentModal();
-                renderAll();
+                await loadAllDataFromCloud();
             }
         }
 
         async function finishTrip(tripId) {
-            if(confirm('إنهاء الرحلة وتحرير الشاحنة؟')) {
-                await loadFromSupabase();
+            if(confirm('إنهاء هذه الرحلة وتحرير الشاحنة والسائق؟')) {
                 const t = trips.find(x => x.id == tripId);
                 if(t) {
-                    t.status = 'مكتملة';
-                    const trk = trucks.find(x => x.id == t.truckId);
-                    const drv = drivers.find(x => x.id == t.driverId);
-                    if(trk) trk.status = 'جاهزة للتحميل';
-                    if(drv) drv.status = 'متوفر';
-                    await syncToCloud();
-                    renderAll();
+                    await client.from('trips').update({ status: 'مكتملة' }).eq('id', t.id);
+                    
+                    const trk = trucks.find(x => x.plate === t.truck_plate);
+                    if(trk) await client.from('trucks').update({ status: 'جاهزة للتحميل' }).eq('id', trk.id);
+
+                    const drv = drivers.find(x => x.name === t.driver_name);
+                    if(drv) await client.from('drivers').update({ status: 'متوفر' }).eq('id', drv.id);
+
+                    await loadAllDataFromCloud();
                 }
             }
         }
 
         async function cancelTrip(tripId) {
-            if(confirm('إلغاء الرحلة؟')) {
-                await loadFromSupabase();
+            if(confirm('إلغاء هذه الرحلة؟')) {
                 const t = trips.find(x => x.id == tripId);
                 if(t) {
-                    t.status = 'ملغية';
-                    t.pending = 0;
-                    t.payStatus = 'ملغي';
-                    const trk = trucks.find(x => x.id == t.truckId);
-                    const drv = drivers.find(x => x.id == t.driverId);
-                    if(trk && trk.status === 'في رحلة نشطة') trk.status = 'جاهزة للتحميل';
-                    if(drv && drv.status === 'في رحلة نشطة') drv.status = 'متوفر';
-                    await syncToCloud();
-                    renderAll();
+                    await client.from('trips').update({ status: 'ملغية', pending: 0, pay_status: 'ملغي' }).eq('id', t.id);
+
+                    const trk = trucks.find(x => x.plate === t.truck_plate);
+                    if(trk && trk.status === 'في رحلة نشطة') await client.from('trucks').update({ status: 'جاهزة للتحميل' }).eq('id', trk.id);
+
+                    const drv = drivers.find(x => x.name === t.driver_name);
+                    if(drv && drv.status === 'في رحلة نشطة') await client.from('drivers').update({ status: 'متوفر' }).eq('id', drv.id);
+
+                    await loadAllDataFromCloud();
                 }
             }
         }
 
         function renderTrips() {
             document.getElementById('trips-table-body').innerHTML = trips.map(t => {
-                const trk = trucks.find(x => x.id == t.truckId);
-                const drv = drivers.find(x => x.id == t.driverId);
                 let payBadge = 'bg-rose-100 text-rose-700';
-                if(t.payStatus === 'مدفوع بالكامل') payBadge = 'bg-emerald-100 text-emerald-700';
-                else if(t.payStatus === 'سداد جزئي') payBadge = 'bg-amber-100 text-amber-700';
+                if(t.pay_status === 'مدفوع بالكامل') payBadge = 'bg-emerald-100 text-emerald-700';
+                else if(t.pay_status === 'سداد جزئي') payBadge = 'bg-amber-100 text-amber-700';
 
                 return `
                     <tr>
-                        <td class="p-2 font-bold text-amber-600">${t.tripNumber}</td>
+                        <td class="p-2 font-bold text-amber-600">${t.trip_number}</td>
                         <td class="p-2">${t.customer}</td>
-                        <td class="p-2 text-xs"><div>${t.date || '-'} (${t.type || 'ذهاب'})</div><div class="text-slate-500">${t.fromLoc || ''} ➔ ${t.toLoc || ''}</div></td>
-                        <td class="p-2"><div>لوحة: ${trk ? trk.plate : '-'}</div><div class="text-xs text-slate-500">${drv ? drv.name : '-'}</div></td>
+                        <td class="p-2 text-xs"><div>${t.trip_date || '-'} (${t.trip_type || 'ذهاب'})</div><div class="text-slate-500">${t.from_loc || ''} ➔ ${t.to_loc || ''}</div></td>
+                        <td class="p-2"><div>لوحة: ${t.truck_plate}</div><div class="text-xs text-slate-500">${t.driver_name}</div></td>
                         <td class="p-2 font-bold">${t.total} ر.س</td><td class="p-2 text-emerald-600 font-bold">${t.paid} ر.س</td><td class="p-2 text-rose-600 font-bold">${t.pending} ر.س</td>
-                        <td class="p-2"><span class="px-2 py-0.5 rounded text-xs font-bold ${payBadge}">${t.payStatus || 'معلق بالكامل'}</span></td>
+                        <td class="p-2"><span class="px-2 py-0.5 rounded text-xs font-bold ${payBadge}">${t.pay_status || 'معلق بالكامل'}</span></td>
                         <td class="p-2"><span class="px-2.5 py-1 rounded text-xs font-bold ${t.status === 'نشطة' ? 'bg-sky-100 text-sky-700' : t.status === 'مكتملة' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">${t.status}</span></td>
                         <td class="p-2 space-x-1 space-x-reverse whitespace-nowrap">
                             ${t.status === 'نشطة' ? `<button onclick="finishTrip(${t.id})" class="px-2.5 py-1 bg-amber-500 text-slate-950 font-bold rounded text-xs">إنهاء</button>` : ''}
@@ -695,19 +690,19 @@
             let filteredTrips = trips.filter(t => {
                 if(t.status === 'ملغية') return false;
                 if(!startDate && !endDate) return true;
-                if(!t.date) return true;
-                if(startDate && t.date < startDate) return false;
-                if(endDate && t.date > endDate) return false;
+                if(!t.trip_date) return true;
+                if(startDate && t.trip_date < startDate) return false;
+                if(endDate && t.trip_date > endDate) return false;
                 return true;
             });
 
             document.getElementById('truck-report-rows').innerHTML = trucks.map(trk => {
-                const trkTrips = filteredTrips.filter(t => t.truckId == trk.id);
+                const trkTrips = filteredTrips.filter(t => t.truck_plate === trk.plate);
                 return `<tr><td class="p-2 font-bold">${trk.plate} (${trk.model})</td><td class="p-2">${trk.status}</td><td class="p-2 font-bold text-sky-600">${trkTrips.length}</td><td class="p-2 font-bold">${trkTrips.reduce((a,b)=>a+(parseFloat(b.total)||0),0).toLocaleString()} ر.س</td><td class="p-2 text-emerald-600 font-bold">${trkTrips.reduce((a,b)=>a+(parseFloat(b.paid)||0),0).toLocaleString()} ر.س</td><td class="p-2 text-rose-600 font-bold">${trkTrips.reduce((a,b)=>a+(parseFloat(b.pending)||0),0).toLocaleString()} ر.س</td></tr>`;
             }).join('');
 
             document.getElementById('driver-report-rows').innerHTML = drivers.map(drv => {
-                const drvTrips = filteredTrips.filter(t => t.driverId == drv.id);
+                const drvTrips = filteredTrips.filter(t => t.driver_name === drv.name);
                 return `<tr><td class="p-2 font-bold">${drv.name}</td><td class="p-2">${drv.phone}</td><td class="p-2 font-bold text-purple-600">${drvTrips.length}</td><td class="p-2 font-bold">${drvTrips.reduce((a,b)=>a+(parseFloat(b.total)||0),0).toLocaleString()} ر.س</td><td class="p-2 text-emerald-600 font-bold">${drvTrips.reduce((a,b)=>a+(parseFloat(b.paid)||0),0).toLocaleString()} ر.س</td><td class="p-2 text-rose-600 font-bold">${drvTrips.reduce((a,b)=>a+(parseFloat(b.pending)||0),0).toLocaleString()} ر.س</td></tr>`;
             }).join('');
         }
@@ -722,24 +717,29 @@
         function closeUserModal() { document.getElementById('userModal').classList.add('hidden'); }
         async function saveUser(e) {
             e.preventDefault();
-            await loadFromSupabase();
-            users.push({ id: Date.now(), username: document.getElementById('newUsername').value.trim(), fullName: document.getElementById('newFullName').value.trim(), password: document.getElementById('newPassword').value.trim(), role: 'user', status: 'نشط' });
-            await syncToCloud();
+            await client.from('app_users').insert([{
+                username: document.getElementById('newUsername').value.trim(),
+                full_name: document.getElementById('newFullName').value.trim(),
+                password: document.getElementById('newPassword').value.trim(),
+                role: 'user',
+                status: 'نشط'
+            }]);
             closeUserModal();
-            renderAll();
+            await loadAllDataFromCloud();
         }
+
         async function toggleUserStatus(id) {
-            await loadFromSupabase();
             const u = users.find(x => x.id == id);
             if(u && u.username !== 'admin') {
-                u.status = u.status === 'موقوف' ? 'نشط' : 'موقوف';
-                await syncToCloud();
-                renderAll();
+                const newStatus = u.status === 'موقوف' ? 'نشط' : 'موقوف';
+                await client.from('app_users').update({ status: newStatus }).eq('id', id);
+                await loadAllDataFromCloud();
             }
         }
+
         function renderUsers() {
             document.getElementById('users-table-body').innerHTML = users.map(u => `
-                <tr><td class="p-2 font-bold">${u.username}</td><td class="p-2">${u.fullName}</td><td class="p-2">${u.role === 'admin' ? 'مدير' : 'مستخدم'}</td><td class="p-2"><span class="px-2 py-0.5 rounded ${u.status === 'موقوف' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}">${u.status || 'نشط'}</span></td><td class="p-2">${u.username !== 'admin' ? `<button onclick="toggleUserStatus(${u.id})" class="text-xs font-bold text-amber-600">تغيير الحالة</button>` : 'محمي'}</td></tr>
+                <tr><td class="p-2 font-bold">${u.username}</td><td class="p-2">${u.full_name}</td><td class="p-2">${u.role === 'admin' ? 'مدير' : 'مستخدم'}</td><td class="p-2"><span class="px-2 py-0.5 rounded ${u.status === 'موقوف' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}">${u.status || 'نشط'}</span></td><td class="p-2">${u.username !== 'admin' ? `<button onclick="toggleUserStatus(${u.id})" class="text-xs font-bold text-amber-600">تغيير الحالة</button>` : 'محمي'}</td></tr>
             `).join('');
         }
     </script>
