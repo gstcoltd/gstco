@@ -13,10 +13,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts (Cairo) -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         body { font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -42,7 +40,7 @@
                 </div>
                 <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">شركة الاختيار العالمي للنقليات</h2>
                 <p class="text-amber-600 font-semibold text-[10px] sm:text-xs tracking-wider uppercase mt-1">Global Choice Transportation</p>
-                <p class="text-gray-400 text-xs mt-1">نظام متابعة أسطول الشاحنات والرحلات (متزامن سحابياً بالكامل)</p>
+                <p class="text-gray-400 text-xs mt-1">نظام متابعة أسطول الشاحنات والرحلات (متزامن عبر Supabase SQL)</p>
             </div>
             
             <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4 sm:space-y-5">
@@ -145,10 +143,10 @@
                 <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                     <div>
                         <div class="inline-flex items-center gap-1.5 px-3 py-0.5 bg-emerald-500/20 border border-emerald-400/40 rounded-full text-emerald-300 text-[10px] font-bold mb-1.5">
-                            <i class="fa-solid fa-bolt text-amber-400 animate-pulse"></i> نظام إدارة الأسطول والرحلات (متزامن سحابياً لحظياً)
+                            <i class="fa-solid fa-bolt text-amber-400 animate-pulse"></i> نظام إدارة الأسطول والرحلات (متزامن سحابياً عبر Supabase SQL)
                         </div>
                         <h1 class="text-xl md:text-3xl font-black text-white">شركة الاختيار العالمي للنقليات</h1>
-                        <p class="text-slate-300 text-[11px] sm:text-xs mt-0.5">متابعة الأسطول والماليات والتزامن الفوري بين الأجهزة</p>
+                        <p class="text-slate-300 text-[11px] sm:text-xs mt-0.5">متابعة الأسطول والماليات وتزامن كامل بين الأجهزة</p>
                     </div>
                 </div>
             </div>
@@ -328,7 +326,7 @@
         </main>
     </div>
 
-    <!-- النافذة المنسدلة لاستعادة كلمة المرور -->
+    <!-- نافذة نسيت كلمة المرور -->
     <div id="forgotPasswordModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl">
             <h3 class="text-lg font-bold text-slate-900 mb-2">استعادة كلمة المرور</h3>
@@ -430,7 +428,7 @@
             <h3 class="text-lg font-bold text-slate-900 mb-4">إدارة شاحنة</h3>
             <form onsubmit="saveTruck(event)" class="space-y-3">
                 <input type="hidden" id="truckEditId">
-                <div><input type="text" id="truckPlate" required placeholder="رقم اللوحة (مثال: 2841)" class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></div>
+                <div><input type="text" id="truckPlate" required placeholder="رقم اللوحة (مثال: أ ب ج 2841)" class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></div>
                 <div><input type="text" id="truckModel" required placeholder="الموديل" class="w-full p-3 bg-slate-50 border rounded-xl text-xs"></div>
                 <div>
                     <select id="truckStatus" class="w-full p-3 bg-slate-50 border rounded-xl text-xs">
@@ -485,12 +483,10 @@
     </div>
 
     <script>
-        // إعدادات الاتصال بقاعدة البيانات السحابية المشتركة (تزامن لحظي بين الكمبيوتر، الجوال، والايباد)
-        const firebaseConfig = {
-            databaseURL: "https://global-choice-fleet-default-rtdb.asia-southeast1.firebasedatabase.app"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        // تم دمج المفتاح الخاص بك بنجاح تام في هذا الكود
+        const SUPABASE_URL = 'https://hmttwtlaeczvfjozsama.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhtdHR3dGxhZWN6dmZqb3pzYW1hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNTU5NjIsImV4cCI6MjEwNTczMTk2Mn0.0-M1LVkNnbVSbUeYX_RueqUUcHNRbCtipCn5nGSuVNc';
+        const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let users = [ { id: 1, username: 'admin', password: 'admin123', fullName: 'أبو سعيد (المدير)', role: 'admin', status: 'نشط' } ];
         let trucks = [ { id: 101, plate: '2841', model: 'مرسيدس أكتروس', status: 'جاهزة للتحميل' } ];
@@ -498,23 +494,26 @@
         let trips = [];
         let currentUser = null;
 
-        // الاستماع الفوري للبيانات من السحابة وتحديث الشاشة تلقائياً دون الحاجة لتحديث الصفحة
-        db.ref('fleetData').on('value', (snapshot) => {
-            const val = snapshot.val();
-            if (val) {
-                if(val.users) users = val.users;
-                if(val.trucks) trucks = val.trucks;
-                if(val.drivers) drivers = val.drivers;
-                if(val.trips) trips = val.trips;
-                if (currentUser) {
-                    renderAll();
-                }
+        // جلب البيانات من Supabase عند فتح التطبيق
+        async function loadFromSupabase() {
+            const { data, error } = await client.from('fleet_data').select('*').eq('data_key', 'main_store').single();
+            if (data && data.payload) {
+                if(data.payload.users) users = data.payload.users;
+                if(data.payload.trucks) trucks = data.payload.trucks;
+                if(data.payload.drivers) drivers = data.payload.drivers;
+                if(data.payload.trips) trips = data.payload.trips;
             }
-        });
+        }
 
-        // دالة الحفظ السحابي الإلزامي
-        function syncToCloud() {
-            db.ref('fleetData').set({ users, trucks, drivers, trips });
+        // حفظ ومزامنة البيانات إلى جدول Supabase سحابياً
+        async function syncToCloud() {
+            const { error } = await client
+                .from('fleet_data')
+                .upsert({ data_key: 'main_store', payload: { users, trucks, drivers, trips }, updated_at: new Date() }, { onConflict: 'data_key' });
+            
+            if(error) {
+                console.error('خطأ في المزامنة السحابية:', error.message);
+            }
         }
 
         function exportBackup() {
@@ -553,8 +552,10 @@
             reader.readAsText(file);
         }
 
-        function handleLogin(e) {
+        async function handleLogin(e) {
             e.preventDefault();
+            await loadFromSupabase();
+
             const u = document.getElementById('username').value.trim().toLowerCase();
             const p = document.getElementById('password').value.trim();
 
@@ -590,7 +591,8 @@
             document.getElementById('forgotPasswordModal').classList.add('hidden');
         }
 
-        function switchTab(tab) {
+        async function switchTab(tab) {
+            await loadFromSupabase();
             ['dashboard', 'trips', 'trucks', 'drivers', 'users', 'reports'].forEach(t => {
                 document.getElementById(`sec-${t}`)?.classList.add('hidden');
                 document.getElementById(`nav-${t}`)?.classList.remove('bg-slate-800', 'text-amber-400');
@@ -636,7 +638,7 @@
             document.getElementById('truckModal').classList.remove('hidden');
         }
         function closeTruckModal() { document.getElementById('truckModal').classList.add('hidden'); }
-        function saveTruck(e) {
+        async function saveTruck(e) {
             e.preventDefault();
             const id = document.getElementById('truckEditId').value;
             const plate = document.getElementById('truckPlate').value.trim();
@@ -649,13 +651,15 @@
             } else {
                 trucks.push({ id: Date.now(), plate, model, status });
             }
-            syncToCloud();
+            await syncToCloud();
             closeTruckModal();
+            renderAll();
         }
-        function deleteTruck(id) {
+        async function deleteTruck(id) {
             if(confirm('هل أنت متأكد من حذف هذه الشاحنة؟')) {
                 trucks = trucks.filter(x => x.id != id);
-                syncToCloud();
+                await syncToCloud();
+                renderAll();
             }
         }
         function renderTrucks() {
@@ -688,7 +692,7 @@
             document.getElementById('driverModal').classList.remove('hidden');
         }
         function closeDriverModal() { document.getElementById('driverModal').classList.add('hidden'); }
-        function saveDriver(e) {
+        async function saveDriver(e) {
             e.preventDefault();
             const id = document.getElementById('driverEditId').value;
             const name = document.getElementById('driverName').value.trim();
@@ -701,13 +705,15 @@
             } else {
                 drivers.push({ id: Date.now(), name, phone, status });
             }
-            syncToCloud();
+            await syncToCloud();
             closeDriverModal();
+            renderAll();
         }
-        function deleteDriver(id) {
+        async function deleteDriver(id) {
             if(confirm('هل أنت متأكد من حذف هذا السائق؟')) {
                 drivers = drivers.filter(x => x.id != id);
-                syncToCloud();
+                await syncToCloud();
+                renderAll();
             }
         }
         function renderDrivers() {
@@ -747,7 +753,7 @@
             const paid = parseFloat(document.getElementById('tripPaid').value) || 0;
             document.getElementById('tripPending').value = Math.max(0, total - paid);
         }
-        function saveTrip(e) {
+        async function saveTrip(e) {
             e.preventDefault();
             const customer = document.getElementById('tripCustomer').value.trim();
             const date = document.getElementById('tripDate').value;
@@ -780,11 +786,12 @@
                 customer, date, type, fromLoc, toLoc, truckId, driverId, total, paid, pending,
                 payStatus, status: 'نشطة'
             });
-            syncToCloud();
+            await syncToCloud();
             closeTripModal();
+            renderAll();
         }
 
-        function resetAllTrips() {
+        async function resetAllTrips() {
             if(currentUser.role !== 'admin') {
                 alert('هذا الإجراء مخصص لمدير النظام (الأدمن) فقط.');
                 return;
@@ -793,7 +800,8 @@
                 trips = [];
                 trucks.forEach(t => t.status = 'جاهزة للتحميل');
                 drivers.forEach(d => d.status = 'متوفر');
-                syncToCloud();
+                await syncToCloud();
+                renderAll();
             }
         }
 
@@ -807,7 +815,7 @@
             }
         }
         function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
-        function savePayment(e) {
+        async function savePayment(e) {
             e.preventDefault();
             const tripId = document.getElementById('payTripId').value;
             const payAmount = parseFloat(document.getElementById('payAmountInput').value) || 0;
@@ -823,12 +831,13 @@
                 if(t.pending === 0) t.payStatus = 'مدفوع بالكامل';
                 else t.payStatus = 'سداد جزئي';
 
-                syncToCloud();
+                await syncToCloud();
                 closePaymentModal();
+                renderAll();
             }
         }
 
-        function finishTrip(tripId) {
+        async function finishTrip(tripId) {
             if(confirm('هل أنت متأكد من إنهاء هذه الرحلة وتحرير الشاحنة والسائق؟')) {
                 const t = trips.find(x => x.id == tripId);
                 if(t) {
@@ -837,12 +846,13 @@
                     const drv = drivers.find(x => x.id == t.driverId);
                     if(trk) trk.status = 'جاهزة للتحميل';
                     if(drv) drv.status = 'متوفر';
-                    syncToCloud();
+                    await syncToCloud();
+                    renderAll();
                 }
             }
         }
 
-        function cancelTrip(tripId) {
+        async function cancelTrip(tripId) {
             if(confirm('هل تريد إلغاء هذه الرحلة وسيتم خصم مبالغها المعلقة؟')) {
                 const t = trips.find(x => x.id == tripId);
                 if(t) {
@@ -853,7 +863,8 @@
                     const drv = drivers.find(x => x.id == t.driverId);
                     if(trk && trk.status === 'في رحلة نشطة') trk.status = 'جاهزة للتحميل';
                     if(drv && drv.status === 'في رحلة نشطة') drv.status = 'متوفر';
-                    syncToCloud();
+                    await syncToCloud();
+                    renderAll();
                 }
             }
         }
@@ -960,20 +971,22 @@
             document.getElementById('userModal').classList.remove('hidden');
         }
         function closeUserModal() { document.getElementById('userModal').classList.add('hidden'); }
-        function saveUser(e) {
+        async function saveUser(e) {
             e.preventDefault();
             const username = document.getElementById('newUsername').value.trim();
             const fullName = document.getElementById('newFullName').value.trim();
             const password = document.getElementById('newPassword').value.trim();
             users.push({ id: Date.now(), username, fullName, password, role: 'user', status: 'نشط' });
-            syncToCloud();
+            await syncToCloud();
             closeUserModal();
+            renderAll();
         }
-        function toggleUserStatus(id) {
+        async function toggleUserStatus(id) {
             const u = users.find(x => x.id == id);
             if(u && u.username !== 'admin') {
                 u.status = u.status === 'موقوف' ? 'نشط' : 'موقوف';
-                syncToCloud();
+                await syncToCloud();
+                renderAll();
             }
         }
         function renderUsers() {
