@@ -65,7 +65,10 @@
                 </div>
 
                 <nav class="space-y-2">
-                    <button onclick="switchTab('trips')" id="tabTripsBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition bg-amber-500 text-slate-900 shadow-sm">
+                    <button onclick="switchTab('dashboard')" id="tabDashboardBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition bg-amber-500 text-slate-900 shadow-sm">
+                        <i class="fa-solid fa-chart-pie text-base"></i> لوحة المؤشرات (الداش بورد)
+                    </button>
+                    <button onclick="switchTab('trips')" id="tabTripsBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition text-slate-300 hover:bg-slate-800 hover:text-white">
                         <i class="fa-solid fa-route text-base"></i> إدارة الرحلات
                     </button>
                     <button onclick="switchTab('trucks')" id="tabTrucksBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition text-slate-300 hover:bg-slate-800 hover:text-white">
@@ -93,14 +96,125 @@
         <!-- المحتوى الرئيسي الواسع -->
         <div class="flex-grow flex flex-col bg-slate-50 overflow-hidden">
             <header class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center text-slate-900 shadow-sm">
-                <h2 id="pageTitle" class="text-sm font-black text-slate-800">إدارة وتتبع الرحلات</h2>
+                <h2 id="pageTitle" class="text-sm font-black text-slate-800">لوحة المؤشرات العامة (الداش بورد)</h2>
                 <button onclick="loadAllData()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition border border-slate-200 flex items-center gap-1.5">
                     <i class="fa-solid fa-rotate"></i> تحديث البيانات
                 </button>
             </header>
 
+            <!-- قسم لوحة المؤشرات (الداش بورد) - الشاشة الافتراضية -->
+            <main id="dashboardSection" class="p-6 md:p-8 flex flex-col flex-grow overflow-y-auto space-y-6">
+                <!-- بطاقات الملخص المالي والتشغيلي العليا -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <span class="block text-[11px] font-bold text-slate-500">إجمالي الإيرادات المالية</span>
+                            <h3 id="dashTotalRevenue" class="text-lg font-black text-slate-900 font-mono mt-1">0 ر.س</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500 text-xl font-bold">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <span class="block text-[11px] font-bold text-slate-500">المبالغ المحصلة (المدفوعة)</span>
+                            <h3 id="dashCollectedAmount" class="text-lg font-black text-emerald-600 font-mono mt-1">0 ر.س</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 text-xl font-bold">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <span class="block text-[11px] font-bold text-slate-500">المبالغ غير المحصلة (المتبقية)</span>
+                            <h3 id="dashRemainingAmount" class="text-lg font-black text-rose-600 font-mono mt-1">0 ر.س</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600 text-xl font-bold">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <span class="block text-[11px] font-bold text-slate-500">إجمالي عدد الرحلات</span>
+                            <h3 id="dashTotalTrips" class="text-lg font-black text-blue-600 font-mono mt-1">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 text-xl font-bold">
+                            <i class="fa-solid fa-route"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- إحصائيات الأسطول السريعة -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
+                            <h4 class="font-bold text-slate-900 text-xs flex items-center"><i class="fa-solid fa-truck-moving text-amber-500 ml-2"></i> حالة أسطول الشاحنات</h4>
+                            <span id="dashTotalTrucksBadge" class="bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full text-[10px] font-bold">إجمالي: 0</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3 text-center">
+                            <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+                                <span class="block text-[10px] font-bold text-emerald-700">جاهزة للعمل</span>
+                                <span id="dashReadyTrucks" class="text-base font-black text-emerald-800">0</span>
+                            </div>
+                            <div class="bg-blue-50 p-3 rounded-xl border border-blue-100">
+                                <span class="block text-[10px] font-bold text-blue-700">في رحلة</span>
+                                <span id="dashBusyTrucks" class="text-base font-black text-blue-800">0</span>
+                            </div>
+                            <div class="bg-rose-50 p-3 rounded-xl border border-rose-100">
+                                <span class="block text-[10px] font-bold text-rose-700">صيانة / عطلانة</span>
+                                <span id="dashMaintTrucks" class="text-base font-black text-rose-800">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
+                            <h4 class="font-bold text-slate-900 text-xs flex items-center"><i class="fa-solid fa-users text-amber-500 ml-2"></i> حالة أسطول السائقين</h4>
+                            <span id="dashTotalDriversBadge" class="bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full text-[10px] font-bold">إجمالي: 0</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3 text-center">
+                            <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+                                <span class="block text-[10px] font-bold text-emerald-700">متوفر</span>
+                                <span id="dashReadyDrivers" class="text-base font-black text-emerald-800">0</span>
+                            </div>
+                            <div class="bg-blue-50 p-3 rounded-xl border border-blue-100">
+                                <span class="block text-[10px] font-bold text-blue-700">في رحلة</span>
+                                <span id="dashBusyDrivers" class="text-base font-black text-blue-800">0</span>
+                            </div>
+                            <div class="bg-amber-50 p-3 rounded-xl border border-amber-100">
+                                <span class="block text-[10px] font-bold text-amber-700">إجازة / موقوف</span>
+                                <span id="dashOffDrivers" class="text-base font-black text-amber-800">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- آخر الرحلات الجارية والنشطة -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col flex-grow">
+                    <h4 class="font-bold text-slate-900 text-xs mb-4 flex items-center border-b border-slate-100 pb-3">
+                        <i class="fa-solid fa-bolt text-amber-500 ml-2"></i> الرحلات الجارية حالياً في الميدان
+                    </h4>
+                    <div class="overflow-x-auto flex-grow">
+                        <table class="w-full text-right text-xs text-slate-700">
+                            <thead class="bg-slate-100 text-slate-700">
+                                <tr>
+                                    <th class="p-3 rounded-r-xl">رقم الرحلة</th>
+                                    <th class="p-3">العميل والوجهة</th>
+                                    <th class="p-3">الشاحنة والسائق</th>
+                                    <th class="p-3">المبلغ الإجمالي</th>
+                                    <th class="p-3 rounded-l-xl">الحالة</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashActiveTripsTable" class="divide-y divide-slate-100">
+                                <tr><td colspan="5" class="text-center p-6 text-slate-400">جاري التحميل...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+
             <!-- قسم الرحلات -->
-            <main id="tripsSection" class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8 flex-grow overflow-y-auto">
+            <main id="tripsSection" class="hidden p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8 flex-grow overflow-y-auto">
                 <div class="xl:col-span-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 h-fit">
                     <h3 class="font-bold text-slate-900 text-sm mb-4 flex items-center border-b border-slate-100 pb-3">
                         <i class="fa-solid fa-circle-plus text-amber-500 ml-2"></i> إضافة رحلة جديدة
@@ -500,7 +614,6 @@
             const u = document.getElementById('username').value.trim();
             const p = document.getElementById('password').value.trim();
 
-            // دخول فوري وآمن بصلاحيات المدير الكاملة
             if ((u === 'admin' && p === 'admin123') || (u === 'mohammad' && p === '123456')) {
                 currentLoggedInUser = { username: u, employee_name: 'محمد القحطاني', role: 'admin' };
                 document.getElementById('loginSection').classList.add('hidden');
@@ -515,6 +628,7 @@
         }
 
         function loadAllData() {
+            loadDashboardData();
             loadTripsData();
             loadTrucks();
             loadDrivers();
@@ -522,6 +636,87 @@
             loadDropdowns();
             renderAdminControls();
             generateReport();
+        }
+
+        async function loadDashboardData() {
+            try {
+                const { data: trips } = await client.from('trips').select('*');
+                const { data: trucks } = await client.from('trucks').select('*');
+                const { data: drivers } = await client.from('drivers').select('*');
+
+                let totalRev = 0;
+                let collected = 0;
+                let remaining = 0;
+                let activeCount = 0;
+
+                const activeTable = document.getElementById('dashActiveTripsTable');
+                let activeTripsList = [];
+
+                if (trips) {
+                    trips.forEach(t => {
+                        if (t.status !== 'ملغاة') {
+                            totalRev += parseFloat(t.total_amount || 0);
+                            collected += parseFloat(t.paid_amount || 0);
+                            remaining += parseFloat(t.remaining_amount || 0);
+                        }
+                        if (t.status === 'جارية') {
+                            activeCount++;
+                            activeTripsList.push(t);
+                        }
+                    });
+                }
+
+                document.getElementById('dashTotalRevenue').innerText = totalRev.toLocaleString() + ' ر.س';
+                document.getElementById('dashCollectedAmount').innerText = collected.toLocaleString() + ' ر.س';
+                document.getElementById('dashRemainingAmount').innerText = remaining.toLocaleString() + ' ر.س';
+                document.getElementById('dashTotalTrips').innerText = trips ? trips.length : 0;
+
+                // إحصائيات الشاحنات
+                const totalTrucks = trucks ? trucks.length : 0;
+                const readyTrucks = trucks ? trucks.filter(t => t.status === 'جاهزة للعمل').length : 0;
+                const busyTrucks = trucks ? trucks.filter(t => t.status === 'في رحلة').length : 0;
+                const maintTrucks = trucks ? trucks.filter(t => t.status === 'في الصيانة' || t.status === 'عطلانة').length : 0;
+
+                document.getElementById('dashTotalTrucksBadge').innerText = `إجمالي: ${totalTrucks}`;
+                document.getElementById('dashReadyTrucks').innerText = readyTrucks;
+                document.getElementById('dashBusyTrucks').innerText = busyTrucks;
+                document.getElementById('dashMaintTrucks').innerText = maintTrucks;
+
+                // إحصائيات السائقين
+                const totalDrivers = drivers ? drivers.length : 0;
+                const readyDrivers = drivers ? drivers.filter(d => d.status === 'متوفر').length : 0;
+                const busyDrivers = drivers ? drivers.filter(d => d.status === 'في رحلة').length : 0;
+                const offDrivers = drivers ? drivers.filter(d => d.status === 'في إجازة' || d.status === 'موقوف').length : 0;
+
+                document.getElementById('dashTotalDriversBadge').innerText = `إجمالي: ${totalDrivers}`;
+                document.getElementById('dashReadyDrivers').innerText = readyDrivers;
+                document.getElementById('dashBusyDrivers').innerText = busyDrivers;
+                document.getElementById('dashOffDrivers').innerText = offDrivers;
+
+                // جدول الرحلات النشطة
+                if (activeTripsList.length > 0) {
+                    activeTable.innerHTML = activeTripsList.map(tr => `
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="p-3 font-black text-amber-600 font-mono">${tr.trip_no || 'GST-1000'}</td>
+                            <td class="p-3">
+                                <div class="font-black text-slate-900">${tr.client_name}</div>
+                                <div class="text-[11px] text-slate-500">من ${tr.from_city} إلى ${tr.to_city}</div>
+                            </td>
+                            <td class="p-3">
+                                <div class="font-bold text-slate-800">لوحة: ${tr.truck_plate}</div>
+                                <div class="text-[11px] text-slate-600">السائق: ${tr.driver_name}</div>
+                            </td>
+                            <td class="p-3 font-mono font-bold text-slate-900">${tr.total_amount} ر.س</td>
+                            <td class="p-3"><span class="bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-0.5 rounded-full text-[10px] font-bold">جارية</span></td>
+                        </tr>
+                    `).join('');
+                } else {
+                    activeTable.innerHTML = `<tr><td colspan="5" class="text-center p-6 text-slate-400">لا توجد رحلات جارية حالياً في الميدان</td></tr>`;
+                }
+
+            } catch (err) {
+                console.error("Error loading dashboard data:", err);
+            }
         }
 
         function renderAdminControls() {
@@ -555,16 +750,21 @@
         }
 
         function switchTab(tab) {
-            ['tripsSection', 'trucksSection', 'driversSection', 'reportsSection', 'usersSection'].forEach(s => {
+            ['dashboardSection', 'tripsSection', 'trucksSection', 'driversSection', 'reportsSection', 'usersSection'].forEach(s => {
                 const el = document.getElementById(s);
                 if (el) el.classList.add('hidden');
             });
-            ['tabTripsBtn', 'tabTrucksBtn', 'tabDriversBtn', 'tabReportsBtn', 'tabUsersBtn'].forEach(b => {
+            ['tabDashboardBtn', 'tabTripsBtn', 'tabTrucksBtn', 'tabDriversBtn', 'tabReportsBtn', 'tabUsersBtn'].forEach(b => {
                 const el = document.getElementById(b);
                 if(el) el.className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition text-slate-300 hover:bg-slate-800 hover:text-white';
             });
 
-            if (tab === 'trips') {
+            if (tab === 'dashboard') {
+                document.getElementById('dashboardSection').classList.remove('hidden');
+                document.getElementById('tabDashboardBtn').className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition bg-amber-500 text-slate-900 shadow-sm';
+                document.getElementById('pageTitle').innerText = 'لوحة المؤشرات العامة (الداش بورد)';
+                loadDashboardData();
+            } else if (tab === 'trips') {
                 document.getElementById('tripsSection').classList.remove('hidden');
                 document.getElementById('tabTripsBtn').className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition bg-amber-500 text-slate-900 shadow-sm';
                 document.getElementById('pageTitle').innerText = 'إدارة وتتبع الرحلات';
@@ -750,7 +950,7 @@
                                 <td class="p-3.5 space-y-1">
                                     <div><span class="${badgeColor} px-2.5 py-0.5 rounded-full text-[10px] font-bold">${tr.status}</span></div>
                                     <div><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full text-[9px] font-bold">${tr.trip_type || 'ذهاب'}</span></div>
-                                    <div><span class="${paymentBadge} px-2 py-0.5 rounded-full text-[9px] font-bold">${tr.payment_status || 'معلق'}</span></div>
+                                    <div><span class="${paymentBadge} px-2.5 py-0.5 rounded-full text-[9px] font-bold">${tr.payment_status || 'معلق'}</span></div>
                                 </td>
                                 <td class="p-3.5 text-center space-x-1 space-x-reverse">
                                     ${tr.status === 'جارية' ? `
@@ -1125,7 +1325,7 @@
 
         async function deleteUser(id) {
             if (confirm('هل أنت متأكد من حذف هذا المستخدم نهائياً؟')) {
-                const { error } = await client.from('app_users').delete().eq('id', id);
+                The { error } = await client.from('app_users').delete().eq('id', id);
                 if (!error) loadUsers();
             }
         }
