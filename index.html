@@ -32,7 +32,7 @@
                 <input type="password" id="password" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm" placeholder="admin123">
             </div>
             <div id="loginError" class="hidden text-rose-600 text-xs font-bold text-center bg-rose-50 py-2.5 rounded-xl border border-rose-200">
-                خطأ في اسم المستخدم أو كلمة المرور
+                خطأ في اسم المستخدم أو كلمة المرور، أو أن الحساب موقوف.
             </div>
             <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold py-3.5 rounded-xl shadow-md transition">
                 تسجيل الدخول للنظام
@@ -65,6 +65,9 @@
                     </button>
                     <button onclick="switchTab('drivers')" id="tabDriversBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition text-slate-300 hover:bg-slate-800 hover:text-white">
                         <i class="fa-solid fa-users text-base"></i> السائقين
+                    </button>
+                    <button onclick="switchTab('users')" id="tabUsersBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition text-slate-300 hover:bg-slate-800 hover:text-white">
+                        <i class="fa-solid fa-user-shield text-base"></i> المستخدمين
                     </button>
                 </nav>
             </div>
@@ -282,6 +285,62 @@
                     </div>
                 </div>
             </main>
+
+            <!-- قسم المستخدمين الجديد -->
+            <main id="usersSection" class="hidden p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8 flex-grow overflow-y-auto">
+                <div class="xl:col-span-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 h-fit">
+                    <h3 id="userFormTitle" class="font-bold text-slate-900 text-sm mb-4 flex items-center border-b border-slate-100 pb-3">
+                        <i class="fa-solid fa-user-plus text-amber-500 ml-2"></i> إضافة مستخدم جديد
+                    </h3>
+                    <form onsubmit="saveUser(event)" class="space-y-3.5">
+                        <input type="hidden" id="appUserId">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">اسم المستخدم (للدخول)</label>
+                            <input type="text" id="appUsername" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="مثال: ahmad">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">اسم الموظف</label>
+                            <input type="text" id="appEmployeeName" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="مثال: أحمد العمري">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">كلمة المرور</label>
+                            <input type="password" id="appPassword" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="••••••••">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">حالة الحساب</label>
+                            <select id="appUserStatus" class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500">
+                                <option value="نشط">نشط</option>
+                                <option value="موقوف">موقوف (إيقاف مؤقت)</option>
+                            </select>
+                        </div>
+                        <div class="flex gap-2 pt-2">
+                            <button type="submit" id="saveUserBtn" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-3 rounded-xl text-xs shadow-sm transition">حفظ المستخدم</button>
+                            <button type="button" id="cancelUserBtn" onclick="resetUserForm()" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-3 rounded-xl text-xs transition">إلغاء</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="xl:col-span-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
+                    <h3 class="font-bold text-slate-900 text-sm mb-4 flex items-center border-b border-slate-100 pb-3">
+                        <i class="fa-solid fa-shield-halved text-amber-500 ml-2"></i> قائمة مستخدمي النظام والصلاحيات
+                    </h3>
+                    <div class="overflow-x-auto flex-grow">
+                        <table class="w-full text-right text-xs text-slate-700">
+                            <thead class="bg-slate-100 text-slate-700">
+                                <tr>
+                                    <th class="p-3.5 rounded-r-xl">اسم المستخدم</th>
+                                    <th class="p-3.5">اسم الموظف</th>
+                                    <th class="p-3.5">الحالة</th>
+                                    <th class="p-3.5 rounded-l-xl text-center">إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTable" class="divide-y divide-slate-100">
+                                <tr><td colspan="4" class="text-center p-8 text-slate-400">جاري التحميل...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
 
@@ -329,11 +388,18 @@
             const p = document.getElementById('password').value.trim();
 
             const { data } = await client.from('app_users').select('*').eq('username', u).eq('password', p).maybeSingle();
+            
             if (data) {
+                if (data.status === 'موقوف') {
+                    document.getElementById('loginError').innerText = 'عذراً، هذا الحساب موقوف حالياً من قبل الإدارة.';
+                    document.getElementById('loginError').classList.remove('hidden');
+                    return;
+                }
                 document.getElementById('loginSection').classList.add('hidden');
                 document.getElementById('mainDashboard').classList.remove('hidden');
                 loadAllData();
             } else {
+                document.getElementById('loginError').innerText = 'خطأ في اسم المستخدم أو كلمة المرور';
                 document.getElementById('loginError').classList.remove('hidden');
             }
         }
@@ -342,12 +408,13 @@
             loadTripsData();
             loadTrucks();
             loadDrivers();
+            loadUsers();
             loadDropdowns();
         }
 
         function switchTab(tab) {
-            ['tripsSection', 'trucksSection', 'driversSection'].forEach(s => document.getElementById(s).classList.add('hidden'));
-            ['tabTripsBtn', 'tabTrucksBtn', 'tabDriversBtn'].forEach(b => {
+            ['tripsSection', 'trucksSection', 'driversSection', 'usersSection'].forEach(s => document.getElementById(s).classList.add('hidden'));
+            ['tabTripsBtn', 'tabTrucksBtn', 'tabDriversBtn', 'tabUsersBtn'].forEach(b => {
                 document.getElementById(b).className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition text-slate-300 hover:bg-slate-800 hover:text-white';
             });
 
@@ -361,11 +428,16 @@
                 document.getElementById('tabTrucksBtn').className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition bg-amber-500 text-slate-900 shadow-sm';
                 document.getElementById('pageTitle').innerText = 'إدارة أسطول الشاحنات';
                 loadTrucks();
-            } else {
+            } else if (tab === 'drivers') {
                 document.getElementById('driversSection').classList.remove('hidden');
                 document.getElementById('tabDriversBtn').className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition bg-amber-500 text-slate-900 shadow-sm';
                 document.getElementById('pageTitle').innerText = 'إدارة أسطول السائقين';
                 loadDrivers();
+            } else {
+                document.getElementById('usersSection').classList.remove('hidden');
+                document.getElementById('tabUsersBtn').className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition bg-amber-500 text-slate-900 shadow-sm';
+                document.getElementById('pageTitle').innerText = 'إدارة مستخدمي النظام';
+                loadUsers();
             }
         }
 
@@ -440,7 +512,7 @@
                                 <td class="p-3.5 space-y-1">
                                     <div><span class="${badgeColor} px-2.5 py-0.5 rounded-full text-[10px] font-bold">${tr.status}</span></div>
                                     <div><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full text-[9px] font-bold">${tr.trip_type || 'ذهاب'}</span></div>
-                                    <div><span class="${paymentBadge} px-2 py-0.5 rounded-full text-[9px] font-bold">${tr.payment_status || 'معلق'}</span></div>
+                                    <div><span class="${paymentBadge} px-2.5 py-0.5 rounded-full text-[9px] font-bold">${tr.payment_status || 'معلق'}</span></div>
                                 </td>
                                 <td class="p-3.5 text-center space-x-1 space-x-reverse">
                                     ${tr.status === 'جارية' ? `
@@ -736,6 +808,85 @@
             if (confirm('هل أنت متأكد من الحذف؟')) {
                 const { error } = await client.from('drivers').delete().eq('id', id);
                 if (!error) loadAllData();
+            }
+        }
+
+        // إدارة مستخدمي النظام
+        async function loadUsers() {
+            const table = document.getElementById('usersTable');
+            table.innerHTML = `<tr><td colspan="4" class="text-center p-8 text-slate-400">جاري تحميل المستخدمين...</td></tr>`;
+            try {
+                const { data: users, error } = await client.from('app_users').select('*').order('id', { ascending: false });
+                if (error) throw error;
+
+                if (users && users.length > 0) {
+                    table.innerHTML = users.map(usr => {
+                        let statusBadge = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+                        if (usr.status === 'موقوف') statusBadge = 'bg-rose-50 text-rose-700 border border-rose-200';
+
+                        return `
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="p-3.5 font-black text-slate-900">${usr.username}</td>
+                                <td class="p-3.5 text-slate-700">${usr.employee_name}</td>
+                                <td class="p-3.5"><span class="${statusBadge} px-2.5 py-1 rounded-full text-[10px] font-bold">${usr.status || 'نشط'}</span></td>
+                                <td class="p-3.5 text-center space-x-1 space-x-reverse">
+                                    <button onclick="editUser(${usr.id}, '${usr.username}', '${usr.employee_name}', '${usr.password}', '${usr.status || 'نشط'}')" class="text-amber-600 hover:text-amber-800 font-bold p-1" title="تعديل"><i class="fa-solid fa-pen-to-square"></i></button>
+                                    <button onclick="deleteUser(${usr.id})" class="text-rose-500 hover:text-rose-700 font-bold p-1" title="حذف الحساب"><i class="fa-solid fa-trash-can"></i></button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    table.innerHTML = `<tr><td colspan="4" class="text-center p-8 text-slate-400">لا توجد مستخدمين مسجلين حالياً</td></tr>`;
+                }
+            } catch (err) {
+                console.error("Error loading users:", err);
+                table.innerHTML = `<tr><td colspan="4" class="text-center p-8 text-rose-600">حدث خطأ أثناء تحميل المستخدمين.</td></tr>`;
+            }
+        }
+
+        async function saveUser(e) {
+            e.preventDefault();
+            const id = document.getElementById('appUserId').value;
+            const username = document.getElementById('appUsername').value.trim();
+            const employee_name = document.getElementById('appEmployeeName').value.trim();
+            const password = document.getElementById('appPassword').value.trim();
+            const status = document.getElementById('appUserStatus').value;
+
+            if (id) {
+                const { error } = await client.from('app_users').update({ username, employee_name, password, status }).eq('id', id);
+                if (!error) { alert('تم تحديث بيانات المستخدم بنجاح!'); resetUserForm(); loadUsers(); }
+                else { alert('تعذر التحديث، تأكد من عدم تكرار اسم المستخدم.'); }
+            } else {
+                const { error } = await client.from('app_users').insert([{ username, employee_name, password, status }]);
+                if (!error) { alert('تمت إضافة المستخدم بنجاح!'); resetUserForm(); loadUsers(); }
+                else { alert('خطأ: اسم المستخدم موجود مسبقاً.'); }
+            }
+        }
+
+        function editUser(id, username, empName, password, status) {
+            document.getElementById('appUserId').value = id;
+            document.getElementById('appUsername').value = username;
+            document.getElementById('appEmployeeName').value = empName;
+            document.getElementById('appPassword').value = password;
+            document.getElementById('appUserStatus').value = status;
+            document.getElementById('userFormTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-500 ml-2"></i> تعديل بيانات المستخدم`;
+            document.getElementById('saveUserBtn').innerText = 'تحديث البيانات';
+            document.getElementById('cancelUserBtn').classList.remove('hidden');
+        }
+
+        function resetUserForm() {
+            document.getElementById('appUserId').value = '';
+            document.querySelector('#usersSection form').reset();
+            document.getElementById('userFormTitle').innerHTML = `<i class="fa-solid fa-user-plus text-amber-500 ml-2"></i> إضافة مستخدم جديد`;
+            document.getElementById('saveUserBtn').innerText = 'حفظ المستخدم';
+            document.getElementById('cancelUserBtn').classList.add('hidden');
+        }
+
+        async function deleteUser(id) {
+            if (confirm('هل أنت متأكد من حذف هذا المستخدم نهائياً؟')) {
+                const { error } = await client.from('app_users').delete().eq('id', id);
+                if (!error) loadUsers();
             }
         }
 
