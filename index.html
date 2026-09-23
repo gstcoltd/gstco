@@ -150,7 +150,7 @@
                             <label class="block text-[11px] font-bold text-slate-600 mb-1">المبلغ المتبقي (تلقائي)</label>
                             <input type="text" id="remainingAmount" readonly class="w-full p-3 bg-slate-100 text-rose-600 border border-slate-200 rounded-xl text-xs font-black" value="0">
                         </div>
-                        <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-3.5 rounded-xl text-xs shadow-sm transition mt-2">حفظ الرحلة وتوليد رقم متسلسل</button>
+                        <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-3.5 rounded-xl text-xs shadow-sm transition mt-2">حفظ الرحلة</button>
                     </form>
                 </div>
 
@@ -404,11 +404,10 @@
                     document.getElementById('loginError').classList.remove('hidden');
                     return;
                 }
-                currentLoggedInUser = data; // حفظ بيانات المستخدم الحالي وصلاحيته
+                currentLoggedInUser = data;
                 document.getElementById('loginSection').classList.add('hidden');
                 document.getElementById('mainDashboard').classList.remove('hidden');
                 
-                // تحديث الشارة في القائمة
                 document.getElementById('currentUserBadge').innerText = data.employee_name + (data.role === 'admin' ? ' (مدير)' : ' (مستخدم)');
                 
                 loadAllData();
@@ -427,7 +426,6 @@
             renderAdminControls();
         }
 
-        // عرض زر تصفير العدّاد للآدمن فقط
         function renderAdminControls() {
             const container = document.getElementById('resetCounterContainer');
             if (!container) return;
@@ -443,12 +441,10 @@
             }
         }
 
-        // دالة تصفير عداد الرحلات (لتحويل الرقم ليبدأ من GST-1001 من جديد أو حذف جدول الرحلات بعد أخذ النسخ الاحتياطي)
         async function resetTripCounter() {
             if (confirm('تحذير: هل أنت متأكد من رغبتك في تصفير عداد الرحلات وحذف سجل الرحلات بالكامل للبدء من جديد؟')) {
-                const { error } = await client.from('trips').delete().neq('id', 0); // حذف كل الرحلات لتصفير التسلسل
+                const { error } = await client.from('trips').delete().neq('id', 0);
                 if (!error) {
-                    // إعادة جميع الشاحنات والسائقين للجاهزية
                     await client.from('trucks').update({ status: 'جاهزة للعمل' });
                     await client.from('drivers').update({ status: 'متوفر' });
                     
@@ -560,7 +556,7 @@
                                 <td class="p-3.5 space-y-1">
                                     <div><span class="${badgeColor} px-2.5 py-0.5 rounded-full text-[10px] font-bold">${tr.status}</span></div>
                                     <div><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full text-[9px] font-bold">${tr.trip_type || 'ذهاب'}</span></div>
-                                    <div><span class="${paymentBadge} px-2 py-0.5 rounded-full text-[9px] font-bold">${tr.payment_status || 'معلق'}</span></div>
+                                    <div><span class="${paymentBadge} px-2.5 py-0.5 rounded-full text-[9px] font-bold">${tr.payment_status || 'معلق'}</span></div>
                                 </td>
                                 <td class="p-3.5 text-center space-x-1 space-x-reverse">
                                     ${tr.status === 'جارية' ? `
@@ -620,7 +616,7 @@
                 await client.from('trucks').update({ status: 'في رحلة' }).eq('plate', truck_plate);
                 await client.from('drivers').update({ status: 'في رحلة' }).eq('name', driver_name);
 
-                alert('تمت إضافة الرحلة برقم متسلسل ' + trip_no + ' بنجاح!');
+                alert('تم حفظ الرحلة برقم متسلسل ' + trip_no + ' بنجاح!');
                 resetTripForm();
                 loadAllData();
             } else {
@@ -933,7 +929,6 @@
             document.querySelector('#usersSection form').reset();
             document.getElementById('userFormTitle').innerHTML = `<i class="fa-solid fa-user-plus text-amber-500 ml-2"></i> إضافة مستخدم جديد`;
             document.getElementById('saveUserBtn').innerText = 'حفظ المستخدم';
-            document.getElementById('cancelTitleBtn')?.classList.add('hidden');
             document.getElementById('cancelUserBtn').classList.add('hidden');
         }
 
