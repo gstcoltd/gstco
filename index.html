@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>شركة الاختيار العالمي للنقليات - إدارة الشاحنات</title>
+    <title>شركة الاختيار العالمي للنقليات - إدارة الأسطول</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -40,25 +40,29 @@
         </form>
     </div>
 
-    <!-- لوحة التحكم الاحترافية لشاشة الشاحنات -->
-    <div id="mainDashboard" class="hidden max-w-5xl w-full bg-slate-50 rounded-3xl shadow-2xl overflow-hidden border border-slate-700 min-h-[85vh] flex flex-col">
+    <!-- لوحة التحكم الاحترافية (الشاحنات والسائقين) -->
+    <div id="mainDashboard" class="hidden max-w-6xl w-full bg-slate-50 rounded-3xl shadow-2xl overflow-hidden border border-slate-700 min-h-[90vh] flex flex-col">
         <header class="bg-slate-900 p-4 text-white flex justify-between items-center border-b border-amber-400/30">
             <div class="flex items-center space-x-3 space-x-reverse">
                 <div class="w-10 h-10 bg-amber-400 rounded-xl flex items-center justify-center text-slate-900 font-black">
-                    <i class="fa-solid fa-truck"></i>
+                    <i class="fa-solid fa-network-wired"></i>
                 </div>
                 <div>
-                    <h1 class="font-black text-sm">إدارة أسطول الشاحنات</h1>
+                    <h1 class="font-black text-sm">نظام إدارة الأسطول</h1>
                     <p class="text-[10px] text-amber-400">شركة الاختيار العالمي للنقليات</p>
                 </div>
             </div>
-            <button onclick="handleLogout()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs transition">
-                <i class="fa-solid fa-right-from-bracket ml-1"></i> خروج
-            </button>
+            <div class="flex items-center space-x-2 space-x-reverse">
+                <button onclick="switchTab('trucks')" id="tabTrucksBtn" class="px-3 py-1.5 bg-amber-500 text-slate-900 font-bold rounded-xl text-xs transition">الشاحنات</button>
+                <button onclick="switchTab('drivers')" id="tabDriversBtn" class="px-3 py-1.5 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs transition">السائقين</button>
+                <button onclick="handleLogout()" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs transition mr-4">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
         </header>
 
-        <main class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 flex-grow">
-            <!-- نموذج إضافة أو تعديل شاحنة -->
+        <!-- قسم الشاحنات -->
+        <main id="trucksSection" class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 flex-grow">
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 h-fit">
                 <h3 id="formTitle" class="font-bold text-slate-900 text-sm mb-4 flex items-center">
                     <i class="fa-solid fa-circle-plus text-amber-500 ml-2"></i> إضافة شاحنة جديدة
@@ -89,11 +93,10 @@
                 </form>
             </div>
 
-            <!-- جدول عرض وإدارة الشاحنات -->
             <div class="md:col-span-2 bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-bold text-slate-900 text-sm flex items-center"><i class="fa-solid fa-truck-moving text-amber-500 ml-2"></i> الشاحنات المسجلة في الأسطول</h3>
-                    <button onclick="loadTrucks()" class="text-xs text-amber-600 font-bold hover:underline"><i class="fa-solid fa-rotate ml-1"></i> تحديث القائمة</button>
+                    <button onclick="loadTrucks()" class="text-xs text-amber-600 font-bold hover:underline"><i class="fa-solid fa-rotate ml-1"></i> تحديث</button>
                 </div>
                 <div class="overflow-x-auto flex-grow">
                     <table class="w-full text-right text-xs">
@@ -106,7 +109,62 @@
                             </tr>
                         </thead>
                         <tbody id="trucksTable" class="divide-y divide-slate-100 text-slate-600">
-                            <tr><td colspan="4" class="text-center p-6 text-slate-400">جاري تحميل الشاحنات...</td></tr>
+                            <tr><td colspan="4" class="text-center p-6 text-slate-400">جاري التحميل...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- قسم السائقين (مخفي افتراضياً) -->
+        <main id="driversSection" class="hidden p-6 grid grid-cols-1 md:grid-cols-3 gap-6 flex-grow">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 h-fit">
+                <h3 id="driverFormTitle" class="font-bold text-slate-900 text-sm mb-4 flex items-center">
+                    <i class="fa-solid fa-user-plus text-amber-500 ml-2"></i> إضافة سائق جديد
+                </h3>
+                <form onsubmit="saveDriver(event)" class="space-y-3">
+                    <input type="hidden" id="driverId">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">اسم السائق الرباعي</label>
+                        <input type="text" id="driverName" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="مثال: سعد محمد القحطاني">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">رقم الجوال</label>
+                        <input type="text" id="driverPhone" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="مثال: 0501234567">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">حالة السائق</label>
+                        <select id="driverStatus" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                            <option value="متوفر">متوفر</option>
+                            <option value="في رحلة">في رحلة</option>
+                            <option value="في إجازة">في إجازة</option>
+                            <option value="موقوف">موقوف</option>
+                        </select>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="submit" id="driverSaveBtn" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2.5 rounded-xl text-xs shadow transition">حفظ</button>
+                        <button type="button" id="driverCancelBtn" onclick="resetDriverForm()" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-3 py-2.5 rounded-xl text-xs transition">إلغاء</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="md:col-span-2 bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-slate-900 text-sm flex items-center"><i class="fa-solid fa-users text-amber-500 ml-2"></i> السائقين المسجلين في الأسطول</h3>
+                    <button onclick="loadDrivers()" class="text-xs text-amber-600 font-bold hover:underline"><i class="fa-solid fa-rotate ml-1"></i> تحديث</button>
+                </div>
+                <div class="overflow-x-auto flex-grow">
+                    <table class="w-full text-right text-xs">
+                        <thead class="bg-slate-100 text-slate-700">
+                            <tr>
+                                <th class="p-3 rounded-r-xl">اسم السائق</th>
+                                <th class="p-3">رقم الجوال</th>
+                                <th class="p-3">الحالة</th>
+                                <th class="p-3 rounded-l-xl text-center">إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="driversTable" class="divide-y divide-slate-100 text-slate-600">
+                            <tr><td colspan="4" class="text-center p-6 text-slate-400">جاري التحميل...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -135,11 +193,32 @@
                 document.getElementById('loginSection').classList.add('hidden');
                 document.getElementById('mainDashboard').classList.remove('hidden');
                 loadTrucks();
+                loadDrivers();
             } else {
                 document.getElementById('loginError').classList.remove('hidden');
             }
         }
 
+        function switchTab(tab) {
+            const trucksSec = document.getElementById('trucksSection');
+            const driversSec = document.getElementById('driversSection');
+            const trucksBtn = document.getElementById('tabTrucksBtn');
+            const driversBtn = document.getElementById('tabDriversBtn');
+
+            if (tab === 'trucks') {
+                trucksSec.classList.remove('hidden');
+                driversSec.classList.add('hidden');
+                trucksBtn.className = 'px-3 py-1.5 bg-amber-500 text-slate-900 font-bold rounded-xl text-xs transition';
+                driversBtn.className = 'px-3 py-1.5 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs transition';
+            } else {
+                trucksSec.classList.add('hidden');
+                driversSec.classList.remove('hidden');
+                driversBtn.className = 'px-3 py-1.5 bg-amber-500 text-slate-900 font-bold rounded-xl text-xs transition';
+                trucksBtn.className = 'px-3 py-1.5 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs transition';
+            }
+        }
+
+        // دوام الشاحنات
         async function loadTrucks() {
             const { data: trucks } = await client.from('trucks').select('*').order('id', { ascending: false });
             const table = document.getElementById('trucksTable');
@@ -176,25 +255,13 @@
             const status = document.getElementById('truckStatus').value;
 
             if (id) {
-                // تحديث شاحنة موجودة
                 const { error } = await client.from('trucks').update({ plate, model, status }).eq('id', id);
-                if (!error) {
-                    alert('تم تحديث بيانات الشاحنة بنجاح!');
-                    resetForm();
-                    loadTrucks();
-                } else {
-                    alert('تعذر التحديث، تأكد من عدم تكرار رقم اللوحة.');
-                }
+                if (!error) { alert('تم التحديث بنجاح!'); resetForm(); loadTrucks(); }
+                else { alert('تعذر التحديث، تأكد من عدم تكرار رقم اللوحة.'); }
             } else {
-                // إضافة شاحنة جديدة
                 const { error } = await client.from('trucks').insert([{ plate, model, status }]);
-                if (!error) {
-                    alert('تمت إضافة الشاحنة بنجاح!');
-                    resetForm();
-                    loadTrucks();
-                } else {
-                    alert('خطأ: رقم اللوحة موجود مسبقاً أو حدث مشكلة في الحفظ.');
-                }
+                if (!error) { alert('تمت الإضافة بنجاح!'); resetForm(); loadTrucks(); }
+                else { alert('خطأ في الحفظ.'); }
             }
         }
 
@@ -203,28 +270,95 @@
             document.getElementById('truckPlate').value = plate;
             document.getElementById('truckModel').value = model;
             document.getElementById('truckStatus').value = status;
-            
-            document.getElementById('formTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-500 ml-2"></i> تعديل بيانات الشاحنة`;
-            document.getElementById('saveBtn').innerText = 'تحديث البيانات';
+            document.getElementById('formTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-500 ml-2"></i> تعديل شاحنة`;
+            document.getElementById('saveBtn').innerText = 'تحديث';
             document.getElementById('cancelBtn').classList.remove('hidden');
         }
 
         function resetForm() {
             document.getElementById('truckId').value = '';
-            document.querySelector('form').reset();
+            document.querySelector('#trucksSection form').reset();
             document.getElementById('formTitle').innerHTML = `<i class="fa-solid fa-circle-plus text-amber-500 ml-2"></i> إضافة شاحنة جديدة`;
             document.getElementById('saveBtn').innerText = 'حفظ';
             document.getElementById('cancelBtn').classList.add('hidden');
         }
 
         async function deleteTruck(id) {
-            if (confirm('هل أنت متأكد من حذف هذه الشاحنة؟')) {
+            if (confirm('هل أنت متأكد من الحذف؟')) {
                 const { error } = await client.from('trucks').delete().eq('id', id);
-                if (!error) {
-                    loadTrucks();
-                } else {
-                    alert('تعذر حذف الشاحنة.');
-                }
+                if (!error) loadTrucks();
+            }
+        }
+
+        // دوام السائقين
+        async function loadDrivers() {
+            const { data: drivers } = await client.from('drivers').select('*').order('id', { ascending: false });
+            const table = document.getElementById('driversTable');
+            
+            if (drivers && drivers.length > 0) {
+                table.innerHTML = drivers.map(dr => {
+                    let badgeColor = 'bg-emerald-100 text-emerald-800';
+                    if (dr.status === 'في رحلة') badgeColor = 'bg-blue-100 text-blue-800';
+                    if (dr.status === 'في إجازة') badgeColor = 'bg-amber-100 text-amber-800';
+                    if (dr.status === 'موقوف') badgeColor = 'bg-rose-100 text-rose-800';
+
+                    return `
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-3 font-black text-slate-900">${dr.name}</td>
+                            <td class="p-3 text-slate-600 font-mono">${dr.phone}</td>
+                            <td class="p-3"><span class="${badgeColor} px-2.5 py-1 rounded-full text-[10px] font-bold">${dr.status}</span></td>
+                            <td class="p-3 text-center space-x-1 space-x-reverse">
+                                <button onclick="editDriver(${dr.id}, '${dr.name}', '${dr.phone}', '${dr.status}')" class="text-amber-600 hover:text-amber-800 font-bold p-1" title="تعديل"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button onclick="deleteDriver(${dr.id})" class="text-rose-500 hover:text-rose-700 font-bold p-1" title="حذف"><i class="fa-solid fa-trash-can"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } else {
+                table.innerHTML = `<tr><td colspan="4" class="text-center p-6 text-slate-400">لا توجد سائقين مسجلين حالياً</td></tr>`;
+            }
+        }
+
+        async function saveDriver(e) {
+            e.preventDefault();
+            const id = document.getElementById('driverId').value;
+            const name = document.getElementById('driverName').value.trim();
+            const phone = document.getElementById('driverPhone').value.trim();
+            const status = document.getElementById('driverStatus').value;
+
+            if (id) {
+                const { error } = await client.from('drivers').update({ name, phone, status }).eq('id', id);
+                if (!error) { alert('تم تحديث السائق بنجاح!'); resetDriverForm(); loadDrivers(); }
+                else { alert('تعذر التحديث.'); }
+            } else {
+                const { error } = await client.from('drivers').insert([{ name, phone, status }]);
+                if (!error) { alert('تمت إضافة السائق بنجاح!'); resetDriverForm(); loadDrivers(); }
+                else { alert('خطأ في الحفظ.'); }
+            }
+        }
+
+        function editDriver(id, name, phone, status) {
+            document.getElementById('driverId').value = id;
+            document.getElementById('driverName').value = name;
+            document.getElementById('driverPhone').value = phone;
+            document.getElementById('driverStatus').value = status;
+            document.getElementById('driverFormTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-500 ml-2"></i> تعديل بيانات السائق`;
+            document.getElementById('driverSaveBtn').innerText = 'تحديث';
+            document.getElementById('driverCancelBtn').classList.remove('hidden');
+        }
+
+        function resetDriverForm() {
+            document.getElementById('driverId').value = '';
+            document.querySelector('#driversSection form').reset();
+            document.getElementById('driverFormTitle').innerHTML = `<i class="fa-solid fa-user-plus text-amber-500 ml-2"></i> إضافة سائق جديد`;
+            document.getElementById('driverSaveBtn').innerText = 'حفظ';
+            document.getElementById('driverCancelBtn').classList.add('hidden');
+        }
+
+        async function deleteDriver(id) {
+            if (confirm('هل أنت متأكد من حذف هذا السائق؟')) {
+                const { error } = await client.from('drivers').delete().eq('id', id);
+                if (!error) loadDrivers();
             }
         }
 
