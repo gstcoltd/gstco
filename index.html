@@ -19,17 +19,17 @@
                 <i class="fa-solid fa-truck-front text-amber-400 text-2xl"></i>
             </div>
             <h2 class="text-xl font-black text-slate-900">شركة الاختيار العالمي للنقليات</h2>
-            <p class="text-xs text-amber-600 font-bold mt-1">تسجيل الدخول المباشر</p>
+            <p class="text-xs text-amber-600 font-bold mt-1">نظام إدارة الأسطول والرحلات</p>
         </div>
         
         <form onsubmit="handleLogin(event)" class="space-y-4">
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">اسم المستخدم</label>
-                <input type="text" id="username" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm" placeholder="أدخل اسم المستخدم (admin)">
+                <input type="text" id="username" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm" placeholder="admin">
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">كلمة المرور</label>
-                <input type="password" id="password" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm" placeholder="أدخل كلمة المرور (admin123)">
+                <input type="password" id="password" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm" placeholder="admin123">
             </div>
             <div id="loginError" class="hidden text-rose-600 text-xs font-bold text-center bg-rose-50 py-2.5 rounded-xl border border-rose-200">
                 خطأ في اسم المستخدم أو كلمة المرور
@@ -40,11 +40,76 @@
         </form>
     </div>
 
-    <!-- لوحة التحكم البسيطة للتأكد من عمل النظام -->
-    <div id="mainDashboard" class="hidden max-w-2xl w-full bg-white rounded-3xl shadow-2xl p-8 text-center space-y-6">
-        <h1 class="text-2xl font-black text-slate-900">مرحباً بك يا أبو سعيد في النظام</h1>
-        <p class="text-emerald-600 font-bold">تم تسجيل الدخول بنجاح والاتصال بقاعدة البيانات سليم 100%!</p>
-        <button onclick="handleLogout()" class="px-6 py-3 bg-rose-600 text-white font-bold rounded-xl text-xs">تسجيل خروج</button>
+    <!-- لوحة التحكم الرئيسية الكاملة -->
+    <div id="mainDashboard" class="hidden max-w-6xl w-full bg-slate-50 rounded-3xl shadow-2xl overflow-hidden border border-slate-700">
+        <header class="bg-slate-900 p-4 text-white flex justify-between items-center border-b border-amber-400/30">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="w-10 h-10 bg-amber-400 rounded-xl flex items-center justify-center text-slate-900 font-black">
+                    <i class="fa-solid fa-truck"></i>
+                </div>
+                <div>
+                    <h1 class="font-black text-sm">شركة الاختيار العالمي للنقليات</h1>
+                    <p class="text-[10px] text-amber-400">لوحة التحكم الإدارية - أبو سعيد</p>
+                </div>
+            </div>
+            <button onclick="handleLogout()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs transition">
+                <i class="fa-solid fa-right-from-bracket ml-1"></i> تسجيل خروج
+            </button>
+        </header>
+
+        <main class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- إضافة شاحنة -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                <h3 class="font-bold text-slate-900 text-sm mb-3 flex items-center"><i class="fa-solid fa-truck-moving text-amber-500 ml-2"></i> إضافة شاحنة جديدة</h3>
+                <form onsubmit="addTruck(event)" class="space-y-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">رقم اللوحة (أرقام فقط بدون حروف)</label>
+                        <input type="text" id="truckPlate" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="مثال: 2841">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">الموديل / الوصف</label>
+                        <input type="text" id="truckModel" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="مرسيدس أكتروس">
+                    </div>
+                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2.5 rounded-xl text-xs shadow">حفظ الشاحنة</button>
+                </form>
+            </div>
+
+            <!-- إضافة سائق -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                <h3 class="font-bold text-slate-900 text-sm mb-3 flex items-center"><i class="fa-solid fa-user-tie text-amber-500 ml-2"></i> إضافة سائق جديد</h3>
+                <form onsubmit="addDriver(event)" class="space-y-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">اسم السائق</label>
+                        <input type="text" id="driverName" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="اسم السائق الثلاثي">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">رقم الجوال</label>
+                        <input type="text" id="driverPhone" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="05xxxxxxxx">
+                    </div>
+                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2.5 rounded-xl text-xs shadow">حفظ السائق</button>
+                </form>
+            </div>
+
+            <!-- إضافة رحلة -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                <h3 class="font-bold text-slate-900 text-sm mb-3 flex items-center"><i class="fa-solid fa-route text-amber-500 ml-2"></i> تسسجيل رحلة جديدة</h3>
+                <form onsubmit="addTrip(event)" class="space-y-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">رقم اللوحة</label>
+                        <input type="text" id="tripTruck" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="2841">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">خط السير</label>
+                        <input type="text" id="tripRoute" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="جدة - الرياض">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">سعر الشحن (ر.س)</label>
+                        <input type="number" id="tripPrice" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="5000">
+                    </div>
+                    <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold py-2.5 rounded-xl text-xs shadow">حفظ الرحلة</button>
+                </form>
+            </div>
+        </main>
     </div>
 
     <script>
@@ -57,7 +122,6 @@
             const u = document.getElementById('username').value.trim();
             const p = document.getElementById('password').value.trim();
 
-            // استعلام مباشر من جدول app_users في سحابة Supabase
             const { data, error } = await client
                 .from('app_users')
                 .select('*')
@@ -71,6 +135,34 @@
             } else {
                 document.getElementById('loginError').classList.remove('hidden');
             }
+        }
+
+        async function addTruck(e) {
+            e.preventDefault();
+            const plate = document.getElementById('truckPlate').value.trim();
+            const model = document.getElementById('truckModel').value.trim();
+            const { error } = await client.from('trucks').insert([{ plate, model, status: 'جاهزة' }]);
+            if(!error) { alert('تم إضافة الشاحنة بنجاح!'); e.target.reset(); }
+            else { alert('خطأ: تأكد أن رقم اللوحة غير مكرر'); }
+        }
+
+        async function addDriver(e) {
+            e.preventDefault();
+            const name = document.getElementById('driverName').value.trim();
+            const phone = document.getElementById('driverPhone').value.trim();
+            const { error } = await client.from('drivers').insert([{ name, phone, status: 'متوفر' }]);
+            if(!error) { alert('تم إضافة السائق بنجاح!'); e.target.reset(); }
+            else { alert('حدث خطأ أثناء الحفظ'); }
+        }
+
+        async function addTrip(e) {
+            e.preventDefault();
+            const truck_plate = document.getElementById('tripTruck').value.trim();
+            const route = document.getElementById('tripRoute').value.trim();
+            const price = parseFloat(document.getElementById('tripPrice').value);
+            const { error } = await client.from('trips').insert([{ trip_number: 'TRP-' + Math.floor(Math.random()*1000), truck_plate, route, price, payment_status: 'معلق' }]);
+            if(!error) { alert('تم تسجيل الرحلة بنجاح!'); e.target.reset(); }
+            else { alert('حدث خطأ أثناء حفظ الرحلة'); }
         }
 
         function handleLogout() {
