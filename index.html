@@ -735,7 +735,7 @@
                 if (activeTripsList.length > 0) {
                     activeTable.innerHTML = activeTripsList.map(tr => `
                         <tr class="hover:bg-slate-50 transition">
-                            <td class="p-3 font-black text-amber-600 font-mono">${tr.trip_no || 'trip No. 1000'}</td>
+                            <td class="p-3 font-black text-amber-600 font-mono">${tr.trip_no || 'Trip No. 1000'}</td>
                             <td class="p-3">
                                 <div class="font-black text-slate-900">${tr.client_name}</div>
                                 <div class="text-[11px] text-slate-500">من ${tr.from_city} إلى ${tr.to_city}</div>
@@ -779,7 +779,7 @@
                     await client.from('trucks').update({ status: 'جاهزة للعمل' });
                     await client.from('drivers').update({ status: 'متوفر' });
                     
-                    alert('تم تصفير عداد الرحلات بنجاح، ويمكنك البدء من جديد برقم trip No. 1001!');
+                    alert('تم تصفير عداد الرحلات بنجاح، ويمكنك البدء من جديد برقم Trip No. 1001!');
                     loadAllData();
                 } else {
                     alert('حدث خطأ أثناء تصفير العداد.');
@@ -899,7 +899,6 @@
                     truckTable.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-400">لا توجد شاحنات مسجلة</td></tr>`;
                 }
 
-                // تقرير السائقين التفصيلي والعمولات المستحقة
                 const driverTable = document.getElementById('driverReportTable');
                 if (drivers && drivers.length > 0) {
                     driverTable.innerHTML = drivers.map(dr => {
@@ -963,12 +962,16 @@
             const { data: trips } = await client.from('trips').select('trip_no');
             let nextNum = 1001;
             if (trips && trips.length > 0) {
-                const nums = trips.map(t => parseInt(t.trip_no ? t.trip_no.replace('trip No. ', '') : '1000')).filter(n => !isNaN(n));
+                const nums = trips.map(t => {
+                    if (!t.trip_no) return 1000;
+                    const cleanStr = t.trip_no.replace(/[^0-9]/g, '');
+                    return parseInt(cleanStr) || 1000;
+                }).filter(n => !isNaN(n));
                 if (nums.length > 0) {
                     nextNum = Math.max(...nums) + 1;
                 }
             }
-            return 'trip No. ' + nextNum;
+            return 'Trip No. ' + nextNum;
         }
 
         async function loadTripsData() {
@@ -1028,7 +1031,7 @@
 
                         return `
                             <tr class="hover:bg-slate-50 transition">
-                                <td class="p-3.5 font-black text-amber-600 font-mono">${tr.trip_no || 'trip No. 1000'}</td>
+                                <td class="p-3.5 font-black text-amber-600 font-mono">${tr.trip_no || 'Trip No. 1000'}</td>
                                 <td class="p-3.5">
                                     <div class="font-black text-slate-900">${tr.client_name}</div>
                                     <div class="text-[11px] text-slate-500"><i class="fa-solid fa-location-dot ml-1 text-amber-500"></i> من ${tr.from_city} إلى ${tr.to_city}</div>
