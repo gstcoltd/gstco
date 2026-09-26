@@ -20,7 +20,7 @@
 </head>
 <body class="bg-slate-900 min-h-screen flex items-center justify-center p-2 md:p-4 relative overflow-x-hidden">
 
-    <!-- خلفية شاحنات احترافية مع تغطية معتمة لضمان السرعة والوضوح -->
+    <!-- خلفية شاحنات احترافية مع تغطية معتمة -->
     <div class="absolute inset-0 z-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1519003722824-194d4455a60c?q=80&w=1920&auto=format&fit=crop');">
         <div class="absolute inset-0 bg-slate-950/75 backdrop-blur-[2px]"></div>
     </div>
@@ -38,11 +38,11 @@
         <form onsubmit="handleLogin(event)" class="space-y-4">
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">اسم المستخدم</label>
-                <input type="text" id="usernameInput" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm" placeholder="admin">
+                <input type="text" id="usernameInput" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm" placeholder="أدخل اسم المستخدم">
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">كلمة المرور</label>
-                <input type="password" id="passwordInput" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm" placeholder="admin123">
+                <input type="password" id="passwordInput" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm" placeholder="••••••••">
             </div>
             <div id="loginError" class="hidden text-rose-600 text-xs font-bold text-center bg-rose-50 py-2.5 rounded-xl border border-rose-200">
                 خطأ في اسم المستخدم أو كلمة المرور.
@@ -107,14 +107,13 @@
                 </button>
             </header>
 
-            <!-- قسم لوحة التحكم (الشاشة الافتراضية) -->
+            <!-- قسم لوحة التحكم -->
             <main id="dashboardSection" class="p-6 md:p-8 flex flex-col flex-grow overflow-y-auto space-y-6">
-                <!-- بطاقات الملخص المالي والتشغيلي العليا -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
                         <div>
                             <span class="block text-[11px] font-bold text-slate-500">إجمالي الإيرادات</span>
-                            <h3 id="dashTotalRevenue" class="text-lg font-black text-slate-900 font-mono mt-1">0 ر.س</h3>
+                            <h3 id="dashTotalRevenue" class="text-lg font-black text-slate-900 font-mono mt-1">0 SR</h3>
                         </div>
                         <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500 text-xl font-bold">
                             <i class="fa-solid fa-wallet"></i>
@@ -123,7 +122,7 @@
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
                         <div>
                             <span class="block text-[11px] font-bold text-slate-500">المبالغ المدفوعة</span>
-                            <h3 id="dashCollectedAmount" class="text-lg font-black text-emerald-600 font-mono mt-1">0 ر.س</h3>
+                            <h3 id="dashCollectedAmount" class="text-lg font-black text-emerald-600 font-mono mt-1">0 SR</h3>
                         </div>
                         <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 text-xl font-bold">
                             <i class="fa-solid fa-circle-check"></i>
@@ -132,7 +131,7 @@
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
                         <div>
                             <span class="block text-[11px] font-bold text-slate-500">المبالغ غير المدفوعة</span>
-                            <h3 id="dashRemainingAmount" class="text-lg font-black text-rose-600 font-mono mt-1">0 ر.س</h3>
+                            <h3 id="dashRemainingAmount" class="text-lg font-black text-rose-600 font-mono mt-1">0 SR</h3>
                         </div>
                         <div class="w-12 h-12 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600 text-xl font-bold">
                             <i class="fa-solid fa-clock-rotate-left"></i>
@@ -149,7 +148,6 @@
                     </div>
                 </div>
 
-                <!-- إحصائيات الأسطول السريعة -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
                         <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
@@ -194,7 +192,6 @@
                     </div>
                 </div>
 
-                <!-- آخر الرحلات الجارية والنشطة -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col flex-grow">
                     <h4 class="font-bold text-slate-900 text-xs mb-4 flex items-center border-b border-slate-100 pb-3">
                         <i class="fa-solid fa-bolt text-amber-500 ml-2"></i> الرحلات الجارية حالياً في الميدان
@@ -218,78 +215,19 @@
                 </div>
             </main>
 
-            <!-- قسم الرحلات -->
-            <main id="tripsSection" class="hidden p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8 flex-grow overflow-y-auto">
-                <div class="xl:col-span-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 h-fit">
-                    <h3 class="font-bold text-slate-900 text-sm mb-4 flex items-center border-b border-slate-100 pb-3">
-                        <i class="fa-solid fa-circle-plus text-amber-500 ml-2"></i> إضافة رحلة جديدة
-                    </h3>
-                    <form onsubmit="saveTrip(event)" class="space-y-3.5">
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1">اسم العميل</label>
-                            <input type="text" id="clientName" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="مثال: شركة أرامكو السعودية">
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-600 mb-1">من (المدينة)</label>
-                                <input type="text" id="fromCity" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="جدة">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-600 mb-1">إلى (المدينة)</label>
-                                <input type="text" id="toCity" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="الرياض">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1">نوع الرحلة</label>
-                            <div class="grid grid-cols-2 gap-2">
-                                <label class="flex items-center justify-center p-3 bg-slate-50 text-slate-800 border border-slate-200 rounded-xl text-xs cursor-pointer hover:bg-amber-50 transition font-bold">
-                                    <input type="radio" name="tripType" value="ذهاب" checked class="ml-2 accent-amber-500"> ذهاب فقط
-                                </label>
-                                <label class="flex items-center justify-center p-3 bg-slate-50 text-slate-800 border border-slate-200 rounded-xl text-xs cursor-pointer hover:bg-amber-50 transition font-bold">
-                                    <input type="radio" name="tripType" value="ذهاب وعودة" class="ml-2 accent-amber-500"> ذهاب وعودة
-                                </label>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1">تاريخ المغادرة</label>
-                            <input type="date" id="departureDate" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1">الشاحنة المختارة (الجاهزة فقط)</label>
-                            <select id="tripTruck" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500">
-                                <option value="">اختر الشاحنة...</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1">السائق المسند إليه (المتوفر فقط)</label>
-                            <select id="tripDriver" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500">
-                                <option value="">اختر السائق...</option>
-                            </select>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-600 mb-1">إجمالي المبلغ (ر.س)</label>
-                                <input type="number" id="totalAmount" required oninput="calculateRemaining()" class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="5000">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-600 mb-1">المبلغ المدفوع (ر.س)</label>
-                                <input type="number" id="paidAmount" required oninput="calculateRemaining()" class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="2000">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1">المبلغ المتبقي (تلقائي)</label>
-                            <input type="text" id="remainingAmount" readonly class="w-full p-3 bg-slate-100 text-rose-600 border border-slate-200 rounded-xl text-xs font-black" value="0">
-                        </div>
-                        <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-3.5 rounded-xl text-xs shadow-sm transition mt-2">حفظ الرحلة</button>
-                    </form>
-                </div>
-
-                <div class="xl:col-span-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
-                    <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
+            <!-- قسم الرحلات (بكامل العرض مع زر إضافة منبثق) -->
+            <main id="tripsSection" class="hidden p-6 md:p-8 flex flex-col flex-grow overflow-y-auto">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col flex-grow">
+                    <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
                         <h3 class="font-bold text-slate-900 text-sm flex items-center">
                             <i class="fa-solid fa-list-check text-amber-500 ml-2"></i> سجل الرحلات الجارية والسابقة
                         </h3>
-                        <div id="resetCounterContainer"></div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="openAddTripModal()" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-4 py-2.5 rounded-xl text-xs transition shadow-sm flex items-center gap-2">
+                                <i class="fa-solid fa-circle-plus"></i> إضافة رحلة جديدة
+                            </button>
+                            <div id="resetCounterContainer"></div>
+                        </div>
                     </div>
                     <div class="overflow-x-auto flex-grow">
                         <table class="w-full text-right text-xs text-slate-700">
@@ -298,7 +236,7 @@
                                     <th class="p-3.5 rounded-r-xl">رقم الرحلة</th>
                                     <th class="p-3.5">العميل والوجهة</th>
                                     <th class="p-3.5">الشاحنة والسائق</th>
-                                    <th class="p-3.5">التفاصيل المالية</th>
+                                    <th class="p-3.5">التفاصيل المالية والعمولة</th>
                                     <th class="p-3.5">حالة الرحلة والسداد</th>
                                     <th class="p-3.5 rounded-l-xl text-center">الإجراءات</th>
                                 </tr>
@@ -340,31 +278,31 @@
                 <div id="printableReport" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex-grow flex flex-col">
                     <div class="text-center border-b border-slate-200 pb-6 mb-6">
                         <h2 class="text-lg font-black text-slate-900">شركة الاختيار العالمي للنقليات</h2>
-                        <p class="text-xs text-amber-600 font-bold mt-1">تقرير أداء الأسطول (الشاحنات والسائقين والمبالغ المالية)</p>
+                        <p class="text-xs text-amber-600 font-bold mt-1">تقرير أداء الأسطول الشامل (الشاحنات، السائقين، والعمولات)</p>
                         <p id="reportPeriodLabel" class="text-[11px] text-slate-500 mt-1">الفترة: جميع الرحلات المسجلة</p>
                     </div>
 
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                         <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
                             <span class="block text-[11px] text-slate-500 font-bold">إجمالي عدد الرحلات</span>
-                            <span id="repTotalTrips" class="text-base font-black text-slate-900">0</span>
+                            <span id="repTotalTrips" class="text-base font-black text-slate-900 font-mono">0</span>
                         </div>
                         <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
-                            <span class="block text-[11px] text-slate-500 font-bold">إجمالي المبالغ</span>
-                            <span id="repTotalAmount" class="text-base font-black text-slate-900 font-mono">0 ر.س</span>
+                            <span class="block text-[11px] text-slate-500 font-bold">إجمالي الإيرادات</span>
+                            <span id="repTotalAmount" class="text-base font-black text-slate-900 font-mono">0 SR</span>
                         </div>
                         <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
                             <span class="block text-[11px] text-slate-500 font-bold">المبالغ المدفوعة</span>
-                            <span id="repPaidAmount" class="text-base font-black text-emerald-600 font-mono">0 ر.س</span>
+                            <span id="repPaidAmount" class="text-base font-black text-emerald-600 font-mono">0 SR</span>
                         </div>
                         <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
-                            <span class="block text-[11px] text-slate-500 font-bold">المبالغ غير المدفوعة</span>
-                            <span id="repRemainingAmount" class="text-base font-black text-rose-600 font-mono">0 ر.س</span>
+                            <span class="block text-[11px] text-slate-500 font-bold">المبالغ المتبقية</span>
+                            <span id="repRemainingAmount" class="text-base font-black text-rose-600 font-mono">0 SR</span>
                         </div>
                     </div>
 
                     <div class="mb-8">
-                        <h4 class="font-bold text-slate-900 text-xs mb-3 flex items-center"><i class="fa-solid fa-truck text-amber-500 ml-2"></i> تفاصيل رحلات ومبالغ الشاحنات</h4>
+                        <h4 class="font-bold text-slate-900 text-xs mb-3 flex items-center"><i class="fa-solid fa-truck text-amber-500 ml-2"></i> تقرير الشاحنات والإيرادات</h4>
                         <div class="overflow-x-auto">
                             <table class="w-full text-right text-xs text-slate-700 border border-slate-200 rounded-xl overflow-hidden">
                                 <thead class="bg-slate-100 text-slate-700">
@@ -372,7 +310,7 @@
                                         <th class="p-3">رقم اللوحة</th>
                                         <th class="p-3">الموديل</th>
                                         <th class="p-3 text-center">عدد الرحلات</th>
-                                        <th class="p-3">إجمالي مبالغ الشاحنة</th>
+                                        <th class="p-3">إجمالي الإيراد</th>
                                     </tr>
                                 </thead>
                                 <tbody id="truckReportTable" class="divide-y divide-slate-100">
@@ -383,15 +321,15 @@
                     </div>
 
                     <div class="mb-4">
-                        <h4 class="font-bold text-slate-900 text-xs mb-3 flex items-center"><i class="fa-solid fa-users text-amber-500 ml-2"></i> تفاصيل رحلات ومبالغ السائقين</h4>
+                        <h4 class="font-bold text-slate-900 text-xs mb-3 flex items-center"><i class="fa-solid fa-users text-amber-500 ml-2"></i> تقرير السائقين التفصيلي والعمولات المستحقة</h4>
                         <div class="overflow-x-auto">
                             <table class="w-full text-right text-xs text-slate-700 border border-slate-200 rounded-xl overflow-hidden">
                                 <thead class="bg-slate-100 text-slate-700">
                                     <tr>
-                                        <th class="p-3">اسم السائق</th>
-                                        <th class="p-3">رقم الجوال</th>
+                                        <th class="p-3">اسم السائق ورقم الجوال</th>
                                         <th class="p-3 text-center">عدد الرحلات</th>
-                                        <th class="p-3">إجمالي مبالغ السائق</th>
+                                        <th class="p-3">تفاصيل الرحلات (رقمها، العميل، خط السير)</th>
+                                        <th class="p-3">إجمالي العمولات المستحقة</th>
                                     </tr>
                                 </thead>
                                 <tbody id="driverReportTable" class="divide-y divide-slate-100">
@@ -413,11 +351,11 @@
                         <input type="hidden" id="truckId">
                         <div>
                             <label class="block text-[11px] font-bold text-slate-600 mb-1">رقم اللوحة (بدون حروف)</label>
-                            <input type="text" id="truckPlate" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="مثال: 2841">
+                            <input type="text" id="truckPlate" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500 font-mono" placeholder="2841">
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold text-slate-600 mb-1">الموديل / المواصفات</label>
-                            <input type="text" id="truckModel" class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="مثال: مرسيدس أكتروس">
+                            <input type="text" id="truckModel" class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="مرسيدس أكتروس">
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold text-slate-600 mb-1">حالة الشاحنة</label>
@@ -466,11 +404,11 @@
                         <input type="hidden" id="driverId">
                         <div>
                             <label class="block text-[11px] font-bold text-slate-600 mb-1">اسم السائق</label>
-                            <input type="text" id="driverName" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="مثال: سعد القحطاني">
+                            <input type="text" id="driverName" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="سعد القحطاني">
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold text-slate-600 mb-1">رقم الجوال</label>
-                            <input type="text" id="driverPhone" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="0501234567">
+                            <input type="text" id="driverPhone" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500 font-mono" placeholder="0501234567">
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold text-slate-600 mb-1">حالة السائق</label>
@@ -519,11 +457,11 @@
                         <input type="hidden" id="appUserId">
                         <div>
                             <label class="block text-[11px] font-bold text-slate-600 mb-1">اسم المستخدم (للدخول)</label>
-                            <input type="text" id="appUsername" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="مثال: ahmad">
+                            <input type="text" id="appUsername" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="ahmad">
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold text-slate-600 mb-1">اسم الموظف</label>
-                            <input type="text" id="appEmployeeName" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="مثال: أحمد العمري">
+                            <input type="text" id="appEmployeeName" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="أحمد العمري">
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold text-slate-600 mb-1">كلمة المرور</label>
@@ -574,15 +512,87 @@
         </div>
     </div>
 
-    <!-- نافذة إنهاء الرحلة وتسوية المبلغ -->
+    <!-- نافذة إضافة رحلة جديدة المنبثقة -->
+    <div id="addTripModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 text-slate-900 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-sm flex items-center"><i class="fa-solid fa-circle-plus text-amber-500 ml-2"></i> إضافة رحلة جديدة</h3>
+                <button onclick="closeAddTripModal()" class="text-slate-400 hover:text-slate-700 text-base font-bold"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="saveTrip(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-600 mb-1">اسم العميل</label>
+                    <input type="text" id="clientName" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="شركة أرامكو السعودية">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">من (المدينة)</label>
+                        <input type="text" id="fromCity" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="جدة">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">إلى (المدينة)</label>
+                        <input type="text" id="toCity" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="الرياض">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-600 mb-1">نوع الرحلة</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center justify-center p-3 bg-slate-50 text-slate-800 border border-slate-200 rounded-xl text-xs cursor-pointer hover:bg-amber-50 transition font-bold">
+                            <input type="radio" name="tripType" value="ذهاب" checked class="ml-2 accent-amber-500"> ذهاب فقط
+                        </label>
+                        <label class="flex items-center justify-center p-3 bg-slate-50 text-slate-800 border border-slate-200 rounded-xl text-xs cursor-pointer hover:bg-amber-50 transition font-bold">
+                            <input type="radio" name="tripType" value="ذهاب وعودة" class="ml-2 accent-amber-500"> ذهاب وعودة
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-600 mb-1">تاريخ المغادرة</label>
+                    <input type="date" id="departureDate" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-600 mb-1">الشاحنة المختارة (الجاهزة فقط)</label>
+                    <select id="tripTruck" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500">
+                        <option value="">اختر الشاحنة...</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-600 mb-1">السائق المسند إليه (المتوفر فقط)</label>
+                    <select id="tripDriver" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500">
+                        <option value="">اختر السائق...</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-600 mb-1">عمولة السائق (اختياري عند الإنشاء)</label>
+                    <input type="number" id="driverCommissionInput" class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500 font-mono" placeholder="أدخل مبلغ العمولة إن وجدت">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">إجمالي المبلغ (SR)</label>
+                        <input type="number" id="totalAmount" required oninput="calculateRemaining()" class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500 font-mono" placeholder="">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">المبلغ المدفوع (SR)</label>
+                        <input type="number" id="paidAmount" required oninput="calculateRemaining()" class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500 font-mono" placeholder="">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-600 mb-1">المبلغ المتبقي (تلقائي)</label>
+                    <input type="text" id="remainingAmount" readonly class="w-full p-3 bg-slate-100 text-rose-600 border border-slate-200 rounded-xl text-xs font-black font-mono" value="0">
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button type="submit" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-3 rounded-xl text-xs shadow-sm transition">حفظ الرحلة</button>
+                    <button type="button" onclick="closeAddTripModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-3 rounded-xl text-xs transition">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة إنهاء الرحلة وتسوية المبلغ والعمولة -->
     <div id="completeTripModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 text-slate-900">
-            <h3 class="font-bold text-sm mb-3 flex items-center border-b border-slate-100 pb-3"><i class="fa-solid fa-flag-checkered text-emerald-600 ml-2"></i> إنهاء الرحلة وتسوية الحساب</h3>
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-slate-200 text-slate-900">
+            <h3 class="font-bold text-sm mb-3 flex items-center border-b border-slate-100 pb-3"><i class="fa-solid fa-flag-checkered text-emerald-600 ml-2"></i> إنهاء الرحلة وتسوية الحساب والعمولة</h3>
             <form onsubmit="confirmCompleteTrip(event)" class="space-y-3.5">
                 <input type="hidden" id="modalTripId">
-                <input type="hidden" id="modalTruckPlate">
-                <input type="hidden" id="modalDriverName">
-                <input type="hidden" id="modalTotalAmount">
                 <div>
                     <label class="block text-[11px] font-bold text-slate-600 mb-1">المبلغ الإجمالي للرحلة</label>
                     <input type="text" id="modalDisplayTotal" readonly class="w-full p-3 bg-slate-100 text-slate-900 border border-slate-200 rounded-xl text-xs font-bold font-mono">
@@ -597,10 +607,14 @@
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-slate-600 mb-1">المبلغ المراد سداده الآن (لإغلاق الحساب)</label>
-                    <input type="number" id="modalPaymentInput" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500 font-mono" placeholder="أدخل مبلغ السداد">
+                    <input type="number" id="modalPaymentInput" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500 font-mono" placeholder="0">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-600 mb-1 text-amber-600">عمولة السائق المستحقة (إجباري عند الإنهاء)</label>
+                    <input type="number" id="modalDriverCommission" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500 font-mono" placeholder="أدخل عمولة السائق النهائية">
                 </div>
                 <div class="flex gap-2 pt-2">
-                    <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs shadow-sm transition">تأكيد السداد وإنهاء الرحلة</button>
+                    <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs shadow-sm transition">تأكيد السداد والعمولة وإنهاء الرحلة</button>
                     <button type="button" onclick="closeCompleteModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-3 rounded-xl text-xs transition">إلغاء</button>
                 </div>
             </form>
@@ -693,9 +707,9 @@
                     });
                 }
 
-                document.getElementById('dashTotalRevenue').innerText = totalRev.toLocaleString() + ' ر.س';
-                document.getElementById('dashCollectedAmount').innerText = collected.toLocaleString() + ' ر.س';
-                document.getElementById('dashRemainingAmount').innerText = remaining.toLocaleString() + ' ر.س';
+                document.getElementById('dashTotalRevenue').innerText = totalRev.toLocaleString() + ' SR';
+                document.getElementById('dashCollectedAmount').innerText = collected.toLocaleString() + ' SR';
+                document.getElementById('dashRemainingAmount').innerText = remaining.toLocaleString() + ' SR';
                 document.getElementById('dashTotalTrips').innerText = trips ? trips.length : 0;
 
                 const totalTrucks = trucks ? trucks.length : 0;
@@ -730,7 +744,7 @@
                                 <div class="font-bold text-slate-800">لوحة: ${tr.truck_plate}</div>
                                 <div class="text-[11px] text-slate-600">السائق: ${tr.driver_name}</div>
                             </td>
-                            <td class="p-3 font-mono font-bold text-slate-900">${tr.total_amount} ر.س</td>
+                            <td class="p-3 font-mono font-bold text-slate-900">${tr.total_amount} SR</td>
                             <td class="p-3"><span class="bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-0.5 rounded-full text-[10px] font-bold">جارية</span></td>
                         </tr>
                     `).join('');
@@ -749,7 +763,7 @@
 
             if (currentLoggedInUser && currentLoggedInUser.role === 'admin') {
                 container.innerHTML = `
-                    <button onclick="resetTripCounter()" class="bg-rose-500 hover:bg-rose-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5" title="تصفير عداد الرحلات والبدء من جديد">
+                    <button onclick="resetTripCounter()" class="bg-rose-500 hover:bg-rose-600 text-white px-3 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5" title="تصفير عداد الرحلات والبدء من جديد">
                         <i class="fa-solid fa-rotate-right"></i> تصفير عداد الرحلات
                     </button>
                 `;
@@ -863,9 +877,9 @@
                 }
 
                 document.getElementById('repTotalTrips').innerText = totalTrips;
-                document.getElementById('repTotalAmount').innerText = totalAmount.toLocaleString() + ' ر.س';
-                document.getElementById('repPaidAmount').innerText = paidAmount.toLocaleString() + ' ر.س';
-                document.getElementById('repRemainingAmount').innerText = remainingAmount.toLocaleString() + ' ر.س';
+                document.getElementById('repTotalAmount').innerText = totalAmount.toLocaleString() + ' SR';
+                document.getElementById('repPaidAmount').innerText = paidAmount.toLocaleString() + ' SR';
+                document.getElementById('repRemainingAmount').innerText = remainingAmount.toLocaleString() + ' SR';
 
                 const truckTable = document.getElementById('truckReportTable');
                 if (trucks && trucks.length > 0) {
@@ -874,10 +888,10 @@
                         const truckSum = truckTrips.reduce((acc, curr) => acc + parseFloat(curr.total_amount || 0), 0);
                         return `
                             <tr>
-                                <td class="p-3 font-bold text-slate-900">لوحة: ${tr.plate}</td>
+                                <td class="p-3 font-bold text-slate-900 font-mono">${tr.plate}</td>
                                 <td class="p-3 text-slate-600">${tr.model || '---'}</td>
-                                <td class="p-3 text-center font-bold text-amber-600">${truckTrips.length} رحلات</td>
-                                <td class="p-3 font-mono font-bold text-slate-900">${truckSum.toLocaleString()} ر.س</td>
+                                <td class="p-3 text-center font-bold text-amber-600 font-mono">${truckTrips.length}</td>
+                                <td class="p-3 font-mono font-bold text-slate-900">${truckSum.toLocaleString()} SR</td>
                             </tr>
                         `;
                     }).join('');
@@ -885,17 +899,30 @@
                     truckTable.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-400">لا توجد شاحنات مسجلة</td></tr>`;
                 }
 
+                // تقرير السائقين التفصيلي والعمولات المستحقة
                 const driverTable = document.getElementById('driverReportTable');
                 if (drivers && drivers.length > 0) {
                     driverTable.innerHTML = drivers.map(dr => {
                         const drTrips = trips ? trips.filter(t => t.driver_name === dr.name && t.status !== 'ملغاة') : [];
-                        const drSum = drTrips.reduce((acc, curr) => acc + parseFloat(curr.total_amount || 0), 0);
+                        const totalCommission = drTrips.reduce((acc, curr) => acc + parseFloat(curr.driver_commission || 0), 0);
+                        
+                        let tripsDetailsHtml = drTrips.length > 0 ? drTrips.map(dt => `
+                            <div class="text-[11px] border-b border-slate-100 py-1 font-mono">
+                                <span class="font-bold text-amber-600">${dt.trip_no}</span> | 
+                                ${dt.client_name} (${dt.from_city} إلى ${dt.to_city}) | 
+                                <span class="text-emerald-600">العمولة: ${dt.driver_commission || 0} SR</span>
+                            </div>
+                        `).join('') : '<span class="text-slate-400">لا توجد رحلات</span>';
+
                         return `
                             <tr>
-                                <td class="p-3 font-bold text-slate-900">${dr.name}</td>
-                                <td class="p-3 text-slate-600 font-mono">${dr.phone}</td>
-                                <td class="p-3 text-center font-bold text-amber-600">${drTrips.length} رحلات</td>
-                                <td class="p-3 font-mono font-bold text-slate-900">${drSum.toLocaleString()} ر.س</td>
+                                <td class="p-3">
+                                    <div class="font-bold text-slate-900">${dr.name}</div>
+                                    <div class="text-[11px] text-slate-500 font-mono">${dr.phone}</div>
+                                </td>
+                                <td class="p-3 text-center font-bold text-amber-600 font-mono">${drTrips.length}</td>
+                                <td class="p-3">${tripsDetailsHtml}</td>
+                                <td class="p-3 font-mono font-bold text-slate-900 text-emerald-700">${totalCommission.toLocaleString()} SR</td>
                             </tr>
                         `;
                     }).join('');
@@ -977,7 +1004,7 @@
                         let actionButtons = '';
                         if (tr.status === 'جارية') {
                             actionButtons = `
-                                <button onclick="openCompleteModal(${tr.id}, '${tr.truck_plate}', '${tr.driver_name}', ${tr.total_amount}, ${tr.paid_amount}, ${tr.remaining_amount})" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl text-[10px] transition shadow-sm" title="إنهاء الرحلة وسداد المبلغ">
+                                <button onclick="openCompleteModal(${tr.id}, '${tr.truck_plate}', '${tr.driver_name}', ${tr.total_amount}, ${tr.paid_amount}, ${tr.remaining_amount}, ${tr.driver_commission || 0})" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl text-[10px] transition shadow-sm" title="إنهاء الرحلة وسداد المبلغ والعمولة">
                                     <i class="fa-solid fa-flag-checkered ml-1"></i> إنهاء وتسوية
                                 </button>
                                 <button onclick="cancelTrip(${tr.id})" class="bg-rose-500 hover:bg-rose-600 text-white font-bold px-3 py-1.5 rounded-xl text-[10px] transition shadow-sm" title="إلغاء الرحلة">
@@ -987,7 +1014,7 @@
                         } else if (tr.status === 'مكتملة') {
                             if (remaining > 0) {
                                 actionButtons = `
-                                    <button onclick="openCompleteModal(${tr.id}, '${tr.truck_plate}', '${tr.driver_name}', ${tr.total_amount}, ${tr.paid_amount}, ${tr.remaining_amount})" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-3 py-1.5 rounded-xl text-[10px] transition shadow-sm" title="سداد المبلغ المتبقي">
+                                    <button onclick="openCompleteModal(${tr.id}, '${tr.truck_plate}', '${tr.driver_name}', ${tr.total_amount}, ${tr.paid_amount}, ${tr.remaining_amount}, ${tr.driver_commission || 0})" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-3 py-1.5 rounded-xl text-[10px] transition shadow-sm" title="سداد المبلغ المتبقي">
                                         <i class="fa-solid fa-wallet ml-1"></i> تسوية المتبقي
                                     </button>
                                     <span class="text-slate-400 text-[10px] font-bold block mt-1">منتهية</span>
@@ -1005,16 +1032,17 @@
                                 <td class="p-3.5">
                                     <div class="font-black text-slate-900">${tr.client_name}</div>
                                     <div class="text-[11px] text-slate-500"><i class="fa-solid fa-location-dot ml-1 text-amber-500"></i> من ${tr.from_city} إلى ${tr.to_city}</div>
-                                    <div class="text-[10px] text-slate-400">التاريخ: ${tr.departure_date} (${tr.trip_type || 'ذهاب'})</div>
+                                    <div class="text-[10px] text-slate-400 font-mono">التاريخ: ${tr.departure_date} (${tr.trip_type || 'ذهاب'})</div>
                                 </td>
                                 <td class="p-3.5">
                                     <div class="font-bold text-slate-800"><i class="fa-solid fa-truck ml-1 text-amber-500"></i> لوحة: ${tr.truck_plate}</div>
                                     <div class="text-[11px] text-slate-600"><i class="fa-solid fa-user ml-1 text-amber-500"></i> السائق: ${tr.driver_name}</div>
                                 </td>
                                 <td class="p-3.5 font-mono text-[11px]">
-                                    <div class="font-bold text-slate-900">إجمالي: ${tr.total_amount} ر.س</div>
-                                    <div class="text-emerald-600">مدفوع: ${tr.paid_amount} ر.س</div>
-                                    <div class="text-rose-600">متبقي: ${tr.remaining_amount} ر.س</div>
+                                    <div class="font-bold text-slate-900">الإجمالي: ${tr.total_amount} SR</div>
+                                    <div class="text-emerald-600">مدفوع: ${tr.paid_amount} SR</div>
+                                    <div class="text-rose-600">متبقي: ${tr.remaining_amount} SR</div>
+                                    <div class="text-amber-600 font-bold mt-0.5">العمولة: ${tr.driver_commission || 0} SR</div>
                                 </td>
                                 <td class="p-3.5 space-y-1.5">
                                     <div>${statusBadge}</div>
@@ -1035,6 +1063,17 @@
             }
         }
 
+        function openAddTripModal() {
+            loadDropdowns();
+            document.getElementById('addTripModal').classList.remove('hidden');
+        }
+
+        function closeAddTripModal() {
+            document.getElementById('addTripModal').classList.add('hidden');
+            document.querySelector('#addTripModal form').reset();
+            document.getElementById('remainingAmount').value = '0';
+        }
+
         async function saveTrip(e) {
             e.preventDefault();
             const trip_no = await generateTripNo();
@@ -1045,6 +1084,7 @@
             const departure_date = document.getElementById('departureDate').value;
             const truck_plate = document.getElementById('tripTruck').value;
             const driver_name = document.getElementById('tripDriver').value;
+            const driver_commission = parseFloat(document.getElementById('driverCommissionInput').value) || 0;
             const total_amount = parseFloat(document.getElementById('totalAmount').value);
             let paid_amount = parseFloat(document.getElementById('paidAmount').value);
             if (paid_amount > total_amount) paid_amount = total_amount;
@@ -1065,36 +1105,28 @@
             }
 
             const { error } = await client.from('trips').insert([{
-                trip_no, client_name, from_city, to_city, trip_type, departure_date, truck_plate, driver_name, total_amount, paid_amount, remaining_amount, status, payment_status
+                trip_no, client_name, from_city, to_city, trip_type, departure_date, truck_plate, driver_name, driver_commission, total_amount, paid_amount, remaining_amount, status, payment_status
             }]);
 
             if (!error) {
                 await client.from('trucks').update({ status: 'في رحلة' }).eq('plate', truck_plate);
                 await client.from('drivers').update({ status: 'في رحلة' }).eq('name', driver_name);
 
-                alert('تم حفظ الرحلة برقم متسلسل ' + trip_no + ' بنجاح!');
-                resetTripForm();
+                closeAddTripModal();
+                alert('تم حفظ الرحلة برقم ' + trip_no + ' بنجاح!');
                 loadAllData();
             } else {
                 alert('حدث خطأ أثناء حفظ الرحلة.');
             }
         }
 
-        function resetTripForm() {
-            document.querySelector('#tripsSection form').reset();
-            document.getElementById('remainingAmount').value = '0';
-            loadDropdowns();
-        }
-
-        function openCompleteModal(id, truckPlate, driverName, total, paid, remaining) {
+        function openCompleteModal(id, truckPlate, driverName, total, paid, remaining, commission) {
             document.getElementById('modalTripId').value = id;
-            document.getElementById('modalTruckPlate').value = truckPlate;
-            document.getElementById('modalDriverName').value = driverName;
-            document.getElementById('modalTotalAmount').value = total;
-            document.getElementById('modalDisplayTotal').value = total + ' ر.س';
-            document.getElementById('modalDisplayPaid').value = paid + ' ر.س';
-            document.getElementById('modalDisplayRemaining').value = remaining + ' ر.س';
+            document.getElementById('modalDisplayTotal').value = total + ' SR';
+            document.getElementById('modalDisplayPaid').value = paid + ' SR';
+            document.getElementById('modalDisplayRemaining').value = remaining + ' SR';
             document.getElementById('modalPaymentInput').value = remaining;
+            document.getElementById('modalDriverCommission').value = commission > 0 ? commission : '';
             document.getElementById('completeTripModal').classList.remove('hidden');
         }
 
@@ -1105,7 +1137,8 @@
         async function confirmCompleteTrip(e) {
             e.preventDefault();
             const id = document.getElementById('modalTripId').value;
-            const total = parseFloat(document.getElementById('modalTotalAmount').value);
+            const total = parseFloat(document.getElementById('modalDisplayTotal').value);
+            const finalCommission = parseFloat(document.getElementById('modalDriverCommission').value) || 0;
             
             const { data: tripData } = await client.from('trips').select('paid_amount, status, truck_plate, driver_name').eq('id', id).single();
             if (!tripData) return;
@@ -1123,6 +1156,7 @@
                 paid_amount: newPaidAmount,
                 remaining_amount: newRemaining > 0 ? newRemaining : 0,
                 payment_status: payment_status,
+                driver_commission: finalCommission,
                 status: 'مكتملة'
             };
 
@@ -1137,7 +1171,7 @@
                 }
 
                 closeCompleteModal();
-                alert('تم تسجيل السداد وإنهاء الرحلة بنجاح، وتم تحرير الشاحنة والسائق!');
+                alert('تم تسجيل السداد والعمولة وإنهاء الرحلة بنجاح!');
                 loadAllData();
             } else {
                 alert('حدث خطأ أثناء حفظ التسوية.');
@@ -1154,6 +1188,7 @@
                     total_amount: 0,
                     paid_amount: 0,
                     remaining_amount: 0,
+                    driver_commission: 0,
                     payment_status: 'ملغي'
                 }).eq('id', id);
 
@@ -1188,7 +1223,7 @@
 
                         return `
                             <tr class="hover:bg-slate-50 transition">
-                                <td class="p-3.5 font-black text-slate-900">${tr.plate}</td>
+                                <td class="p-3.5 font-black text-slate-900 font-mono">${tr.plate}</td>
                                 <td class="p-3.5 text-slate-600">${tr.model || '---'}</td>
                                 <td class="p-3.5"><span class="${badgeColor} px-2.5 py-1 rounded-full text-[10px] font-bold">${tr.status}</span></td>
                                 <td class="p-3.5 text-center space-x-1 space-x-reverse">
@@ -1381,7 +1416,7 @@
         }
 
         function editUser(id, username, empName, password, role, status) {
-            document.getElementById('appUserId').value, id;
+            document.getElementById('appUserId').value = id;
             document.getElementById('appUsername').value = username;
             document.getElementById('appEmployeeName').value = empName;
             document.getElementById('appPassword').value = password;
