@@ -1140,8 +1140,11 @@
             const rawTotalText = document.getElementById('modalDisplayTotal').value;
             const total = parseFloat(rawTotalText.replace(/[^\d.]/g, '')) || 0;
             
-            const { data: tripData } = await client.from('trips').select('paid_amount, status, truck_plate, driver_name').eq('id', id).single();
-            if (!tripData) return;
+            const { data: tripData, error: fetchError } = await client.from('trips').select('paid_amount, status, truck_plate, driver_name').eq('id', id).single();
+            if (fetchError) {
+                console.error("خطأ في جلب بيانات الرحلة:", fetchError);
+                return;
+            }
 
             const currentPaid = parseFloat(tripData.paid_amount || 0);
             let additionalPayment = parseFloat(document.getElementById('modalPaymentInput').value) || 0;
@@ -1161,7 +1164,7 @@
                 status: 'مكتملة'
             };
 
-            const { error } = await client.from('trips').update(updateData).eq('id', id);
+            const { data, error } = await client.from('trips').update(updateData).eq('id', id);
 
             if (!error) {
                 if (tripData.truck_plate) {
@@ -1175,7 +1178,8 @@
                 alert('تم تسجيل السداد والعمولة وإنهاء الرحلة بنجاح!');
                 loadAllData();
             } else {
-                alert('حدث خطأ أثناء حفظ التسوية.');
+                console.error("خطأ تفصيلي من قاعدة البيانات:", error);
+                alert('حدث خطأ أثناء حفظ التسوية: ' + (error.message || JSON.stringify(error)));
             }
         }
         async function cancelTrip(id) {
