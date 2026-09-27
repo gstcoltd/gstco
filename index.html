@@ -1137,10 +1137,12 @@
             e.preventDefault();
             const id = document.getElementById('modalTripId').value;
             
-            const { data: tripData } = await client.from('trips').select('total_amount, paid_amount, status, truck_plate, driver_name').eq('id', id).single();
+            const rawTotalText = document.getElementById('modalDisplayTotal').value;
+            const total = parseFloat(rawTotalText.replace(/[^\d.]/g, '')) || 0;
+            
+            const { data: tripData } = await client.from('trips').select('paid_amount, status, truck_plate, driver_name').eq('id', id).single();
             if (!tripData) return;
 
-            const total = parseFloat(tripData.total_amount || 0);
             const currentPaid = parseFloat(tripData.paid_amount || 0);
             let additionalPayment = parseFloat(document.getElementById('modalPaymentInput').value) || 0;
             const finalCommission = parseFloat(document.getElementById('modalDriverCommission').value) || 0;
@@ -1176,7 +1178,6 @@
                 alert('حدث خطأ أثناء حفظ التسوية.');
             }
         }
-
         async function cancelTrip(id) {
             if (confirm('هل أنت متأكد من إلغاء هذه الرحلة؟ (سيتم تصفير قيمتها المالية وإعادة الشاحنة والسائق للعمل)')) {
                 const { data: tripData } = await client.from('trips').select('truck_plate, driver_name').eq('id', id).single();
