@@ -624,13 +624,12 @@
                         <option value="تحويل على الأهلي">تحويل على الأهلي</option>
                     </select>
                 </div>
-// إذا كانت الرحلة منتهية ولديها طريقة سداد وتاريخ تحصيل، قم بعرضهما هكذا:
-trip.status === 'منتهية' ? `
+
     <div class="text-[11px] text-slate-600 mt-1 pt-1 border-t border-slate-100 flex flex-col gap-0.5 font-sans">
         <div><span class="font-bold">طريقة السداد:</span> <span class="text-blue-600 font-bold">${trip.payment_method || 'غير محدد'}</span></div>
         <div><span class="font-bold">تاريخ التحصيل:</span> <span class="font-mono text-slate-700">${trip.collection_date || 'غير محدد'}</span></div>
     </div>
-` : ''
+
                 <!-- خانة تاريخ التحصيل الإجبارية -->
                 <div>
                     <label class="block text-[11px] font-bold text-slate-600 mb-1">تاريخ التحصيل (إجباري)</label>
