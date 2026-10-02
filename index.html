@@ -1213,11 +1213,17 @@
         if (tripData.driver_name) {
             await client.from('drivers').update({ status: 'متوفر' }).eq('name', tripData.driver_name);
         }
-        // قم بإعادة تحميل الجدول أو إغلاق النافذة هنا حسب المعتاد لديك
+        
+        // إظهار رسالة النجاح
+        alert('تم حفظ التسوية وإنهاء الرحلة بنجاح');
+
+        // إغلاق النافذة وتحديث الجدول
         closeCompleteModal();
         if (typeof loadTrips === 'function') loadTrips();
+        else if (typeof loadTripsData === 'function') loadTripsData(); // للتأكد من تحديث الجدول بالدالة التي عدلناها سابقاً
     } else {
         console.error("خطأ في تحديث الرحلة:", error);
+        alert('حدث خطأ أثناء حفظ التعديلات، يجدر المحاولة مجدداً.');
     }
 }
         async function loadTrucks() {
