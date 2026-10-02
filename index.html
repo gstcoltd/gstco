@@ -1108,61 +1108,54 @@
         }
 
         async function saveTrip(e) {
-            e.preventDefault();
-            const trip_no = await generateTripNo();
-            const client_name = document.getElementById('clientName').value.trim();
-            const from_city = document.getElementById('fromCity').value.trim();
-            const to_city = document.getElementById('toCity').value.trim();
-            const trip_type = document.querySelector('input[name="tripType"]:checked').value;
-            const departure_date = document.getElementById('departureDate').value;
-            const truck_plate = document.getElementById('tripTruck').value;
-            const driver_name = document.getElementById('tripDriver').value;
-            const driver_commission = parseFloat(document.getElementById('driverCommissionInput').value) || 0;
-            const total_amount = parseFloat(document.getElementById('totalAmount').value);
-            let paid_amount = parseFloat(document.getElementById('paidAmount').value);
-            if (paid_amount > total_amount) paid_amount = total_amount;
-            const remaining_amount = total_amount - paid_amount;
-            const status = 'جارية';
-            const payment_status = remaining_amount === 0 ? 'مسدد بالكامل' : (paid_amount > 0 ? 'سداد جزئي' : 'غير مسدد');
+    e.preventDefault();
+    const trip_no = await generateTripNo();
+    const client_name = document.getElementById('clientName').value.trim();
+    const from_city = document.getElementById('fromCity').value.trim();
+    const to_city = document.getElementById('toCity').value.trim();
+    const trip_type = document.querySelector('input[name="tripType"]:checked').value;
+    const departure_date = document.getElementById('departureDate').value;
+    const truck_plate = document.getElementById('tripTruck').value;
+    const driver_name = document.getElementById('tripDriver').value;
+    const driver_commission = parseFloat(document.getElementById('driverCommissionInput').value) || 0;
+    const total_amount = parseFloat(document.getElementById('totalAmount').value);
+    let paid_amount = parseFloat(document.getElementById('paidAmount').value);
+    if (paid_amount > total_amount) paid_amount = total_amount;
+    const remaining_amount = total_amount - paid_amount;
+    const status = 'جارية';
+    const payment_status = remaining_amount === 0 ? 'مسدد بالكامل' : (paid_amount > 0 ? 'سداد جزئي' : 'غير مسدد');
 
-            const { data: activeTrips } = await client.from('trips').select('*').eq('status', 'جارية');
-            if (activeTrips) {
-                if (activeTrips.some(t => t.truck_plate === truck_plate)) {
-                    alert('عذراً، هذه الشاحنة مسندة بالفعل إلى رحلة جارية أخرى!');
-                    return;
-                }
-                if (activeTrips.some(d => d.driver_name === driver_name)) {
-                    alert('عذراً، هذا السائق مشغول بالفعل في رحلة جارية أخرى!');
-                    return;
-                }
-            }
-
-            const { error } = await client.from('trips').insert([{
-                trip_no, client_name, from_city, to_city, trip_type, departure_date, truck_plate, driver_name, driver_commission, total_amount, paid_amount, remaining_amount, status, payment_status
-            }]);
-
-            if (!error) {
-                await client.from('trucks').update({ status: 'في رحلة' }).eq('plate', truck_plate);
-                await client.from('drivers').update({ status: 'في رحلة' }).eq('name', driver_name);
-
-                closeAddTripModal();
-                alert('تم حفظ الرحلة برقم ' + trip_no + ' بنجاح!');
-                loadAllData();
-            } else {
-                alert('حدث خطأ أثناء حفظ الرحلة.');
-            }
+    const { data: activeTrips } = await client.from('trips').select('*').eq('status', 'جارية');
+    if (activeTrips) {
+        if (activeTrips.some(t => t.truck_plate === truck_plate)) {
+            alert('عذراً، هذه الشاحنة مسندة بالفعل إلى رحلة جارية أخرى!');
+            return;
         }
-
-        function openCompleteModal(id, truckPlate, driverName, total, paid, remaining, commission) {
-            document.getElementById('modalTripId').value = id;
-            document.getElementById('modalDisplayTotal').value = total + ' SR';
-            document.getElementById('modalDisplayPaid').value = paid + ' SR';
-            document.getElementById('modalDisplayRemaining').value = remaining + ' SR';
-            document.getElementById('modalPaymentInput').value = remaining;
-            document.getElementById('modalDriverCommission').value = commission > 0 ? commission : '';
-            document.getElementById('completeTripModal').classList.remove('hidden');
+        if (activeTrips.some(d => d.driver_name === driver_name)) {
+            alert('عذراً، هذا السائق مشغول بالفعل في رحلة جارية أخرى!');
+            return;
         }
+    }
 
+    const { error } = await client.from('trips').insert([{
+        trip_no, client_name, from_city, to_city, trip_type, departure_date, truck_plate, driver_name, driver_commission, total_amount, paid_amount, remaining_amount, status, payment_status
+    }]);
+
+    if (!error) {
+        // تحديث الشاحنة والسائق مع التحقق من نجاح التحديث
+        const truckUpdate = await client.from('trucks').update({ status: 'في رحلة' }).eq('plate', truck_plate);
+        const driverUpdate = await client.from('drivers').update({ status: 'في رحلة' }).eq('name', driver_name);
+        
+        if (truckUpdate.error) console.error("خطأ في تحديث الشاحنة:", truckUpdate.error);
+        if (driverUpdate.error) console.error("خطأ في تحديث السائق:", driverUpdate.error);
+
+        closeAddTripModal();
+        alert('تم حفظ الرحلة برقم ' + trip_no + ' بنجاح!');
+        loadAllData();
+    } else {
+        alert('حدث خطأ أثناء حفظ الرحلة.');
+    }
+}
         function closeCompleteModal() {
             document.getElementById('completeTripModal').classList.add('hidden');
         }
