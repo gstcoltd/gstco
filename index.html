@@ -624,7 +624,13 @@
                         <option value="تحويل على الأهلي">تحويل على الأهلي</option>
                     </select>
                 </div>
-
+// إذا كانت الرحلة منتهية ولديها طريقة سداد وتاريخ تحصيل، قم بعرضهما هكذا:
+trip.status === 'منتهية' ? `
+    <div class="text-[11px] text-slate-600 mt-1 pt-1 border-t border-slate-100 flex flex-col gap-0.5 font-sans">
+        <div><span class="font-bold">طريقة السداد:</span> <span class="text-blue-600 font-bold">${trip.payment_method || 'غير محدد'}</span></div>
+        <div><span class="font-bold">تاريخ التحصيل:</span> <span class="font-mono text-slate-700">${trip.collection_date || 'غير محدد'}</span></div>
+    </div>
+` : ''
                 <!-- خانة تاريخ التحصيل الإجبارية -->
                 <div>
                     <label class="block text-[11px] font-bold text-slate-600 mb-1">تاريخ التحصيل (إجباري)</label>
@@ -1165,84 +1171,58 @@
         }
 
         async function confirmCompleteTrip(e) {
-            e.preventDefault();
-            const id = document.getElementById('modalTripId').value;
-            
-            const rawTotalText = document.getElementById('modalDisplayTotal').value;
-            const total = parseFloat(rawTotalText.replace(/[^\d.]/g, '')) || 0;
-            
-            const { data: tripData, error: fetchError } = await client.from('trips').select('paid_amount, status, truck_plate, driver_name').eq('id', id).single();
-            if (fetchError) {
-                console.error("خطأ في جلب بيانات الرحلة:", fetchError);
-                return;
-            }
+    e.preventDefault();
+    const id = document.getElementById('modalTripId').value;
+    
+    const rawTotalText = document.getElementById('modalDisplayTotal').value;
+    const total = parseFloat(rawTotalText.replace(/[^\d.]/g, '')) || 0;
+    
+    const { data: tripData, error: fetchError } = await client.from('trips').select('paid_amount, status, truck_plate, driver_name').eq('id', id).single();
+    if (fetchError) {
+        console.error("خطأ في جلب بيانات الرحلة:", fetchError);
+        return;
+    }
 
-            const currentPaid = parseFloat(tripData.paid_amount || 0);
-            let additionalPayment = parseFloat(document.getElementById('modalPaymentInput').value) || 0;
-            const finalCommission = parseFloat(document.getElementById('modalDriverCommission').value) || 0;
-            
-            let newPaidAmount = currentPaid + additionalPayment;
-            if (newPaidAmount > total) newPaidAmount = total;
+    const currentPaid = parseFloat(tripData.paid_amount || 0);
+    let additionalPayment = parseFloat(document.getElementById('modalPaymentInput').value) || 0;
+    const finalCommission = parseFloat(document.getElementById('modalDriverCommission').value) || 0;
+    
+    // جلب قيم طريقة السداد وتاريخ التحصيل من الحقول الجديدة
+    const paymentMethod = document.getElementById('modalPaymentMethod').value;
+    const collectionDate = document.getElementById('modalCollectionDate').value;
+    
+    let newPaidAmount = currentPaid + additionalPayment;
+    if (newPaidAmount > total) newPaidAmount = total;
 
-            const newRemaining = total - newPaidAmount;
-            const payment_status = newRemaining <= 0 ? 'مسدد بالكامل' : 'سداد جزئي';
+    const newRemaining = total - newPaidAmount;
+    const payment_status = newRemaining <= 0 ? 'مسدد بالكامل' : 'سداد جزئي';
 
-            const updateData = {
-                paid_amount: newPaidAmount,
-                remaining_amount: newRemaining > 0 ? newRemaining : 0,
-                payment_status: payment_status,
-                driver_commission: finalCommission,
-                status: 'مكتملة'
-            };
+    const updateData = {
+        paid_amount: newPaidAmount,
+        remaining_amount: newRemaining > 0 ? newRemaining : 0,
+        payment_status: payment_status,
+        driver_commission: finalCommission,
+        status: 'مكتملة',
+        payment_method: paymentMethod,   // حفظ طريقة السداد
+        collection_date: collectionDate  // حفظ تاريخ التحصيل
+    };
 
-            const { data, error } = await client.from('trips').update(updateData).eq('id', id);
+    const { data, error } = await client.from('trips').update(updateData).eq('id', id);
 
-            if (!error) {
-                if (tripData.truck_plate) {
-                    await client.from('trucks').update({ status: 'جاهزة للعمل' }).eq('plate', tripData.truck_plate);
-                }
-                if (tripData.driver_name) {
-                    await client.from('drivers').update({ status: 'متوفر' }).eq('name', tripData.driver_name);
-                }
-
-                closeCompleteModal();
-                alert('تم تسجيل السداد والعمولة وإنهاء الرحلة بنجاح!');
-                loadAllData();
-            } else {
-                console.error("خطأ تفصيلي من قاعدة البيانات:", error);
-                alert('حدث خطأ أثناء حفظ التسوية: ' + (error.message || JSON.stringify(error)));
-            }
+    if (!error) {
+        if (tripData.truck_plate) {
+            await client.from('trucks').update({ status: 'جاهزة للعمل' }).eq('plate', tripData.truck_plate);
         }
-        async function cancelTrip(id) {
-            if (confirm('هل أنت متأكد من إلغاء هذه الرحلة؟ (سيتم تصفير قيمتها المالية وإعادة الشاحنة والسائق للعمل)')) {
-                const { data: tripData } = await client.from('trips').select('truck_plate, driver_name').eq('id', id).single();
-                if (!tripData) return;
-
-                const { error } = await client.from('trips').update({
-                    status: 'ملغاة',
-                    total_amount: 0,
-                    paid_amount: 0,
-                    remaining_amount: 0,
-                    driver_commission: 0,
-                    payment_status: 'ملغي'
-                }).eq('id', id);
-
-                if (!error) {
-                    if (tripData.truck_plate) {
-                        await client.from('trucks').update({ status: 'جاهزة للعمل' }).eq('plate', tripData.truck_plate);
-                    }
-                    if (tripData.driver_name) {
-                        await client.from('drivers').update({ status: 'متوفر' }).eq('name', tripData.driver_name);
-                    }
-                    
-                    alert('تم إلغاء الرحلة وتحرير الشاحنة والسائق بنجاح.');
-                    loadAllData();
-                } else {
-                    alert('حدث خطأ أثناء إلغاء الرحلة.');
-                }
-            }
+        if (tripData.driver_name) {
+            await client.from('drivers').update({ status: 'متوفر' }).eq('name', tripData.driver_name);
         }
-
+        // قم بإعادة تحميل الجدول أو إغلاق النافذة هنا حسب المعتاد لديك
+        closeCompleteModal();
+        if (typeof loadTrips === 'function') loadTrips();
+    } else {
+        console.error("خطأ في تحديث الرحلة:", error);
+    }
+}
         async function loadTrucks() {
             const table = document.getElementById('trucksTable');
             try {
