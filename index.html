@@ -619,7 +619,7 @@
             <!-- خانة طريقة السداد الإجبارية -->
             <div>
                 <label class="block text-[11px] font-bold text-slate-600 mb-1">طريقة السداد (إجباري)</label>
-                <select id="modalPaymentMethod" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500">
+                <select id="modalPaymentMethod"  class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500">
                     <option value="">اختر طريقة السداد...</option>
                     <option value="نقدي">نقدي</option>
                     <option value="تحويل على الراجحي">تحويل على الراجحي</option>
@@ -1140,14 +1140,14 @@ async function confirmCompleteTrip(e) {
     const paymentMethod = document.getElementById('modalPaymentMethod').value;
     const collectionDate = document.getElementById('modalCollectionDate').value;
     
-    // التحقق: إذا أدخل المستخدم مبلغ دفع إضافي، تصبح طريقة السداد وتاريخ التحصيل إجبارية
+    // الشرط المطلوب: إجباري فقط إذا كان المبلغ الإضافي أكبر من صفر
     if (additionalPayment > 0) {
         if (!paymentMethod) {
-            alert('يرجى اختيار طريقة السداد نظراً لوجود دفعة مالية.');
+            alert('يرجى اختيار طريقة السداد نظراً لوجود دفعة مالية أكبر من صفر.');
             return;
         }
         if (!collectionDate) {
-            alert('يرجى تحديد تاريخ التحصيل نظراً لوجود دفعة مالية.');
+            alert('يرجى تحديد تاريخ التحصيل نظراً لوجود دفعة مالية أكبر من صفر.');
             return;
         }
     }
@@ -1158,7 +1158,7 @@ async function confirmCompleteTrip(e) {
     const newRemaining = total - newPaidAmount;
     const payment_status = newRemaining <= 0 ? 'مسدد بالكامل' : 'سداد جزئي';
 
-    // تجهيز بيانات التحديث للرحلة
+    // تجهيز بيانات التحديث
     const updateData = {
         paid_amount: newPaidAmount,
         remaining_amount: newRemaining > 0 ? newRemaining : 0,
@@ -1167,10 +1167,10 @@ async function confirmCompleteTrip(e) {
         status: 'مكتملة'
     };
 
-    // إدراج بيانات السداد فقط إذا تم تسجيل دفعة أو اختيار طريقة دفع
-    if (additionalPayment > 0 || paymentMethod) {
-        updateData.payment_method = paymentMethod || null;
-        updateData.collection_date = collectionDate || null;
+    // إدراج طريقة السداد والتاريخ فقط إذا تم إدخال دفعة مالية، وإلا تبقى فارغة أو كما هي
+    if (additionalPayment > 0) {
+        updateData.payment_method = paymentMethod;
+        updateData.collection_date = collectionDate;
     }
 
     const { data, error } = await client.from('trips').update(updateData).eq('id', id);
