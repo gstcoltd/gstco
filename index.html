@@ -1120,7 +1120,7 @@
     document.getElementById('completeTripModal').classList.remove('hidden');
 }
 
-       async function confirmCompleteTrip(e) {
+      async function confirmCompleteTrip(e) {
     e.preventDefault();
     const id = document.getElementById('modalTripId').value;
     
@@ -1145,12 +1145,8 @@
     
     // التحقق: إجباري فقط إذا كان المبلغ الإضافي أكبر من صفر
     if (additionalPayment > 0) {
-        if (!paymentMethod) {
-            alert('يرجى اختيار طريقة السداد نظراً لوجود دفعة مالية أكبر من صفر.');
-            return;
-        }
-        if (!collectionDate) {
-            alert('يرجى تحديد تاريخ التحصيل نظراً لوجود دفعة مالية أكبر من صفر.');
+        if (!paymentMethod || !collectionDate) {
+            alert('يرجى اختيار طريقة السداد وتحديد تاريخ التحصيل لوجود دفعة مالية.');
             return;
         }
     }
@@ -1161,7 +1157,7 @@
     const newRemaining = total - newPaidAmount;
     const payment_status = newRemaining <= 0 ? 'مسدد بالكامل' : 'سداد جزئي';
 
-    // 1. تجهيز بيانات التحديث الأساسية فقط
+    // تجهيز الكائن الأساسي فقط
     const updateData = {
         paid_amount: newPaidAmount,
         remaining_amount: newRemaining > 0 ? newRemaining : 0,
@@ -1170,15 +1166,18 @@
         status: 'مكتملة'
     };
 
-    // 2. إضافة الحقول الاختيارية ديناميكياً فقط إذا أدخلها المستخدم (إذا كانت فارغة لن يتم إرسالها نهائياً)
-    if (paymentMethod) {
+    // إضافة الحقول فقط إذا لم تكن فارغة
+    if (paymentMethod !== '') {
         updateData.payment_method = paymentMethod;
     }
-    if (collectionDate) {
+    if (collectionDate !== '') {
         updateData.collection_date = collectionDate;
     }
 
-    const { data, error } = await client.from('trips').update(updateData).eq('id', id);
+    // اطبع البيانات هنا لترها بنفسك في الـ Console والتأكد أن الكود الجديد يعمل
+    console.log("=== البيانات التي ستقوم Supabase باستقبالها ===", updateData);
+
+    const { error } = await client.from('trips').update(updateData).eq('id', id);
 
     if (!error) {
         if (tripData.truck_plate) {
