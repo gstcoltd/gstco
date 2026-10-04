@@ -1140,7 +1140,7 @@ async function confirmCompleteTrip(e) {
     const paymentMethod = document.getElementById('modalPaymentMethod').value;
     const collectionDate = document.getElementById('modalCollectionDate').value;
     
-    // الشرط الأول: إذا كان المبلغ المدفوع أكبر من صفر، تصبح الطريقة والتاريخ إجباريين
+    // 1. التحقق الشرطي عند وجود دفعة مالية أكبر من صفر
     if (additionalPayment > 0) {
         if (!paymentMethod) {
             alert('يرجى اختيار طريقة السداد نظراً لوجود دفعة مالية أكبر من صفر.');
@@ -1158,7 +1158,7 @@ async function confirmCompleteTrip(e) {
     const newRemaining = total - newPaidAmount;
     const payment_status = newRemaining <= 0 ? 'مسدد بالكامل' : 'سداد جزئي';
 
-    // تجهيز بيانات التحديث
+    // 2. تجهيز بيانات التحديث الأساسية
     const updateData = {
         paid_amount: newPaidAmount,
         remaining_amount: newRemaining > 0 ? newRemaining : 0,
@@ -1167,14 +1167,13 @@ async function confirmCompleteTrip(e) {
         status: 'مكتملة'
     };
 
-    // تعبئة طريقة السداد والتاريخ بناءً على المدخلات (تكون اختيارية إذا كان المبلغ 0، وإجبارية ومضمنة إذا تم الدفع)
+    // 3. إضافة طريقة السداد والتاريخ فقط إذا كتبها المستخدم، وإذا كانت فارغة نجعلها null لتجنب أخطاء قاعدة البيانات
     if (additionalPayment > 0) {
         updateData.payment_method = paymentMethod;
         updateData.collection_date = collectionDate;
     } else {
-        // إذا كان المبلغ 0، يتم حفظها فقط إذا قام المستخدم بتعبئتها اختيارياً، وإلا تترك كما هي أو تسجل فارغة
-        if (paymentMethod) updateData.payment_method = paymentMethod;
-        if (collectionDate) updateData.collection_date = collectionDate;
+        updateData.payment_method = paymentMethod ? paymentMethod : null;
+        updateData.collection_date = collectionDate ? collectionDate : null;
     }
 
     const { data, error } = await client.from('trips').update(updateData).eq('id', id);
@@ -1193,8 +1192,9 @@ async function confirmCompleteTrip(e) {
         if (typeof loadTrips === 'function') loadTrips();
         else if (typeof loadTripsData === 'function') loadTripsData();
     } else {
-        console.error("خطأ في تحديث الرحلة:", error);
-        alert('حدث خطأ أثناء حفظ التعديلات.');
+        // طباعة الخطأ الحقيقي في الـ Console لمعرفته بدقة إذا استمرت المشكلة
+        console.error("خطأ Supabase الحقيقي:", error);
+        alert('حدث خطأ أثناء حفظ التعديلات: ' + (error.message || 'يرجى المحاولة مجدداً'));
     }
 }
         function closeAddTripModal() {
