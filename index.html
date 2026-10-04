@@ -1120,7 +1120,7 @@
     document.getElementById('completeTripModal').classList.remove('hidden');
 }
 
-        async function confirmCompleteTrip(e) {
+       async function confirmCompleteTrip(e) {
     e.preventDefault();
     const id = document.getElementById('modalTripId').value;
     
@@ -1161,17 +1161,22 @@
     const newRemaining = total - newPaidAmount;
     const payment_status = newRemaining <= 0 ? 'مسدد بالكامل' : 'سداد جزئي';
 
-    // تجهيز بيانات التحديث بصورة آمنة تماماً
+    // 1. تجهيز بيانات التحديث الأساسية فقط
     const updateData = {
         paid_amount: newPaidAmount,
         remaining_amount: newRemaining > 0 ? newRemaining : 0,
         payment_status: payment_status,
         driver_commission: finalCommission,
-        status: 'مكتملة',
-        // إرسال القيم كـ null صريح إذا كانت فارغة لمنع أخطاء قاعدة البيانات
-        payment_method: (paymentMethod && paymentMethod !== '') ? paymentMethod : null,
-        collection_date: (collectionDate && collectionDate !== '') ? collectionDate : null
+        status: 'مكتملة'
     };
+
+    // 2. إضافة الحقول الاختيارية ديناميكياً فقط إذا أدخلها المستخدم (إذا كانت فارغة لن يتم إرسالها نهائياً)
+    if (paymentMethod) {
+        updateData.payment_method = paymentMethod;
+    }
+    if (collectionDate) {
+        updateData.collection_date = collectionDate;
+    }
 
     const { data, error } = await client.from('trips').update(updateData).eq('id', id);
 
