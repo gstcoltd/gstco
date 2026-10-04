@@ -1119,7 +1119,6 @@
     // إظهار نافذة التسوية
     document.getElementById('completeTripModal').classList.remove('hidden');
 }
-
 async function confirmCompleteTrip(e) {
     e.preventDefault();
     const id = document.getElementById('modalTripId').value;
@@ -1158,7 +1157,7 @@ async function confirmCompleteTrip(e) {
     const newRemaining = total - newPaidAmount;
     const payment_status = newRemaining <= 0 ? 'مسدد بالكامل' : 'سداد جزئي';
 
-    // تجهيز بيانات التحديث الأساسية
+    // تجهيز بيانات التحديث الأساسية (بدون حقول السداد الاختيارية أولاً)
     const updateData = {
         paid_amount: newPaidAmount,
         remaining_amount: newRemaining > 0 ? newRemaining : 0,
@@ -1167,9 +1166,13 @@ async function confirmCompleteTrip(e) {
         status: 'مكتملة'
     };
 
-    // معالجة الحقول الاختيارية لمنع إرسال نصوص فارغة قد ترفضها قاعدة البيانات
-    updateData.payment_method = paymentMethod ? paymentMethod : null;
-    updateData.collection_date = collectionDate ? collectionDate : null;
+    // إضافة طريقة السداد والتاريخ فقط إذا قام المستخدم بكتابتها أو اختيارها فعلياً
+    if (paymentMethod) {
+        updateData.payment_method = paymentMethod;
+    }
+    if (collectionDate) {
+        updateData.collection_date = collectionDate;
+    }
 
     const { data, error } = await client.from('trips').update(updateData).eq('id', id);
 
@@ -1187,10 +1190,11 @@ async function confirmCompleteTrip(e) {
         if (typeof loadTrips === 'function') loadTrips();
         else if (typeof loadTripsData === 'function') loadTripsData();
     } else {
-        console.error("خطأ Supabase الحقيقي:", error);
+        console.error("خطأ Supabase:", error);
         alert('حدث خطأ أثناء حفظ التعديلات: ' + (error.message || 'يرجى المحاولة مجدداً'));
     }
-}        function closeAddTripModal() {
+}        
+        function closeAddTripModal() {
             document.getElementById('addTripModal').classList.add('hidden');
             document.querySelector('#addTripModal form').reset();
             document.getElementById('remainingAmount').value = '0';
