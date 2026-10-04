@@ -1157,7 +1157,7 @@
     const newRemaining = total - newPaidAmount;
     const payment_status = newRemaining <= 0 ? 'مسدد بالكامل' : 'سداد جزئي';
 
-    // تجهيز الكائن الأساسي فقط
+    // 1. تجهيز بيانات التحديث الأساسية فقط
     const updateData = {
         paid_amount: newPaidAmount,
         remaining_amount: newRemaining > 0 ? newRemaining : 0,
@@ -1166,16 +1166,18 @@
         status: 'مكتملة'
     };
 
-    // إضافة الحقول فقط إذا لم تكن فارغة
-    if (paymentMethod !== '') {
+    // 2. إدراج الحقول فقط إذا كتبها المستخدم، وإلا يتم حذفها تماماً من كائن الإرسال
+    if (paymentMethod && paymentMethod !== '') {
         updateData.payment_method = paymentMethod;
-    }
-    if (collectionDate !== '') {
-        updateData.collection_date = collectionDate;
+    } else {
+        delete updateData.payment_method;
     }
 
-    // اطبع البيانات هنا لترها بنفسك في الـ Console والتأكد أن الكود الجديد يعمل
-    console.log("=== البيانات التي ستقوم Supabase باستقبالها ===", updateData);
+    if (collectionDate && collectionDate !== '') {
+        updateData.collection_date = collectionDate;
+    } else {
+        delete updateData.collection_date;
+    }
 
     const { error } = await client.from('trips').update(updateData).eq('id', id);
 
