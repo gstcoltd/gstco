@@ -1100,7 +1100,24 @@
             loadDropdowns();
             document.getElementById('addTripModal').classList.remove('hidden');
         }
+function openCompleteModal(id, truckPlate, driverName, totalAmount, paidAmount, remainingAmount, driverCommission) {
+    document.getElementById('modalTripId').value = id;
+    document.getElementById('modalDisplayTotal').value = totalAmount;
+    document.getElementById('modalPaymentInput').value = '';
+    document.getElementById('modalDriverCommission').value = driverCommission || 0;
+    
+    // تعبئة طريقة السداد وتاريخ التحصيل الافتراضي (اليوم)
+    const paymentMethodEl = document.getElementById('modalPaymentMethod');
+    if (paymentMethodEl) paymentMethodEl.value = 'نقدي';
 
+    const collectionDateEl = document.getElementById('modalCollectionDate');
+    if (collectionDateEl) {
+        collectionDateEl.value = new Date().toISOString().split('T')[0];
+    }
+
+    // إظهار نافذة التسوية
+    document.getElementById('completeTripModal').classList.remove('hidden');
+}
         function closeAddTripModal() {
             document.getElementById('addTripModal').classList.add('hidden');
             document.querySelector('#addTripModal form').reset();
@@ -1159,7 +1176,38 @@
         function closeCompleteModal() {
             document.getElementById('completeTripModal').classList.add('hidden');
         }
+async function cancelTrip(id) {
+    if (!confirm('هل أنت متأكد من رغبتك في إلغاء هذه الرحلة؟')) return;
 
+    // جلب معلومات الشاحنة والسائق لإعادة تعيين حالتهم
+    const { data: tripData, error: fetchErr } = await client.from('trips').select('truck_plate, driver_name').eq('id', id).single();
+    
+    if (fetchErr) {
+        console.error("خطأ في جلب بيانات الرحلة:", fetchErr);
+        return;
+    }
+
+    // تحديث حالة الرحلة إلى ملغاة
+    const { error } = await client.from('trips').update({ status: 'ملغاة' }).eq('id', id);
+
+    if (!error) {
+        if (tripData) {
+            if (tripData.truck_plate) {
+                await client.from('trucks').update({ status: 'جاهزة للعمل' }).eq('plate', tripData.truck_plate);
+            }
+            if (tripData.driver_name) {
+                await client.from('drivers').update({ status: 'متوفر' }).eq('name', tripData.driver_name);
+            }
+        }
+        alert('تم إلغاء الرحلة بنجاح');
+        
+        // تحديث الجدول
+        if (typeof loadTrips === 'function') loadTrips();
+        else if (typeof loadTripsData === 'function') loadTripsData();
+    } else {
+        alert('حدث خطأ أثناء إلغاء الرحلة.');
+    }
+}
         async function confirmCompleteTrip(e) {
     e.preventDefault();
     const id = document.getElementById('modalTripId').value;
