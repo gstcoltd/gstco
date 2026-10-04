@@ -1119,7 +1119,8 @@
     // إظهار نافذة التسوية
     document.getElementById('completeTripModal').classList.remove('hidden');
 }
-async function confirmCompleteTrip(e) {
+
+        async function confirmCompleteTrip(e) {
     e.preventDefault();
     const id = document.getElementById('modalTripId').value;
     
@@ -1136,8 +1137,11 @@ async function confirmCompleteTrip(e) {
     let additionalPayment = parseFloat(document.getElementById('modalPaymentInput').value) || 0;
     const finalCommission = parseFloat(document.getElementById('modalDriverCommission').value) || 0;
     
-    const paymentMethod = document.getElementById('modalPaymentMethod').value.trim();
-    const collectionDate = document.getElementById('modalCollectionDate').value.trim();
+    const paymentMethodEl = document.getElementById('modalPaymentMethod');
+    const collectionDateEl = document.getElementById('modalCollectionDate');
+
+    const paymentMethod = paymentMethodEl ? paymentMethodEl.value.trim() : '';
+    const collectionDate = collectionDateEl ? collectionDateEl.value.trim() : '';
     
     // التحقق: إجباري فقط إذا كان المبلغ الإضافي أكبر من صفر
     if (additionalPayment > 0) {
@@ -1157,22 +1161,17 @@ async function confirmCompleteTrip(e) {
     const newRemaining = total - newPaidAmount;
     const payment_status = newRemaining <= 0 ? 'مسدد بالكامل' : 'سداد جزئي';
 
-    // تجهيز بيانات التحديث الأساسية (بدون حقول السداد الاختيارية أولاً)
+    // تجهيز بيانات التحديث بصورة آمنة تماماً
     const updateData = {
         paid_amount: newPaidAmount,
         remaining_amount: newRemaining > 0 ? newRemaining : 0,
         payment_status: payment_status,
         driver_commission: finalCommission,
-        status: 'مكتملة'
+        status: 'مكتملة',
+        // إرسال القيم كـ null صريح إذا كانت فارغة لمنع أخطاء قاعدة البيانات
+        payment_method: (paymentMethod && paymentMethod !== '') ? paymentMethod : null,
+        collection_date: (collectionDate && collectionDate !== '') ? collectionDate : null
     };
-
-    // إضافة طريقة السداد والتاريخ فقط إذا قام المستخدم بكتابتها أو اختيارها فعلياً
-    if (paymentMethod) {
-        updateData.payment_method = paymentMethod;
-    }
-    if (collectionDate) {
-        updateData.collection_date = collectionDate;
-    }
 
     const { data, error } = await client.from('trips').update(updateData).eq('id', id);
 
@@ -1193,13 +1192,7 @@ async function confirmCompleteTrip(e) {
         console.error("خطأ Supabase:", error);
         alert('حدث خطأ أثناء حفظ التعديلات: ' + (error.message || 'يرجى المحاولة مجدداً'));
     }
-}        
-        function closeAddTripModal() {
-            document.getElementById('addTripModal').classList.add('hidden');
-            document.querySelector('#addTripModal form').reset();
-            document.getElementById('remainingAmount').value = '0';
-        }
-
+}
         async function saveTrip(e) {
     e.preventDefault();
     const trip_no = await generateTripNo();
