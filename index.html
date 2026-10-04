@@ -1100,23 +1100,98 @@
             loadDropdowns();
             document.getElementById('addTripModal').classList.remove('hidden');
         }
-function openCompleteModal(id, truckPlate, driverName, totalAmount, paidAmount, remainingAmount, driverCommission) {
+        function openCompleteModal(id, truckPlate, driverName, totalAmount, paidAmount, remainingAmount, driverCommission) {
     document.getElementById('modalTripId').value = id;
     document.getElementById('modalDisplayTotal').value = totalAmount;
     document.getElementById('modalPaymentInput').value = '';
     document.getElementById('modalDriverCommission').value = driverCommission || 0;
     
-    // تعبئة طريقة السداد وتاريخ التحصيل الافتراضي (اليوم)
+    // جعل طريقة السداد فارغة (بدون اختيار افتراضي)
     const paymentMethodEl = document.getElementById('modalPaymentMethod');
-    if (paymentMethodEl) paymentMethodEl.value = 'نقدي';
+    if (paymentMethodEl) paymentMethodEl.value = '';
 
+    // جعل تاريخ التحصيل فارغاً ليقوم المستخدم باختياره عند الحاجة
     const collectionDateEl = document.getElementById('modalCollectionDate');
     if (collectionDateEl) {
-        collectionDateEl.value = new Date().toISOString().split('T')[0];
+        collectionDateEl.value = '';
     }
 
     // إظهار نافذة التسوية
     document.getElementById('completeTripModal').classList.remove('hidden');
+}
+
+async function confirmCompleteTrip(e) {
+    e.preventDefault();
+    const id = document.getElementById('modalTripId').value;
+    
+    const rawTotalText = document.getElementById('modalDisplayTotal').value;
+    const total = parseFloat(rawTotalText.replace(/[^\d.]/g, '')) || 0;
+    
+    const { data: tripData, error: fetchError } = await client.from('trips').select('paid_amount, status, truck_plate, driver_name').eq('id', id).single();
+    if (fetchError) {
+        console.error("خطأ في جلب بيانات الرحلة:", fetchError);
+        return;
+    }
+
+    const currentPaid = parseFloat(tripData.paid_amount || 0);
+    let additionalPayment = parseFloat(document.getElementById('modalPaymentInput').value) || 0;
+    const finalCommission = parseFloat(document.getElementById('modalDriverCommission').value) || 0;
+    
+    const paymentMethod = document.getElementById('modalPaymentMethod').value;
+    const collectionDate = document.getElementById('modalCollectionDate').value;
+    
+    // التحقق: إذا أدخل المستخدم مبلغ دفع إضافي، تصبح طريقة السداد وتاريخ التحصيل إجبارية
+    if (additionalPayment > 0) {
+        if (!paymentMethod) {
+            alert('يرجى اختيار طريقة السداد نظراً لوجود دفعة مالية.');
+            return;
+        }
+        if (!collectionDate) {
+            alert('يرجى تحديد تاريخ التحصيل نظراً لوجود دفعة مالية.');
+            return;
+        }
+    }
+
+    let newPaidAmount = currentPaid + additionalPayment;
+    if (newPaidAmount > total) newPaidAmount = total;
+
+    const newRemaining = total - newPaidAmount;
+    const payment_status = newRemaining <= 0 ? 'مسدد بالكامل' : 'سداد جزئي';
+
+    // تجهيز بيانات التحديث للرحلة
+    const updateData = {
+        paid_amount: newPaidAmount,
+        remaining_amount: newRemaining > 0 ? newRemaining : 0,
+        payment_status: payment_status,
+        driver_commission: finalCommission,
+        status: 'مكتملة'
+    };
+
+    // إدراج بيانات السداد فقط إذا تم تسجيل دفعة أو اختيار طريقة دفع
+    if (additionalPayment > 0 || paymentMethod) {
+        updateData.payment_method = paymentMethod || null;
+        updateData.collection_date = collectionDate || null;
+    }
+
+    const { data, error } = await client.from('trips').update(updateData).eq('id', id);
+
+    if (!error) {
+        if (tripData.truck_plate) {
+            await client.from('trucks').update({ status: 'جاهزة للعمل' }).eq('plate', tripData.truck_plate);
+        }
+        if (tripData.driver_name) {
+            await client.from('drivers').update({ status: 'متوفر' }).eq('name', tripData.driver_name);
+        }
+        
+        alert('تم إنهاء الرحلة بنجاح');
+        closeCompleteModal();
+        
+        if (typeof loadTrips === 'function') loadTrips();
+        else if (typeof loadTripsData === 'function') loadTripsData();
+    } else {
+        console.error("خطأ في تحديث الرحلة:", error);
+        alert('حدث خطأ أثناء حفظ التعديلات.');
+    }
 }
         function closeAddTripModal() {
             document.getElementById('addTripModal').classList.add('hidden');
@@ -1176,38 +1251,6 @@ function openCompleteModal(id, truckPlate, driverName, totalAmount, paidAmount, 
         function closeCompleteModal() {
             document.getElementById('completeTripModal').classList.add('hidden');
         }
-async function cancelTrip(id) {
-    if (!confirm('هل أنت متأكد من رغبتك في إلغاء هذه الرحلة؟')) return;
-
-    // جلب معلومات الشاحنة والسائق لإعادة تعيين حالتهم
-    const { data: tripData, error: fetchErr } = await client.from('trips').select('truck_plate, driver_name').eq('id', id).single();
-    
-    if (fetchErr) {
-        console.error("خطأ في جلب بيانات الرحلة:", fetchErr);
-        return;
-    }
-
-    // تحديث حالة الرحلة إلى ملغاة
-    const { error } = await client.from('trips').update({ status: 'ملغاة' }).eq('id', id);
-
-    if (!error) {
-        if (tripData) {
-            if (tripData.truck_plate) {
-                await client.from('trucks').update({ status: 'جاهزة للعمل' }).eq('plate', tripData.truck_plate);
-            }
-            if (tripData.driver_name) {
-                await client.from('drivers').update({ status: 'متوفر' }).eq('name', tripData.driver_name);
-            }
-        }
-        alert('تم إلغاء الرحلة بنجاح');
-        
-        // تحديث الجدول
-        if (typeof loadTrips === 'function') loadTrips();
-        else if (typeof loadTripsData === 'function') loadTripsData();
-    } else {
-        alert('حدث خطأ أثناء إلغاء الرحلة.');
-    }
-}
         async function confirmCompleteTrip(e) {
     e.preventDefault();
     const id = document.getElementById('modalTripId').value;
