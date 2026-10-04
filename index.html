@@ -618,7 +618,7 @@
             
             <!-- خانة طريقة السداد الإجبارية -->
             <div>
-                <label class="block text-[11px] font-bold text-slate-600 mb-1">طريقة السداد (إجباري)</label>
+                <label class="block text-[11px] font-bold text-slate-600 mb-1">طريقة السداد (اختياري)</label>
                 <select id="modalPaymentMethod"  class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500">
                     <option value="">اختر طريقة السداد...</option>
                     <option value="نقدي">نقدي</option>
@@ -629,8 +629,8 @@
 
             <!-- خانة تاريخ التحصيل الإجبارية -->
             <div>
-                <label class="block text-[11px] font-bold text-slate-600 mb-1">تاريخ التحصيل (إجباري)</label>
-                <input type="date" id="modalCollectionDate" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500 font-mono">
+                <label class="block text-[11px] font-bold text-slate-600 mb-1">تاريخ التحصيل (اختياري)</label>
+                <input type="date" id="modalCollectionDate"  class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500 font-mono">
             </div>
 
             <div class="flex gap-2 pt-2">
@@ -1140,7 +1140,7 @@ async function confirmCompleteTrip(e) {
     const paymentMethod = document.getElementById('modalPaymentMethod').value;
     const collectionDate = document.getElementById('modalCollectionDate').value;
     
-    // الشرط المطلوب: إجباري فقط إذا كان المبلغ الإضافي أكبر من صفر
+    // الشرط الأول: إذا كان المبلغ المدفوع أكبر من صفر، تصبح الطريقة والتاريخ إجباريين
     if (additionalPayment > 0) {
         if (!paymentMethod) {
             alert('يرجى اختيار طريقة السداد نظراً لوجود دفعة مالية أكبر من صفر.');
@@ -1167,10 +1167,14 @@ async function confirmCompleteTrip(e) {
         status: 'مكتملة'
     };
 
-    // إدراج طريقة السداد والتاريخ فقط إذا تم إدخال دفعة مالية، وإلا تبقى فارغة أو كما هي
+    // تعبئة طريقة السداد والتاريخ بناءً على المدخلات (تكون اختيارية إذا كان المبلغ 0، وإجبارية ومضمنة إذا تم الدفع)
     if (additionalPayment > 0) {
         updateData.payment_method = paymentMethod;
         updateData.collection_date = collectionDate;
+    } else {
+        // إذا كان المبلغ 0، يتم حفظها فقط إذا قام المستخدم بتعبئتها اختيارياً، وإلا تترك كما هي أو تسجل فارغة
+        if (paymentMethod) updateData.payment_method = paymentMethod;
+        if (collectionDate) updateData.collection_date = collectionDate;
     }
 
     const { data, error } = await client.from('trips').update(updateData).eq('id', id);
