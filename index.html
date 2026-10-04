@@ -1120,7 +1120,7 @@
     document.getElementById('completeTripModal').classList.remove('hidden');
 }
 
-      async function confirmCompleteTrip(e) {
+    async function confirmCompleteTrip(e) {
     e.preventDefault();
     const id = document.getElementById('modalTripId').value;
     
@@ -1134,8 +1134,13 @@
     }
 
     const currentPaid = parseFloat(tripData.paid_amount || 0);
-    let additionalPayment = parseFloat(document.getElementById('modalPaymentInput').value) || 0;
-    const finalCommission = parseFloat(document.getElementById('modalDriverCommission').value) || 0;
+    
+    // البحث عن حقل المبلغ بأكثر من احتمال لضمان قراءته بشكل صحيح 100%
+    const paymentInputEl = document.getElementById('modalPaymentInput') || document.getElementById('modalPaidAmount') || document.querySelector('input[type="number"]');
+    let additionalPayment = paymentInputEl ? (parseFloat(paymentInputEl.value) || 0) : 0;
+    
+    const finalCommissionInput = document.getElementById('modalDriverCommission');
+    const finalCommission = finalCommissionInput ? (parseFloat(finalCommissionInput.value) || 0) : 0;
     
     const paymentMethodEl = document.getElementById('modalPaymentMethod');
     const collectionDateEl = document.getElementById('modalCollectionDate');
@@ -1145,8 +1150,12 @@
     
     // التحقق: إجباري فقط إذا كان المبلغ الإضافي أكبر من صفر
     if (additionalPayment > 0) {
-        if (!paymentMethod || !collectionDate) {
-            alert('يرجى اختيار طريقة السداد وتحديد تاريخ التحصيل لوجود دفعة مالية.');
+        if (!paymentMethod) {
+            alert('يرجى اختيار طريقة السداد نظراً لوجود دفعة مالية.');
+            return;
+        }
+        if (!collectionDate) {
+            alert('يرجى تحديد تاريخ التحصيل نظراً لوجود دفعة مالية.');
             return;
         }
     }
@@ -1157,7 +1166,7 @@
     const newRemaining = total - newPaidAmount;
     const payment_status = newRemaining <= 0 ? 'مسدد بالكامل' : 'سداد جزئي';
 
-    // 1. تجهيز بيانات التحديث الأساسية فقط
+    // تجهيز بيانات التحديث الأساسية
     const updateData = {
         paid_amount: newPaidAmount,
         remaining_amount: newRemaining > 0 ? newRemaining : 0,
@@ -1166,7 +1175,7 @@
         status: 'مكتملة'
     };
 
-    // 2. إدراج الحقول فقط إذا كتبها المستخدم، وإلا يتم حذفها تماماً من كائن الإرسال
+    // إدراج الحقول الاختيارية فقط إذا تم تعبئتها، وإلا يتم حذفها تماماً
     if (paymentMethod && paymentMethod !== '') {
         updateData.payment_method = paymentMethod;
     } else {
