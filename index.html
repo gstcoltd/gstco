@@ -727,22 +727,18 @@
 }
 function hideDashboardFinancialsForUsers() {
     const userRole = localStorage.getItem('userRole');
-    console.log("Current User Role from localStorage:", userRole); // طباعة الدور للتأكد في الـ Console
     
-    const financialBox = document.getElementById('dashboardFinancialBox');
-    
-    if (!financialBox) {
-        console.error("خطأ: لم يتم العثور على العنصر الذي يحمل المعرف dashboardFinancialBox في ملف الـ HTML!");
-        return;
-    }
-
-    // إذا لم يكن المستخدم مديراً أو محاسباً (أي مستخدم عادي)
     if (userRole !== 'admin' && userRole !== 'accountant') {
-        financialBox.style.setProperty('display', 'none', 'important'); // إخفاء إلزامي وقوي
-        console.log("تم إخفاء صندوق الإيرادات بنجاح للمستخدم العادي.");
-    } else {
-        financialBox.style.display = ''; // إظهار للمدير والمحاسب
-        console.log("الصندوق متاح للـ Admin أو Accountant.");
+        // البحث عن البطاقات العلوية التي تحتوي على كلمات مالية وإخفائها مباشرة
+        const cards = document.querySelectorAll('div');
+        cards.forEach(card => {
+            const text = card.innerText;
+            // إذا كانت البطاقة تحتوي على إجمالي الإيرادات أو المبالغ المحصلة
+            if (text.includes('إجمالي الإيرادات') || text.includes('المبالغ المحصلة') || text.includes('المبالغ غير المحصلة')) {
+                // إخفاء الحاوية الأب أو البطاقة نفسها
+                card.style.setProperty('display', 'none', 'important');
+            }
+        });
     }
 }        async function loadDashboardData() {
             try {
