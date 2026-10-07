@@ -1351,8 +1351,7 @@ function openCompleteModal(id, truckPlate, driverName, totalAmount, paidAmount, 
                 if (!error) loadAllData();
             }
         }
-
-        async function loadUsers() {
+async function loadUsers() {
             const table = document.getElementById('usersTable');
             table.innerHTML = `<tr><td colspan="5" class="text-center p-8 text-slate-400">جاري تحميل المستخدمين...</td></tr>`;
             try {
@@ -1364,13 +1363,23 @@ function openCompleteModal(id, truckPlate, driverName, totalAmount, paidAmount, 
                         let statusBadge = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
                         if (usr.status === 'موقوف') statusBadge = 'bg-rose-50 text-rose-700 border border-rose-200';
 
-                        let roleBadge = usr.role === 'admin' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-slate-100 text-slate-700';
+                        // تحديد الشارة واللون بناءً على الدور (مدير، محاسب، مستخدم)
+                        let roleBadge = 'bg-slate-100 text-slate-700';
+                        let roleText = 'مستخدم';
+                        
+                        if (usr.role === 'admin') {
+                            roleBadge = 'bg-amber-50 text-amber-700 border border-amber-200';
+                            roleText = 'مدير';
+                        } else if (usr.role === 'accountant') {
+                            roleBadge = 'bg-blue-50 text-blue-700 border border-blue-200';
+                            roleText = 'محاسب';
+                        }
 
                         return `
                             <tr class="hover:bg-slate-50 transition">
                                 <td class="p-3.5 font-black text-slate-900">${usr.username}</td>
                                 <td class="p-3.5 text-slate-700">${usr.employee_name}</td>
-                                <td class="p-3.5"><span class="${roleBadge} px-2.5 py-1 rounded-full text-[10px] font-bold">${usr.role === 'admin' ? 'مدير' : 'مستخدم'}</span></td>
+                                <td class="p-3.5"><span class="${roleBadge} px-2.5 py-1 rounded-full text-[10px] font-bold">${roleText}</span></td>
                                 <td class="p-3.5"><span class="${statusBadge} px-2.5 py-1 rounded-full text-[10px] font-bold">${usr.status || 'نشط'}</span></td>
                                 <td class="p-3.5 text-center space-x-1 space-x-reverse">
                                     <button onclick="editUser(${usr.id}, '${usr.username}', '${usr.employee_name}', '${usr.password}', '${usr.role || 'user'}', '${usr.status || 'نشط'}')" class="text-amber-600 hover:text-amber-800 font-bold p-1" title="تعديل"><i class="fa-solid fa-pen-to-square"></i></button>
@@ -1399,12 +1408,22 @@ function openCompleteModal(id, truckPlate, driverName, totalAmount, paidAmount, 
 
             if (id) {
                 const { error } = await client.from('app_users').update({ username, employee_name, password, role, status }).eq('id', id);
-                if (!error) { alert('تم تحديث بيانات المستخدم بنجاح!'); resetUserForm(); loadUsers(); }
-                else { alert('تعذر التحديث، تأكد من عدم تكرار اسم المستخدم.'); }
+                if (!error) { 
+                    alert('تم تحديث بيانات المستخدم بنجاح!'); 
+                    resetUserForm(); 
+                    loadUsers(); 
+                } else { 
+                    alert('تعذر التحديث، تأكد من عدم تكرار اسم المستخدم.'); 
+                }
             } else {
                 const { error } = await client.from('app_users').insert([{ username, employee_name, password, role, status }]);
-                if (!error) { alert('تمت إضافة المستخدم بنجاح!'); resetUserForm(); loadUsers(); }
-                else { alert('خطأ: اسم المستخدم موجود مسبقاً.'); }
+                if (!error) { 
+                    alert('تمت إضافة المستخدم بنجاح!'); 
+                    resetUserForm(); 
+                    loadUsers(); 
+                } else { 
+                    alert('خطأ: اسم المستخدم موجود مسبقاً.'); 
+                }
             }
         }
 
@@ -1422,7 +1441,12 @@ function openCompleteModal(id, truckPlate, driverName, totalAmount, paidAmount, 
 
         function resetUserForm() {
             document.getElementById('appUserId').value = '';
-            document.querySelector('#usersSection form').reset();
+            document.getElementById('appUsername').value = '';
+            document.getElementById('appEmployeeName').value = '';
+            document.getElementById('appPassword').value = '';
+            document.getElementById('appUserRole').value = 'user'; // إعادة تعيين الدور للقيمة الافتراضية
+            document.getElementById('appUserStatus').value = 'نشط'; // إعادة تعيين الحالة
+            
             document.getElementById('userFormTitle').innerHTML = `<i class="fa-solid fa-user-plus text-amber-500 ml-2"></i> إضافة مستخدم جديد`;
             document.getElementById('saveUserBtn').innerText = 'حفظ المستخدم';
             document.getElementById('cancelUserBtn').classList.add('hidden');
