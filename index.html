@@ -55,6 +55,9 @@
 
   
     <!-- لوحة التحكم الاحترافية -->
+    <div id="dashboardFinancialBox" class="...">
+    <!-- المربعات الخاصة بإجمالي الإيرادات والمبالغ المحصلة وغير المحصلة -->
+</div>
     <div id="mainDashboard" class="hidden relative z-10 w-full h-[96vh] bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col md:flex-row">
         
         <!-- الشريط الجانبي الأيمن -->
@@ -704,7 +707,6 @@
 }
         async function loadAllData() {
     try {
-        // تنفيذ جميع طلبات التحميل بشكل متزامن وفوري لتسريع ظهور البيانات
         await Promise.all([
             loadDashboardData(),
             loadTripsData(),
@@ -715,37 +717,30 @@
             renderAdminControls(),
             generateReport()
         ]);
-        function hideFinancialColumnsForUsers() {
+        
+        // 📍 ضع استدعاء الدالة هنا في نهاية دالة loadAllData
+        hideDashboardFinancialsForUsers();
+        
+    } catch (err) {
+        console.error("Error loading data:", err);
+    }
+}
+function hideDashboardFinancialsForUsers() {
     const userRole = localStorage.getItem('userRole');
     
-    // إذا كان المستخدم عادياً، سيقوم الكود بالبحث تلقائياً عن أي عمود مالي وإخفائه
-    if (userRole === 'user') {
-        const tables = document.querySelectorAll('table');
-        tables.forEach(table => {
-            const headers = table.querySelectorAll('th');
-            headers.forEach((th, index) => {
-                const text = th.innerText.trim();
-                // إذا وجد الكود كلمة إيراد أو مبلغ أو تحصيل في رأس الجدول
-                if (text.includes('إيراد') || text.includes('مبلغ') || text.includes('المتبقي') || text.includes('التحصيل')) {
-                    // إخفاء عنوان العمود
-                    th.style.display = 'none';
-                    // إخفاء محتوى هذا العمود في كل صف تحته تلقائياً
-                    table.querySelectorAll('tr').forEach(row => {
-                        const cells = row.querySelectorAll('td');
-                        if (cells[index]) {
-                            cells[index].style.display = 'none';
-                        }
-                    });
-                }
-            });
-        });
+    // إذا لم يكن المستخدم مديراً أو محاسباً
+    if (userRole !== 'admin' && userRole !== 'accountant') {
+        const financialBox = document.getElementById('dashboardFinancialBox');
+        if (financialBox) {
+            financialBox.style.display = 'none'; // إخفاء الصندوق المالي
+        }
+    } else {
+        const financialBox = document.getElementById('dashboardFinancialBox');
+        if (financialBox) {
+            financialBox.style.display = ''; 
+        }
     }
 }
-    } catch (err) {
-        console.error("Error loading all data simultaneously:", err);
-    }
-}
-
         async function loadDashboardData() {
             try {
                 const { data: trips } = await client.from('trips').select('*');
