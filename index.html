@@ -1097,116 +1097,35 @@
     }
 }
         function openAddTripModal() {
-            loadDropdowns();
-            document.getElementById('addTripModal').classList.remove('hidden');
-        }
-        function openCompleteModal(id, truckPlate, driverName, totalAmount, paidAmount, remainingAmount, driverCommission) {
-    document.getElementById('modalTripId').value = id;
-    document.getElementById('modalDisplayTotal').value = totalAmount;
-    document.getElementById('modalPaymentInput').value = '';
-    document.getElementById('modalDriverCommission').value = driverCommission || 0;
+    loadDropdowns();
     
-    // جعل طريقة السداد فارغة (بدون اختيار افتراضي)
-    const paymentMethodEl = document.getElementById('modalPaymentMethod');
-    if (paymentMethodEl) paymentMethodEl.value = '';
+    // تفريغ الحقول بالكامل لمنع ظهور أي بيانات قديمة أو افتراضية مثل أرامكو والمدن
+    document.getElementById('clientName').value = '';
+    document.getElementById('fromCity').value = '';
+    document.getElementById('toCity').value = '';
+    document.getElementById('departureDate').value = '';
+    document.getElementById('tripTruck').value = '';
+    document.getElementById('tripDriver').value = '';
+    document.getElementById('driverCommissionInput').value = '';
+    document.getElementById('totalAmount').value = '';
+    document.getElementById('paidAmount').value = '';
+    document.getElementById('remainingAmount').value = '0';
 
-    // جعل تاريخ التحصيل فارغاً ليقوم المستخدم باختياره عند الحاجة
-    const collectionDateEl = document.getElementById('modalCollectionDate');
-    if (collectionDateEl) {
-        collectionDateEl.value = '';
-    }
+    // إرجاع نوع الرحلة إلى القيمة الافتراضية (ذهاب)
+    const defaultTripType = document.querySelector('input[name="tripType"][value="ذهاب"]');
+    if (defaultTripType) defaultTripType.checked = true;
 
-    // إظهار نافذة التسوية
-    document.getElementById('completeTripModal').classList.remove('hidden');
+    // إظهار نافذة الإضافة
+    document.getElementById('addTripModal').classList.remove('hidden');
 }
 
-   async function confirmCompleteTrip(e) {
-    e.preventDefault();
-    const id = document.getElementById('modalTripId').value;
-    
-    const rawTotalText = document.getElementById('modalDisplayTotal').value;
-    const total = parseFloat(rawTotalText.replace(/[^\d.]/g, '')) || 0;
-    
-    const { data: tripData, error: fetchError } = await client.from('trips').select('paid_amount, status, truck_plate, driver_name').eq('id', id).single();
-    if (fetchError) {
-        console.error("خطأ في جلب بيانات الرحلة:", fetchError);
-        return;
-    }
-
-    const currentPaid = parseFloat(tripData.paid_amount || 0);
-    
-    const paymentInputEl = document.getElementById('modalPaymentInput') || document.getElementById('modalPaidAmount') || document.querySelector('input[type="number"]');
-    let additionalPayment = paymentInputEl ? (parseFloat(paymentInputEl.value) || 0) : 0;
-    
-    const finalCommissionInput = document.getElementById('modalDriverCommission');
-    const finalCommission = finalCommissionInput ? (parseFloat(finalCommissionInput.value) || 0) : 0;
-    
-    const paymentMethodEl = document.getElementById('modalPaymentMethod');
-    const collectionDateEl = document.getElementById('modalCollectionDate');
-
-    const paymentMethod = paymentMethodEl ? paymentMethodEl.value.trim() : '';
-    const collectionDate = collectionDateEl ? collectionDateEl.value.trim() : '';
-    
-    if (additionalPayment > 0) {
-        if (!paymentMethod) {
-            alert('يرجى اختيار طريقة السداد نظراً لوجود دفعة مالية.');
-            return;
-        }
-        if (!collectionDate) {
-            alert('يرجى تحديد تاريخ التحصيل نظراً لوجود دفعة مالية.');
-            return;
-        }
-    }
-
-    let newPaidAmount = currentPaid + additionalPayment;
-    if (newPaidAmount > total) newPaidAmount = total;
-
-    const newRemaining = total - newPaidAmount;
-    const payment_status = newRemaining <= 0 ? 'مسدد بالكامل' : 'سداد جزئي';
-
-    // تجهيز كائن التحديث الأساسي
-    const updateData = {
-        paid_amount: newPaidAmount,
-        remaining_amount: newRemaining > 0 ? newRemaining : 0,
-        payment_status: payment_status,
-        driver_commission: finalCommission,
-        status: 'مكتملة'
-    };
-
-    // إضافتها فقط إذا كانت موجودة وغير فارغة، وإلا ضبطها كـ null صريح لتقبلها قاعدة البيانات
-    if (paymentMethod) {
-        updateData.payment_method = paymentMethod;
-    } else {
-        updateData.payment_method = null;
-    }
-
-    if (collectionDate) {
-        updateData.collection_date = collectionDate;
-    } else {
-        updateData.collection_date = null;
-    }
-
-    // اطبع الكائن هنا لنرى ما الذي سيتم إرساله بالضبط
-    console.log("🚀 البيانات المرسلة فعلياً إلى Supabase:", JSON.stringify(updateData, null, 2));
-
-    const { error } = await client.from('trips').update(updateData).eq('id', id);
-
-    if (!error) {
-        if (tripData.truck_plate) {
-            await client.from('trucks').update({ status: 'جاهزة للعمل' }).eq('plate', tripData.truck_plate);
-        }
-        if (tripData.driver_name) {
-            await client.from('drivers').update({ status: 'متوفر' }).eq('name', tripData.driver_name);
-        }
-        
-        alert('تم إنهاء الرحلة بنجاح');
-        closeCompleteModal();
-        
-        if (typeof loadTrips === 'function') loadTrips();
-        else if (typeof loadTripsData === 'function') loadTripsData();
-    } else {
-        console.error("❌ خطأ Supabase المفصل:", error);
-        alert('حدث خطأ أثناء حفظ التعديلات: ' + (error.message || 'يرجى المحاولة مجدداً'));
+function closeAddTripModal() {
+    // إخفاء نافذة إضافة رحلة جديدة وتصفير النموذج بالكامل
+    const modal = document.getElementById('addTripModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        const form = modal.querySelector('form');
+        if (form) form.reset();
     }
 }
         async function saveTrip(e) {
