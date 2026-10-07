@@ -710,6 +710,32 @@ if (user.role === 'admin') {
             renderAdminControls(),
             generateReport()
         ]);
+        function hideFinancialColumnsForUsers() {
+    const userRole = localStorage.getItem('userRole');
+    
+    // إذا كان المستخدم عادياً، سيقوم الكود بالبحث تلقائياً عن أي عمود مالي وإخفائه
+    if (userRole === 'user') {
+        const tables = document.querySelectorAll('table');
+        tables.forEach(table => {
+            const headers = table.querySelectorAll('th');
+            headers.forEach((th, index) => {
+                const text = th.innerText.trim();
+                // إذا وجد الكود كلمة إيراد أو مبلغ أو تحصيل في رأس الجدول
+                if (text.includes('إيراد') || text.includes('مبلغ') || text.includes('المتبقي') || text.includes('التحصيل')) {
+                    // إخفاء عنوان العمود
+                    th.style.display = 'none';
+                    // إخفاء محتوى هذا العمود في كل صف تحته تلقائياً
+                    table.querySelectorAll('tr').forEach(row => {
+                        const cells = row.querySelectorAll('td');
+                        if (cells[index]) {
+                            cells[index].style.display = 'none';
+                        }
+                    });
+                }
+            });
+        });
+    }
+}
     } catch (err) {
         console.error("Error loading all data simultaneously:", err);
     }
