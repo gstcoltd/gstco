@@ -657,9 +657,6 @@
     const p = document.getElementById('passwordInput').value.trim();
 
     try {
-        // مسح أي جلسة قديمة تماماً قبل تسجيل الدخول الجديد لمنع تداخل الأدوار
-        localStorage.clear();
-
         const { data, error } = await client.from('app_users').select('*').eq('username', u).eq('password', p).maybeSingle();
 
         if (data) {
@@ -679,7 +676,7 @@
             }
         }
 
-        // تخزين الدور واسم المستخدم الجديد في المتصفح
+        // تحديث الدور واسم المستخدم مباشرة
         localStorage.setItem('userRole', currentLoggedInUser.role);
         localStorage.setItem('userName', currentLoggedInUser.employee_name || u);
 
@@ -695,17 +692,11 @@
         }
         
         document.getElementById('currentUserBadge').innerText = (currentLoggedInUser.employee_name || u) + roleLabel;
-        // إخفاء شاشة تسجيل الدخول وإظهار لوحة التحكم
-        document.getElementById('loginSection').classList.add('hidden');
-        document.getElementById('mainDashboard').classList.remove('hidden');
         
-        // 📍 ضع استدعاء الدالة هنا تماماً لمنع ظهور المؤشرات المالية للمستخدم العادي لوهلة
+        // تطبيق إخفاء المؤشرات المالية فوراً للمستخدم العادي
         hideDashboardFinancialsForUsers();
         
         // تحميل البيانات
-        loadAllData();
-        
-        // تحميل البيانات مباشرة وبشكل تلقائي فور الدخول
         loadAllData();
         
     } catch (err) {
