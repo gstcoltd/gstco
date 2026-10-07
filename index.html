@@ -648,12 +648,15 @@
 
         let currentLoggedInUser = { username: 'admin', employee_name: 'محمد القحطاني', role: 'admin' };
 
-        async function handleLogin(e) {
+       async function handleLogin(e) {
     e.preventDefault();
     const u = document.getElementById('usernameInput').value.trim();
     const p = document.getElementById('passwordInput').value.trim();
 
     try {
+        // مسح أي جلسة قديمة تماماً قبل تسجيل الدخول الجديد لمنع تداخل الأدوار
+        localStorage.clear();
+
         const { data, error } = await client.from('app_users').select('*').eq('username', u).eq('password', p).maybeSingle();
 
         if (data) {
@@ -673,24 +676,26 @@
             }
         }
 
-        // 📍 هنا تضع كود تخزين الدور واسم الموظف في المتصفح:
+        // تخزين الدور واسم المستخدم الجديد في المتصفح
         localStorage.setItem('userRole', currentLoggedInUser.role);
-        localStorage.setItem('userName', currentLoggedInUser.employee_name);
+        localStorage.setItem('userName', currentLoggedInUser.employee_name || u);
 
         document.getElementById('loginSection').classList.add('hidden');
         document.getElementById('mainDashboard').classList.remove('hidden');
         
-        // تحديث شارة اسم المستخدم والدور بناءً على القيمة (مدير، محاسب، أو مستخدم)
-        let roleName = 'مستخدم';
-if (user.role === 'admin') {
-    roleName = 'مدير';
-} else if (user.role === 'accountant') {
-    roleName = 'محاسب';
-}
+        // تحديث شارة اسم المستخدم والدور
+        let roleLabel = ' (مستخدم)';
+        if (currentLoggedInUser.role === 'admin') {
+            roleLabel = ' (مدير)';
+        } else if (currentLoggedInUser.role === 'accountant') {
+            roleLabel = ' (محاسب)';
+        }
         
         document.getElementById('currentUserBadge').innerText = (currentLoggedInUser.employee_name || u) + roleLabel;
         
+        // تحميل البيانات مباشرة وبشكل تلقائي فور الدخول
         loadAllData();
+        
     } catch (err) {
         console.error("Login error:", err);
         document.getElementById('loginError').innerText = 'حدث خطأ في الاتصال، حاول مرة أخرى.';
