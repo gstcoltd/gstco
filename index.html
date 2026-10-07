@@ -470,10 +470,11 @@
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold text-slate-600 mb-1">الصلاحية</label>
-                            <select id="appUserRole" class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500">
-                                <option value="user">مستخدم عادي</option>
-                                <option value="admin">مدير (Admin)</option>
-                            </select>
+                            <select id="userRoleSelect">
+    <option value="user">مستخدم</option>
+    <option value="accountant">محاسب</option>
+    <option value="admin">مدير</option>
+</select>
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold text-slate-600 mb-1">حالة الحساب</label>
@@ -680,12 +681,12 @@
         document.getElementById('mainDashboard').classList.remove('hidden');
         
         // تحديث شارة اسم المستخدم والدور بناءً على القيمة (مدير، محاسب، أو مستخدم)
-        let roleLabel = ' (مستخدم)';
-        if (currentLoggedInUser.role === 'admin') {
-            roleLabel = ' (مدير)';
-        } else if (currentLoggedInUser.role === 'accountant') {
-            roleLabel = ' (محاسب)';
-        }
+        let roleName = 'مستخدم';
+if (user.role === 'admin') {
+    roleName = 'مدير';
+} else if (user.role === 'accountant') {
+    roleName = 'محاسب';
+}
         
         document.getElementById('currentUserBadge').innerText = (currentLoggedInUser.employee_name || u) + roleLabel;
         
