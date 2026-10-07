@@ -651,7 +651,8 @@
 
         let currentLoggedInUser = { username: 'admin', employee_name: 'محمد القحطاني', role: 'admin' };
 
-       async function handleLogin(e) {
+       // دالة تسجيل الدخول الآمنة
+async function handleLogin(e) {
     e.preventDefault();
     const u = document.getElementById('usernameInput').value.trim();
     const p = document.getElementById('passwordInput').value.trim();
@@ -692,8 +693,15 @@
         
         document.getElementById('currentUserBadge').innerText = (currentLoggedInUser.employee_name || u) + roleLabel;
         
-        // إخفاء المؤشرات المالية للمستخدم العادي فوراً
-        hideDashboardFinancialsForUsers();
+        // إخفاء الصندوق المالي للمستخدم العادي فوراً
+        const financialBox = document.getElementById('dashboardFinancialBox');
+        if (financialBox) {
+            if (currentLoggedInUser.role !== 'admin' && currentLoggedInUser.role !== 'accountant') {
+                financialBox.style.setProperty('display', 'none', 'important');
+            } else {
+                financialBox.style.display = '';
+            }
+        }
         
         // تحميل البيانات
         loadAllData();
