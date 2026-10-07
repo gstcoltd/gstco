@@ -728,19 +728,16 @@
 function hideDashboardFinancialsForUsers() {
     const userRole = localStorage.getItem('userRole');
     
+    // إذا كان المستخدم عادياً
     if (userRole !== 'admin' && userRole !== 'accountant') {
-        // البحث عن البطاقات العلوية التي تحتوي على كلمات مالية وإخفائها مباشرة
-        const cards = document.querySelectorAll('div');
-        cards.forEach(card => {
-            const text = card.innerText;
-            // إذا كانت البطاقة تحتوي على إجمالي الإيرادات أو المبالغ المحصلة
-            if (text.includes('إجمالي الإيرادات') || text.includes('المبالغ المحصلة') || text.includes('المبالغ غير المحصلة')) {
-                // إخفاء الحاوية الأب أو البطاقة نفسها
-                card.style.setProperty('display', 'none', 'important');
-            }
-        });
+        // استهداف صندوق المؤشرات المالية المباشر (تأكد من وضع id="dashboardFinancialBox" على الحاوية الحاضنة للمؤشرات المالية العلوية)
+        const financialBox = document.getElementById('dashboardFinancialBox');
+        if (financialBox) {
+            financialBox.style.display = 'none';
+        }
     }
-}        async function loadDashboardData() {
+}
+        }        async function loadDashboardData() {
             try {
                 const { data: trips } = await client.from('trips').select('*');
                 const { data: trucks } = await client.from('trucks').select('*');
