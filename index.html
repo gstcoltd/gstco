@@ -1094,52 +1094,53 @@
         table.innerHTML = `<tr><td colspan="6" class="text-center p-8 text-rose-600">حدث خطأ أثناء تحميل الرحلات.</td></tr>`;
     }
 }
-     // 1. فتح نافذة إضافة رحلة جديدة وتفريغ الحقول
-function openAddTripModal() {
+    // 1. فتح نافذة إضافة رحلة جديدة (مدمجة ومنسقة بالكامل)
+async function openAddTripModal() {
+    // جلب القوائم المنسدلة (الشاحنات والسائقين) أولاً
     if (typeof loadDropdowns === 'function') {
-        loadDropdowns();
+        await loadDropdowns();
     }
     
-    // تفريغ الحقول بالكامل لمنع ظهور أي بيانات قديمة أو افتراضية مثل أرامكو والمدن
+    // إظهار النافذة
+    const modal = document.getElementById('addTripModal');
+    if (modal) modal.classList.remove('hidden');
+
+    // تفريغ الحقول وإجبار المتصفح على عدم الاحتفاظ بالقيم القديمة (مثل أرامكو والمدن)
     const clientInput = document.getElementById('clientName');
     const fromInput = document.getElementById('fromCity');
     const toInput = document.getElementById('toCity');
     
-    if(clientInput) clientInput.value = '';
-    if(fromInput) fromInput.value = '';
-    if(toInput) toInput.value = '';
+    if (clientInput) { clientInput.value = ''; clientInput.setAttribute('autocomplete', 'off'); }
+    if (fromInput) { fromInput.value = ''; fromInput.setAttribute('autocomplete', 'off'); }
+    if (toInput) { toInput.value = ''; toInput.setAttribute('autocomplete', 'off'); }
 
     const depDate = document.getElementById('departureDate');
-    if(depDate) depDate.value = '';
+    if (depDate) depDate.value = '';
     
     const tripTruck = document.getElementById('tripTruck');
-    if(tripTruck) tripTruck.value = '';
+    if (tripTruck) tripTruck.value = '';
     
     const tripDriver = document.getElementById('tripDriver');
-    if(tripDriver) tripDriver.value = '';
+    if (tripDriver) tripDriver.value = '';
     
     const driverComm = document.getElementById('driverCommissionInput');
-    if(driverComm) driverComm.value = '';
+    if (driverComm) driverComm.value = '';
     
     const totalAmt = document.getElementById('totalAmount');
-    if(totalAmt) totalAmt.value = '';
+    if (totalAmt) totalAmt.value = '';
     
     const paidAmt = document.getElementById('paidAmount');
-    if(paidAmt) paidAmt.value = '';
+    if (paidAmt) paidAmt.value = '';
     
     const remAmt = document.getElementById('remainingAmount');
-    if(remAmt) remAmt.value = '0';
+    if (remAmt) remAmt.value = '0';
 
     // إرجاع نوع الرحلة إلى القيمة الافتراضية (ذهاب)
     const defaultTripType = document.querySelector('input[name="tripType"][value="ذهاب"]');
     if (defaultTripType) defaultTripType.checked = true;
-
-    // إظهار نافذة الإضافة
-    const modal = document.getElementById('addTripModal');
-    if(modal) modal.classList.remove('hidden');
 }
 
-// 2. إغلاق نافذة إضافة رحلة جديدة وتصفير الحقول
+// 2. إغلاق نافذة إضافة رحلة جديدة وتصفير النموذج بالكامل
 function closeAddTripModal() {
     const modal = document.getElementById('addTripModal');
     if (modal) {
@@ -1149,64 +1150,29 @@ function closeAddTripModal() {
     }
 }
 
-// 3. فتح نافذة تسوية وإنهاء الرحلة (التي توقفت)
+// 3. فتح نافذة تسوية وإنهاء الرحلة
 function openCompleteModal(id, truckPlate, driverName, totalAmount, paidAmount, remainingAmount, driverCommission) {
     const modalTripId = document.getElementById('modalTripId');
-    if(modalTripId) modalTripId.value = id;
+    if (modalTripId) modalTripId.value = id;
     
     const modalDisplayTotal = document.getElementById('modalDisplayTotal');
-    if(modalDisplayTotal) modalDisplayTotal.value = totalAmount;
+    if (modalDisplayTotal) modalDisplayTotal.value = totalAmount;
     
     const modalDisplayPaid = document.getElementById('modalDisplayPaid');
-    if(modalDisplayPaid) modalDisplayPaid.value = paidAmount;
+    if (modalDisplayPaid) modalDisplayPaid.value = paidAmount;
     
     const modalDisplayRemaining = document.getElementById('modalDisplayRemaining');
-    if(modalDisplayRemaining) modalDisplayRemaining.value = remainingAmount;
+    if (modalDisplayRemaining) modalDisplayRemaining.value = remainingAmount;
     
     const modalPaymentInput = document.getElementById('modalPaymentInput');
-    if(modalPaymentInput) modalPaymentInput.value = '';
+    if (modalPaymentInput) modalPaymentInput.value = '';
     
     const modalDriverCommission = document.getElementById('modalDriverCommission');
-    if(modalDriverCommission) modalDriverCommission.value = driverCommission || 0;
+    if (modalDriverCommission) modalDriverCommission.value = driverCommission || 0;
     
     // إظهار نافذة التسوية
     const completeModal = document.getElementById('completeTripModal');
-    if(completeModal) completeModal.classList.remove('hidden');
-}
-        function openAddTripModal() {
-    loadDropdowns();
-    
-    const modal = document.getElementById('addTripModal');
-    modal.classList.remove('hidden');
-
-    // تفريغ الحقول وإجبار المتصفح على عدم الاحتفاظ بالقيم القديمة
-    const clientInput = document.getElementById('clientName');
-    const fromInput = document.getElementById('fromCity');
-    const toInput = document.getElementById('toCity');
-    
-    if(clientInput) { clientInput.value = ''; clientInput.setAttribute('autocomplete', 'off'); }
-    if(fromInput) { fromInput.value = ''; fromInput.setAttribute('autocomplete', 'off'); }
-    if(toInput) { toInput.value = ''; toInput.setAttribute('autocomplete', 'off'); }
-
-    document.getElementById('departureDate').value = '';
-    document.getElementById('tripTruck').value = '';
-    document.getElementById('tripDriver').value = '';
-    document.getElementById('driverCommissionInput').value = '';
-    document.getElementById('totalAmount').value = '';
-    document.getElementById('paidAmount').value = '';
-    document.getElementById('remainingAmount').value = '0';
-
-    const defaultTripType = document.querySelector('input[name="tripType"][value="ذهاب"]');
-    if (defaultTripType) defaultTripType.checked = true;
-}
-function closeAddTripModal() {
-    // إخفاء نافذة إضافة رحلة جديدة وتصفير النموذج بالكامل
-    const modal = document.getElementById('addTripModal');
-    if (modal) {
-        modal.classList.add('hidden');
-        const form = modal.querySelector('form');
-        if (form) form.reset();
-    }
+    if (completeModal) completeModal.classList.remove('hidden');
 }
         async function saveTrip(e) {
     e.preventDefault();
