@@ -676,14 +676,13 @@
             }
         }
 
-        // تحديث الدور واسم المستخدم مباشرة
+        // تخزين الدور واسم المستخدم
         localStorage.setItem('userRole', currentLoggedInUser.role);
         localStorage.setItem('userName', currentLoggedInUser.employee_name || u);
 
         document.getElementById('loginSection').classList.add('hidden');
         document.getElementById('mainDashboard').classList.remove('hidden');
         
-        // تحديث شارة اسم المستخدم والدور
         let roleLabel = ' (مستخدم)';
         if (currentLoggedInUser.role === 'admin') {
             roleLabel = ' (مدير)';
@@ -693,7 +692,7 @@
         
         document.getElementById('currentUserBadge').innerText = (currentLoggedInUser.employee_name || u) + roleLabel;
         
-        // تطبيق إخفاء المؤشرات المالية فوراً للمستخدم العادي
+        // إخفاء المؤشرات المالية للمستخدم العادي فوراً
         hideDashboardFinancialsForUsers();
         
         // تحميل البيانات
