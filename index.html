@@ -512,7 +512,7 @@
         </div>
     </div>
 
-    <!-- نافذة إضافة رحلة جديدة المنبثقة -->
+   <!-- نافذة إضافة رحلة جديدة المنبثقة -->
     <div id="addTripModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 text-slate-900 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
@@ -521,19 +521,21 @@
             </div>
             <form onsubmit="saveTrip(event)" class="space-y-3.5">
                 <div>
-    <label class="block text-[11px] font-bold text-slate-600 mb-1">اسم العميل</label>
-    <input type="text" id="clientName" autocomplete="off" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="أدخل اسم العميل">
-</div>
-<div class="grid grid-cols-2 gap-3">
-    <div>
-        <label class="block text-[11px] font-bold text-slate-600 mb-1">من (المدينة)</label>
-        <input type="text" id="fromCity" autocomplete="off" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="مثال: جدة">
-    </div>
-    <div>
-        <label class="block text-[11px] font-bold text-slate-600 mb-1">إلى (المدينة)</label>
-        <input type="text" id="toCity" autocomplete="off" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="مثال: الرياض">
-    </div>
-</div>                    <label class="block text-[11px] font-bold text-slate-600 mb-1">نوع الرحلة</label>
+                    <label class="block text-[11px] font-bold text-slate-600 mb-1">اسم العميل</label>
+                    <input type="text" id="clientName" autocomplete="off" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="أدخل اسم العميل">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">من (المدينة)</label>
+                        <input type="text" id="fromCity" autocomplete="off" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="مثال: جدة">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">إلى (المدينة)</label>
+                        <input type="text" id="toCity" autocomplete="off" required class="w-full p-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-xs outline-none focus:border-amber-500" placeholder="مثال: الرياض">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-600 mb-1">نوع الرحلة</label>
                     <div class="grid grid-cols-2 gap-2">
                         <label class="flex items-center justify-center p-3 bg-slate-50 text-slate-800 border border-slate-200 rounded-xl text-xs cursor-pointer hover:bg-amber-50 transition font-bold">
                             <input type="radio" name="tripType" value="ذهاب" checked class="ml-2 accent-amber-500"> ذهاب فقط
@@ -584,7 +586,6 @@
             </form>
         </div>
     </div>
-
 <!-- نافذة إنهاء الرحلة وتسوية المبلغ والعمولة -->
 <div id="completeTripModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-slate-200 text-slate-900 max-h-[90vh] overflow-y-auto">
