@@ -648,42 +648,54 @@
         let currentLoggedInUser = { username: 'admin', employee_name: 'محمد القحطاني', role: 'admin' };
 
         async function handleLogin(e) {
-            e.preventDefault();
-            const u = document.getElementById('usernameInput').value.trim();
-            const p = document.getElementById('passwordInput').value.trim();
+    e.preventDefault();
+    const u = document.getElementById('usernameInput').value.trim();
+    const p = document.getElementById('passwordInput').value.trim();
 
-            try {
-                const { data, error } = await client.from('app_users').select('*').eq('username', u).eq('password', p).maybeSingle();
+    try {
+        const { data, error } = await client.from('app_users').select('*').eq('username', u).eq('password', p).maybeSingle();
 
-                if (data) {
-                    if (data.status === 'موقوف') {
-                        document.getElementById('loginError').innerText = 'عذراً، هذا الحساب موقوف حالياً.';
-                        document.getElementById('loginError').classList.remove('hidden');
-                        return;
-                    }
-                    currentLoggedInUser = data;
-                } else {
-                    if ((u === 'admin' && p === 'admin123') || (u === 'mohammad' && p === '123456')) {
-                        currentLoggedInUser = { username: u, employee_name: 'محمد القحطاني', role: 'admin' };
-                    } else {
-                        document.getElementById('loginError').innerText = 'خطأ في اسم المستخدم أو كلمة المرور.';
-                        document.getElementById('loginError').classList.remove('hidden');
-                        return;
-                    }
-                }
-
-                document.getElementById('loginSection').classList.add('hidden');
-                document.getElementById('mainDashboard').classList.remove('hidden');
-                document.getElementById('currentUserBadge').innerText = (currentLoggedInUser.employee_name || u) + (currentLoggedInUser.role === 'admin' ? ' (مدير)' : ' (مستخدم)');
-                
-                loadAllData();
-            } catch (err) {
-                console.error("Login error:", err);
-                document.getElementById('loginError').innerText = 'حدث خطأ في الاتصال، حاول مرة أخرى.';
+        if (data) {
+            if (data.status === 'موقوف') {
+                document.getElementById('loginError').innerText = 'عذراً، هذا الحساب موقوف حالياً.';
                 document.getElementById('loginError').classList.remove('hidden');
+                return;
+            }
+            currentLoggedInUser = data;
+        } else {
+            if ((u === 'admin' && p === 'admin123') || (u === 'mohammad' && p === '123456')) {
+                currentLoggedInUser = { username: u, employee_name: 'محمد القحطاني', role: 'admin' };
+            } else {
+                document.getElementById('loginError').innerText = 'خطأ في اسم المستخدم أو كلمة المرور.';
+                document.getElementById('loginError').classList.remove('hidden');
+                return;
             }
         }
 
+        // 📍 هنا تضع كود تخزين الدور واسم الموظف في المتصفح:
+        localStorage.setItem('userRole', currentLoggedInUser.role);
+        localStorage.setItem('userName', currentLoggedInUser.employee_name);
+
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('mainDashboard').classList.remove('hidden');
+        
+        // تحديث شارة اسم المستخدم والدور بناءً على القيمة (مدير، محاسب، أو مستخدم)
+        let roleLabel = ' (مستخدم)';
+        if (currentLoggedInUser.role === 'admin') {
+            roleLabel = ' (مدير)';
+        } else if (currentLoggedInUser.role === 'accountant') {
+            roleLabel = ' (محاسب)';
+        }
+        
+        document.getElementById('currentUserBadge').innerText = (currentLoggedInUser.employee_name || u) + roleLabel;
+        
+        loadAllData();
+    } catch (err) {
+        console.error("Login error:", err);
+        document.getElementById('loginError').innerText = 'حدث خطأ في الاتصال، حاول مرة أخرى.';
+        document.getElementById('loginError').classList.remove('hidden');
+    }
+}
         function loadAllData() {
             loadDashboardData();
             loadTripsData();
