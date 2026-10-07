@@ -644,14 +644,22 @@
         </form>
     </div>
 </div>
-   <script>
+ <script>
         const SUPABASE_URL = 'https://hmttwtlaeczvfjozsama.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhtdHR3dGxhZWN6dmZqb3pzYW1hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNTU5NjIsImV4cCI6MjEwNTczMTk2Mn0.0-M1LVkNnbVSbUeYX_RueqUUcHNRbCtipCn5nGSuVNc';
         const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let currentLoggedInUser = { username: 'admin', employee_name: 'محمد القحطاني', role: 'admin' };
+        let currentLoggedInUser = null;
 
-        // دالة الإخفاء الآمنة
+        // إظهار شاشة الدخول أولاً عند تحميل الصفحة
+        document.addEventListener("DOMContentLoaded", function() {
+            const loginSec = document.getElementById('loginSection');
+            const mainDash = document.getElementById('mainDashboard');
+            if (loginSec) loginSec.classList.remove('hidden');
+            if (mainDash) mainDash.classList.add('hidden');
+        });
+
+        // دالة الإخفاء الآمنة للمؤشرات المالية
         function hideDashboardFinancialsForUsers() {
             const financialBox = document.getElementById('dashboardFinancialBox');
             if (financialBox) {
@@ -735,7 +743,7 @@
             }
         }
     </script>
-function hideDashboardFinancialsForUsers() {
+    function hideDashboardFinancialsForUsers() {
     const userRole = localStorage.getItem('userRole');
     
     // إذا كان المستخدم عادياً
