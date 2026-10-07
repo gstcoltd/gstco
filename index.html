@@ -727,21 +727,24 @@
 }
 function hideDashboardFinancialsForUsers() {
     const userRole = localStorage.getItem('userRole');
+    console.log("Current User Role from localStorage:", userRole); // طباعة الدور للتأكد في الـ Console
     
-    // إذا لم يكن المستخدم مديراً أو محاسباً
-    if (userRole !== 'admin' && userRole !== 'accountant') {
-        const financialBox = document.getElementById('dashboardFinancialBox');
-        if (financialBox) {
-            financialBox.style.display = 'none'; // إخفاء الصندوق المالي
-        }
-    } else {
-        const financialBox = document.getElementById('dashboardFinancialBox');
-        if (financialBox) {
-            financialBox.style.display = ''; 
-        }
+    const financialBox = document.getElementById('dashboardFinancialBox');
+    
+    if (!financialBox) {
+        console.error("خطأ: لم يتم العثور على العنصر الذي يحمل المعرف dashboardFinancialBox في ملف الـ HTML!");
+        return;
     }
-}
-        async function loadDashboardData() {
+
+    // إذا لم يكن المستخدم مديراً أو محاسباً (أي مستخدم عادي)
+    if (userRole !== 'admin' && userRole !== 'accountant') {
+        financialBox.style.setProperty('display', 'none', 'important'); // إخفاء إلزامي وقوي
+        console.log("تم إخفاء صندوق الإيرادات بنجاح للمستخدم العادي.");
+    } else {
+        financialBox.style.display = ''; // إظهار للمدير والمحاسب
+        console.log("الصندوق متاح للـ Admin أو Accountant.");
+    }
+}        async function loadDashboardData() {
             try {
                 const { data: trips } = await client.from('trips').select('*');
                 const { data: trucks } = await client.from('trucks').select('*');
