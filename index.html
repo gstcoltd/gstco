@@ -1097,10 +1097,18 @@
         function openAddTripModal() {
     loadDropdowns();
     
-    // تفريغ الحقول بالكامل لمنع ظهور أي بيانات قديمة أو افتراضية مثل أرامكو والمدن
-    document.getElementById('clientName').value = '';
-    document.getElementById('fromCity').value = '';
-    document.getElementById('toCity').value = '';
+    const modal = document.getElementById('addTripModal');
+    modal.classList.remove('hidden');
+
+    // تفريغ الحقول وإجبار المتصفح على عدم الاحتفاظ بالقيم القديمة
+    const clientInput = document.getElementById('clientName');
+    const fromInput = document.getElementById('fromCity');
+    const toInput = document.getElementById('toCity');
+    
+    if(clientInput) { clientInput.value = ''; clientInput.setAttribute('autocomplete', 'off'); }
+    if(fromInput) { fromInput.value = ''; fromInput.setAttribute('autocomplete', 'off'); }
+    if(toInput) { toInput.value = ''; toInput.setAttribute('autocomplete', 'off'); }
+
     document.getElementById('departureDate').value = '';
     document.getElementById('tripTruck').value = '';
     document.getElementById('tripDriver').value = '';
@@ -1109,14 +1117,9 @@
     document.getElementById('paidAmount').value = '';
     document.getElementById('remainingAmount').value = '0';
 
-    // إرجاع نوع الرحلة إلى القيمة الافتراضية (ذهاب)
     const defaultTripType = document.querySelector('input[name="tripType"][value="ذهاب"]');
     if (defaultTripType) defaultTripType.checked = true;
-
-    // إظهار نافذة الإضافة
-    document.getElementById('addTripModal').classList.remove('hidden');
 }
-
 function closeAddTripModal() {
     // إخفاء نافذة إضافة رحلة جديدة وتصفير النموذج بالكامل
     const modal = document.getElementById('addTripModal');
