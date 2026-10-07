@@ -697,16 +697,23 @@ if (user.role === 'admin') {
         document.getElementById('loginError').classList.remove('hidden');
     }
 }
-        function loadAllData() {
-            loadDashboardData();
-            loadTripsData();
-            loadTrucks();
-            loadDrivers();
-            loadUsers();
-            loadDropdowns();
-            renderAdminControls();
-            generateReport();
-        }
+        async function loadAllData() {
+    try {
+        // تنفيذ جميع طلبات التحميل بشكل متزامن وفوري لتسريع ظهور البيانات
+        await Promise.all([
+            loadDashboardData(),
+            loadTripsData(),
+            loadTrucks(),
+            loadDrivers(),
+            loadUsers(),
+            loadDropdowns(),
+            renderAdminControls(),
+            generateReport()
+        ]);
+    } catch (err) {
+        console.error("Error loading all data simultaneously:", err);
+    }
+}
 
         async function loadDashboardData() {
             try {
