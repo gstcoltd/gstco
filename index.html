@@ -1094,6 +1094,85 @@
         table.innerHTML = `<tr><td colspan="6" class="text-center p-8 text-rose-600">حدث خطأ أثناء تحميل الرحلات.</td></tr>`;
     }
 }
+     // 1. فتح نافذة إضافة رحلة جديدة وتفريغ الحقول
+function openAddTripModal() {
+    if (typeof loadDropdowns === 'function') {
+        loadDropdowns();
+    }
+    
+    // تفريغ الحقول بالكامل لمنع ظهور أي بيانات قديمة أو افتراضية مثل أرامكو والمدن
+    const clientInput = document.getElementById('clientName');
+    const fromInput = document.getElementById('fromCity');
+    const toInput = document.getElementById('toCity');
+    
+    if(clientInput) clientInput.value = '';
+    if(fromInput) fromInput.value = '';
+    if(toInput) toInput.value = '';
+
+    const depDate = document.getElementById('departureDate');
+    if(depDate) depDate.value = '';
+    
+    const tripTruck = document.getElementById('tripTruck');
+    if(tripTruck) tripTruck.value = '';
+    
+    const tripDriver = document.getElementById('tripDriver');
+    if(tripDriver) tripDriver.value = '';
+    
+    const driverComm = document.getElementById('driverCommissionInput');
+    if(driverComm) driverComm.value = '';
+    
+    const totalAmt = document.getElementById('totalAmount');
+    if(totalAmt) totalAmt.value = '';
+    
+    const paidAmt = document.getElementById('paidAmount');
+    if(paidAmt) paidAmt.value = '';
+    
+    const remAmt = document.getElementById('remainingAmount');
+    if(remAmt) remAmt.value = '0';
+
+    // إرجاع نوع الرحلة إلى القيمة الافتراضية (ذهاب)
+    const defaultTripType = document.querySelector('input[name="tripType"][value="ذهاب"]');
+    if (defaultTripType) defaultTripType.checked = true;
+
+    // إظهار نافذة الإضافة
+    const modal = document.getElementById('addTripModal');
+    if(modal) modal.classList.remove('hidden');
+}
+
+// 2. إغلاق نافذة إضافة رحلة جديدة وتصفير الحقول
+function closeAddTripModal() {
+    const modal = document.getElementById('addTripModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        const form = modal.querySelector('form');
+        if (form) form.reset();
+    }
+}
+
+// 3. فتح نافذة تسوية وإنهاء الرحلة (التي توقفت)
+function openCompleteModal(id, truckPlate, driverName, totalAmount, paidAmount, remainingAmount, driverCommission) {
+    const modalTripId = document.getElementById('modalTripId');
+    if(modalTripId) modalTripId.value = id;
+    
+    const modalDisplayTotal = document.getElementById('modalDisplayTotal');
+    if(modalDisplayTotal) modalDisplayTotal.value = totalAmount;
+    
+    const modalDisplayPaid = document.getElementById('modalDisplayPaid');
+    if(modalDisplayPaid) modalDisplayPaid.value = paidAmount;
+    
+    const modalDisplayRemaining = document.getElementById('modalDisplayRemaining');
+    if(modalDisplayRemaining) modalDisplayRemaining.value = remainingAmount;
+    
+    const modalPaymentInput = document.getElementById('modalPaymentInput');
+    if(modalPaymentInput) modalPaymentInput.value = '';
+    
+    const modalDriverCommission = document.getElementById('modalDriverCommission');
+    if(modalDriverCommission) modalDriverCommission.value = driverCommission || 0;
+    
+    // إظهار نافذة التسوية
+    const completeModal = document.getElementById('completeTripModal');
+    if(completeModal) completeModal.classList.remove('hidden');
+}
         function openAddTripModal() {
     loadDropdowns();
     
