@@ -644,94 +644,97 @@
         </form>
     </div>
 </div>
-    <script>
+   <script>
         const SUPABASE_URL = 'https://hmttwtlaeczvfjozsama.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhtdHR3dGxhZWN6dmZqb3pzYW1hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNTU5NjIsImV4cCI6MjEwNTczMTk2Mn0.0-M1LVkNnbVSbUeYX_RueqUUcHNRbCtipCn5nGSuVNc';
         const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentLoggedInUser = { username: 'admin', employee_name: 'محمد القحطاني', role: 'admin' };
 
-       // دالة تسجيل الدخول الآمنة
-async function handleLogin(e) {
-    e.preventDefault();
-    const u = document.getElementById('usernameInput').value.trim();
-    const p = document.getElementById('passwordInput').value.trim();
+        // دالة الإخفاء الآمنة
+        function hideDashboardFinancialsForUsers() {
+            const financialBox = document.getElementById('dashboardFinancialBox');
+            if (financialBox) {
+                const role = localStorage.getItem('userRole');
+                if (role !== 'admin' && role !== 'accountant') {
+                    financialBox.style.setProperty('display', 'none', 'important');
+                } else {
+                    financialBox.style.display = '';
+                }
+            }
+        }
 
-    try {
-        const { data, error } = await client.from('app_users').select('*').eq('username', u).eq('password', p).maybeSingle();
+        // دالة تسجيل الدخول
+        async function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('usernameInput').value.trim();
+            const p = document.getElementById('passwordInput').value.trim();
 
-        if (data) {
-            if (data.status === 'موقوف') {
-                document.getElementById('loginError').innerText = 'عذراً، هذا الحساب موقوف حالياً.';
+            try {
+                const { data, error } = await client.from('app_users').select('*').eq('username', u).eq('password', p).maybeSingle();
+
+                if (data) {
+                    if (data.status === 'موقوف') {
+                        document.getElementById('loginError').innerText = 'عذراً، هذا الحساب موقوف حالياً.';
+                        document.getElementById('loginError').classList.remove('hidden');
+                        return;
+                    }
+                    currentLoggedInUser = data;
+                } else {
+                    if ((u === 'admin' && p === 'admin123') || (u === 'mohammad' && p === '123456')) {
+                        currentLoggedInUser = { username: u, employee_name: 'محمد القحطاني', role: 'admin' };
+                    } else {
+                        document.getElementById('loginError').innerText = 'خطأ في اسم المستخدم أو كلمة المرور.';
+                        document.getElementById('loginError').classList.remove('hidden');
+                        return;
+                    }
+                }
+
+                localStorage.setItem('userRole', currentLoggedInUser.role);
+                localStorage.setItem('userName', currentLoggedInUser.employee_name || u);
+
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('mainDashboard').classList.remove('hidden');
+                
+                let roleLabel = ' (مستخدم)';
+                if (currentLoggedInUser.role === 'admin') {
+                    roleLabel = ' (مدير)';
+                } else if (currentLoggedInUser.role === 'accountant') {
+                    roleLabel = ' (محاسب)';
+                }
+                
+                document.getElementById('currentUserBadge').innerText = (currentLoggedInUser.employee_name || u) + roleLabel;
+                
+                hideDashboardFinancialsForUsers();
+                loadAllData();
+                
+            } catch (err) {
+                console.error("Login error:", err);
+                document.getElementById('loginError').innerText = 'حدث خطأ في الاتصال، حاول مرة أخرى.';
                 document.getElementById('loginError').classList.remove('hidden');
-                return;
-            }
-            currentLoggedInUser = data;
-        } else {
-            if ((u === 'admin' && p === 'admin123') || (u === 'mohammad' && p === '123456')) {
-                currentLoggedInUser = { username: u, employee_name: 'محمد القحطاني', role: 'admin' };
-            } else {
-                document.getElementById('loginError').innerText = 'خطأ في اسم المستخدم أو كلمة المرور.';
-                document.getElementById('loginError').classList.remove('hidden');
-                return;
             }
         }
 
-        // تخزين الدور واسم المستخدم
-        localStorage.setItem('userRole', currentLoggedInUser.role);
-        localStorage.setItem('userName', currentLoggedInUser.employee_name || u);
-
-        document.getElementById('loginSection').classList.add('hidden');
-        document.getElementById('mainDashboard').classList.remove('hidden');
-        
-        let roleLabel = ' (مستخدم)';
-        if (currentLoggedInUser.role === 'admin') {
-            roleLabel = ' (مدير)';
-        } else if (currentLoggedInUser.role === 'accountant') {
-            roleLabel = ' (محاسب)';
-        }
-        
-        document.getElementById('currentUserBadge').innerText = (currentLoggedInUser.employee_name || u) + roleLabel;
-        
-        // إخفاء الصندوق المالي للمستخدم العادي فوراً
-        const financialBox = document.getElementById('dashboardFinancialBox');
-        if (financialBox) {
-            if (currentLoggedInUser.role !== 'admin' && currentLoggedInUser.role !== 'accountant') {
-                financialBox.style.setProperty('display', 'none', 'important');
-            } else {
-                financialBox.style.display = '';
-            }
-        }
-        
-        // تحميل البيانات
-        loadAllData();
-        
-    } catch (err) {
-        console.error("Login error:", err);
-        document.getElementById('loginError').innerText = 'حدث خطأ في الاتصال، حاول مرة أخرى.';
-        document.getElementById('loginError').classList.remove('hidden');
-    }
-}
         async function loadAllData() {
-    try {
-        await Promise.all([
-            loadDashboardData(),
-            loadTripsData(),
-            loadTrucks(),
-            loadDrivers(),
-            loadUsers(),
-            loadDropdowns(),
-            renderAdminControls(),
-            generateReport()
-        ]);
-        
-        // 📍 ضع استدعاء الدالة هنا في نهاية دالة loadAllData
-        hideDashboardFinancialsForUsers();
-        
-    } catch (err) {
-        console.error("Error loading data:", err);
-    }
-}
+            try {
+                await Promise.all([
+                    loadDashboardData(),
+                    loadTripsData(),
+                    loadTrucks(),
+                    loadDrivers(),
+                    loadUsers(),
+                    loadDropdowns(),
+                    renderAdminControls(),
+                    generateReport()
+                ]);
+                
+                hideDashboardFinancialsForUsers();
+                
+            } catch (err) {
+                console.error("Error loading data:", err);
+            }
+        }
+    </script>
 function hideDashboardFinancialsForUsers() {
     const userRole = localStorage.getItem('userRole');
     
