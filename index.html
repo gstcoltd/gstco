@@ -788,24 +788,31 @@ async function confirmCompleteTrip(e) {
         const paymentStatus = newRemainingAmount === 0 ? 'مسدد بالكامل' : (newPaidAmount > 0 ? 'سداد جزئي' : currentTrip.payment_status);
         const status = 'منتهية';
 
-        // قراءة قيم طريقة السداد والتاريخ والتأكد من جعلها null إذا كانت فارغة لمنع أخطاء القاعدة
-        // قراءة القيم بوضوح وتحويل النص الفارغ أو المسافات إلى null تماماً
-        const paymentMethodInput = document.getElementById('modalPaymentMethod').value;
-        const collectionDateInput = document.getElementById('modalCollectionDate').value;
-
-        const paymentMethodVal = (paymentMethodInput && paymentMethodInput.trim() !== "") ? paymentMethodInput : null;
-        const collectionDateVal = (collectionDateInput && collectionDateInput.trim() !== "") ? collectionDateInput : null;
-
-        // تجهيز بيانات التحديث
+        // تجهيز بيانات التحديث الأساسية المضمنة دائماً
         const updateData = {
             paid_amount: newPaidAmount,
             remaining_amount: newRemainingAmount,
             payment_status: paymentStatus,
             status: status,
-            driver_commission: driverCommission,
-            payment_method: paymentMethodVal,
-            collection_date: collectionDateVal
+            driver_commission: driverCommission
         };
+
+        // إضافة طريقة السداد وتاريخ التحصيل فقط إذا قام المستخدم بإدخالها فعلياً
+        const paymentMethodVal = document.getElementById('modalPaymentMethod').value;
+        const collectionDateVal = document.getElementById('modalCollectionDate').value;
+
+        if (paymentMethodVal && paymentMethodVal.trim() !== "") {
+            updateData.payment_method = paymentMethodVal;
+        } else {
+            updateData.payment_method = null;
+        }
+
+        if (collectionDateVal && collectionDateVal.trim() !== "") {
+            updateData.collection_date = collectionDateVal;
+        } else {
+            updateData.collection_date = null;
+        }
+
         // إرسال التحديثات لقاعدة البيانات باستخدام trip_no
         const { error: updateError } = await client.from('trips').update(updateData).eq('trip_no', tripId);
 
@@ -836,7 +843,8 @@ async function confirmCompleteTrip(e) {
         console.error("Unexpected error in confirmCompleteTrip:", err);
         alert('حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.');
     }
-}    function loadAllData() {
+}
+        function loadAllData() {
     loadDashboardData();
     loadTripsData();
     loadTrucks();
