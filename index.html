@@ -1228,7 +1228,7 @@ async function confirmCompleteTrip(e) {
                 }
 
             let actionButtons = '';
-const remaining = tr.remaining_amount || 0;
+const currentRemaining = tr.remaining_amount || 0;
 
 if (tr.status === 'جارية') {
     actionButtons = `
@@ -1242,8 +1242,7 @@ if (tr.status === 'جارية') {
 } else if (tr.status === 'ملغاة') {
     actionButtons = `<span class="text-rose-500 text-[11px] font-bold">رحلة ملغاة</span>`;
 } else {
-    // لأي حالة أخرى (منتهية، مكتملة، أو غيرها)
-    if (remaining > 0) {
+    if (currentRemaining > 0) {
         actionButtons = `
             <button onclick="openCompleteModal('${tr.trip_no}', '${tr.truck_plate}', '${tr.driver_name}', ${tr.total_amount}, ${tr.paid_amount}, ${tr.remaining_amount}, ${tr.driver_commission || 0})" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-3 py-1.5 rounded-xl text-[10px] transition shadow-sm" title="سداد المبلغ المتبقي">
                 <i class="fa-solid fa-wallet ml-1"></i> تسوية المتبقي
