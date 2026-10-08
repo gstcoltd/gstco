@@ -788,7 +788,7 @@ async function confirmCompleteTrip(e) {
         const paymentStatus = newRemainingAmount === 0 ? 'مسدد بالكامل' : (newPaidAmount > 0 ? 'سداد جزئي' : currentTrip.payment_status);
         const status = 'منتهية';
 
-        // 1. تجهيز الحقول الأساسية التي تُحدث دائماً
+        // تجهيز بيانات التحديث الأساسية
         const updateData = {
             paid_amount: newPaidAmount,
             remaining_amount: newRemainingAmount,
@@ -797,19 +797,17 @@ async function confirmCompleteTrip(e) {
             driver_commission: driverCommission
         };
 
-        // 2. إضافة طريقة السداد فقط إذا أدخل المستخدم قيمة حقيقية
         const paymentMethodVal = document.getElementById('modalPaymentMethod').value;
         if (paymentMethodVal && paymentMethodVal.trim() !== "") {
             updateData.payment_method = paymentMethodVal;
         }
 
-        // 3. إضافة تاريخ التحصيل فقط إذا أدخل المستخدم تاريخاً صحيحاً
         const collectionDateVal = document.getElementById('modalCollectionDate').value;
         if (collectionDateVal && collectionDateVal.trim() !== "" && !collectionDateVal.includes("dd")) {
             updateData.collection_date = collectionDateVal;
         }
 
-        // إرسال التحديثات لقاعدة البيانات باستخدام trip_no (الآن الحقول الفارغة محذوفة تماماً ولن تسبب أي خطأ)
+        // إرسال التحديثات لقاعدة البيانات باستخدام trip_no
         const { error: updateError } = await client.from('trips').update(updateData).eq('trip_no', tripId);
 
         if (updateError) {
@@ -818,16 +816,32 @@ async function confirmCompleteTrip(e) {
             return;
         }
 
-        // تحرير الشاحنة والسائق
+        // تحرير الشاحنة (تغيير حالتها إلى جاهزة للعمل)
         if (currentTrip.truck_plate) {
-            await client.from('trucks').update({ status: 'جاهزة للعمل' }).eq('plate', currentTrip.truck_plate);
+            const { error: truckError } = await client
+                .from('trucks')
+                .update({ status: 'جاهزة للعمل' })
+                .eq('plate', currentTrip.truck_plate.trim());
+            
+            if (truckError) {
+                console.error("خطأ تحديث الشاحنة:", truckError);
+            }
         }
+
+        // تحرير السائق (تغيير حالته إلى متوفر)
         if (currentTrip.driver_name) {
-            await client.from('drivers').update({ status: 'متوفر' }).eq('name', currentTrip.driver_name);
+            const { error: driverError } = await client
+                .from('drivers')
+                .update({ status: 'متوفر' })
+                .eq('name', currentTrip.driver_name.trim());
+            
+            if (driverError) {
+                console.error("خطأ تحديث السائق:", driverError);
+            }
         }
 
         closeCompleteModal();
-        alert('تمت التسوية وإنهاء الرحلة بنجاح!');
+        alert('تمت التسوية وإنهاء الرحلة بنجاح، وتم تحرير الشاحنة والسائق!');
         
         if (typeof loadAllData === 'function') {
             loadAllData();
@@ -839,8 +853,8 @@ async function confirmCompleteTrip(e) {
         console.error("Unexpected error in confirmCompleteTrip:", err);
         alert('حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.');
     }
-}
-                function loadAllData() {
+}        
+        function loadAllData() {
     loadDashboardData();
     loadTripsData();
     loadTrucks();
@@ -1556,7 +1570,33 @@ async function saveCompleteTrip(e) {
                 table.innerHTML = `<tr><td colspan="4" class="text-center p-8 text-rose-600">حدث خطأ أثناء تحميل الشاحنات.</td></tr>`;
             }
         }
+async function cancelTrip(tripNo) {
+    if (!confirm('هل أنت متأكد من رغبتك في إلغاء هذه الرحلة؟')) return;
 
+    // جلب بيانات الرحلة لمعرفة الشاحنة والسائق المرتبطين بها
+    const { data: tripData } = await client.from('trips').select('*').eq('trip_no', tripNo).single();
+
+    // تحديث حالة الرحلة إلى ملغاة
+    const { error } = await client.from('trips').update({ status: 'ملغاة' }).eq('trip_no', tripNo);
+
+    if (error) {
+        alert('حدث خطأ أثناء إلغاء الرحلة');
+        return;
+    }
+
+    // تحرير الشاحنة
+    if (tripData && tripData.truck_plate) {
+        await client.from('trucks').update({ status: 'جاهزة للعمل' }).eq('plate', tripData.truck_plate.trim());
+    }
+
+    // تحرير السائق
+    if (tripData && tripData.driver_name) {
+        await client.from('drivers').update({ status: 'متوفر' }).eq('name', tripData.driver_name.trim());
+    }
+
+    alert('تم إلغاء الرحلة وتحرير الموارد بنجاح.');
+    if (typeof loadAllData === 'function') loadAllData();
+}
         async function saveTruck(e) {
             e.preventDefault();
             const id = document.getElementById('truckId').value;
