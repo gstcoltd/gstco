@@ -1279,8 +1279,9 @@ async function confirmCompleteTrip(e) {
         console.error("Unexpected error in confirmCompleteTrip:", err);
         alert('حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.');
     }
-}        async function saveTrip(e) {
-    e.preventDefault();
+}   
+        async function saveTrip(e) {
+    if (e) e.preventDefault();
     const trip_no = await generateTripNo();
     const client_name = document.getElementById('clientName').value.trim();
     const from_city = document.getElementById('fromCity').value.trim();
@@ -1323,15 +1324,17 @@ async function confirmCompleteTrip(e) {
 
         closeAddTripModal();
         alert('تم حفظ الرحلة برقم ' + trip_no + ' بنجاح!');
-        loadAllData();
+        if (typeof loadAllData === 'function') loadAllData();
     } else {
-        alert('حدث خطأ أثناء حفظ الرحلة.');
+        alert('حدث خطأ أثناء حفظ الرحلة: ' + error.message);
     }
 }
-        function closeCompleteModal() {
-            document.getElementById('completeTripModal').classList.add('hidden');
-        }
-       async function saveCompleteTrip(e) {
+
+function closeCompleteModal() {
+    document.getElementById('completeTripModal').classList.add('hidden');
+}
+
+async function saveCompleteTrip(e) {
     if (e) e.preventDefault();
     
     const tripId = document.getElementById('modalTripId').value;
@@ -1342,8 +1345,8 @@ async function confirmCompleteTrip(e) {
         return;
     }
 
-    // جلب بيانات الرحلة الحالية من قاعدة البيانات
-    const { data: currentTrip, error: fetchError } = await client.from('trips').select('*').eq('id', tripId).single();
+    // تصحيح: استخدام trip_no بدلاً من id لجلب بيانات الرحلة
+    const { data: currentTrip, error: fetchError } = await client.from('trips').select('*').eq('trip_no', tripId).single();
     
     if (fetchError || !currentTrip) {
         alert('حدث خطأ أثناء جلب بيانات الرحلة');
@@ -1362,21 +1365,27 @@ async function confirmCompleteTrip(e) {
     const paymentStatus = newRemainingAmount === 0 ? 'مسدد بالكامل' : 'سداد جزئي';
     const status = newRemainingAmount === 0 ? 'منتهية' : currentTrip.status;
 
-    // إرسال البيانات المحدثة إلى جدول الرحلات في Supabase
+    // تصحيح: استخدام trip_no بدلاً من id في عملية التحديث
     const { error: updateError } = await client.from('trips').update({
         paid_amount: newPaidAmount,
         remaining_amount: newRemainingAmount,
         payment_status: paymentStatus,
         status: status
-    }).eq('id', tripId);
+    }).eq('trip_no', tripId);
 
     if (!updateError) {
-        // إذا أصبحت الرحلة منتهية (تم السداد بالكامل)، نقوم بتحرير الشاحنة والسائق لتصبح جاهزة ومتوفرة
+        // إذا أصبحت الرحلة منتهية (تم السداد بالكامل)، نقوم بتحرير الشاحنة والسائق
         if (status === 'منتهية') {
             await client.from('trucks').update({ status: 'جاهزة للعمل' }).eq('plate', currentTrip.truck_plate);
             await client.from('drivers').update({ status: 'متوفر' }).eq('name', currentTrip.driver_name);
         }
-
+        closeCompleteModal();
+        alert('تمت التسوية بنجاح!');
+        if (typeof loadAllData === 'function') loadAllData();
+    } else {
+        alert('حدث خطأ أثناء حفظ التسوية: ' + updateError.message);
+    }
+}
         closeCompleteModal();
         alert('تمت التسوية وحفظ البيانات بنجاح!');
         loadAllData();
