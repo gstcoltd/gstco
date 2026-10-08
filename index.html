@@ -789,8 +789,12 @@ async function confirmCompleteTrip(e) {
         const status = 'منتهية';
 
         // قراءة قيم طريقة السداد والتاريخ والتأكد من جعلها null إذا كانت فارغة لمنع أخطاء القاعدة
-        const paymentMethodVal = document.getElementById('modalPaymentMethod').value;
-        const collectionDateVal = document.getElementById('modalCollectionDate').value;
+        // قراءة القيم بوضوح وتحويل النص الفارغ أو المسافات إلى null تماماً
+        const paymentMethodInput = document.getElementById('modalPaymentMethod').value;
+        const collectionDateInput = document.getElementById('modalCollectionDate').value;
+
+        const paymentMethodVal = (paymentMethodInput && paymentMethodInput.trim() !== "") ? paymentMethodInput : null;
+        const collectionDateVal = (collectionDateInput && collectionDateInput.trim() !== "") ? collectionDateInput : null;
 
         // تجهيز بيانات التحديث
         const updateData = {
@@ -799,10 +803,9 @@ async function confirmCompleteTrip(e) {
             payment_status: paymentStatus,
             status: status,
             driver_commission: driverCommission,
-            payment_method: paymentMethodVal ? paymentMethodVal : null,
-            collection_date: collectionDateVal ? collectionDateVal : null
+            payment_method: paymentMethodVal,
+            collection_date: collectionDateVal
         };
-
         // إرسال التحديثات لقاعدة البيانات باستخدام trip_no
         const { error: updateError } = await client.from('trips').update(updateData).eq('trip_no', tripId);
 
