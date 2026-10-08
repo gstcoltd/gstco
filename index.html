@@ -713,16 +713,40 @@ function openCompleteModal(tripNo, truckPlate, driverName, totalAmount, paidAmou
     if (modalDisplayRemaining) modalDisplayRemaining.value = remainingAmount;
     
     const modalPaymentInput = document.getElementById('modalPaymentInput');
-    if (modalPaymentInput) modalPaymentInput.value = '';
+    if (modalPaymentInput) {
+        modalPaymentInput.value = 0; // افتراضياً يبدأ الصفر
+    }
     
     const modalDriverCommission = document.getElementById('modalDriverCommission');
     if (modalDriverCommission) modalDriverCommission.value = driverCommission || 0;
+    
+    // تفريغ حقول طريقة السداد وتاريخ التحصيل افتراضياً عند فتح النافذة
+    const modalPaymentMethod = document.getElementById('modalPaymentMethod');
+    if (modalPaymentMethod) modalPaymentMethod.value = '';
+    
+    const modalCollectionDate = document.getElementById('modalCollectionDate');
+    if (modalCollectionDate) modalCollectionDate.value = '';
     
     const completeModal = document.getElementById('completeTripModal');
     if (completeModal) completeModal.classList.remove('hidden');
 }
 
-// 2. دالة إغلاق النافذة
+// إضافة مراقبة لمربع المبلغ لتفريغ الحقول تلقائياً إذا أصبح المبلغ صفر
+document.addEventListener('DOMContentLoaded', () => {
+    const paymentInput = document.getElementById('modalPaymentInput');
+    if (paymentInput) {
+        paymentInput.addEventListener('input', function() {
+            const val = parseFloat(this.value) || 0;
+            const methodSelect = document.getElementById('modalPaymentMethod');
+            const dateInput = document.getElementById('modalCollectionDate');
+            
+            if (val <= 0) {
+                if (methodSelect) methodSelect.value = ''; // جعل طريقة السداد فارغة
+                if (dateInput) dateInput.value = ''; // جعل التاريخ فارغاً
+            }
+        });
+    }
+});// 2. دالة إغلاق النافذة
 function closeCompleteModal() {
     const completeModal = document.getElementById('completeTripModal');
     if (completeModal) completeModal.classList.add('hidden');
