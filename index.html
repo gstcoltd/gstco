@@ -768,7 +768,7 @@ function loadAllData() {
                 if (activeTripsList.length > 0) {
                     activeTable.innerHTML = activeTripsList.map(tr => `
                         <tr class="hover:bg-slate-50 transition">
-                            <td class="p-3 font-black text-amber-600 font-mono">${tr.trip_no || 'GST-1000'}</td>
+                            <td class="p-3 font-black text-amber-600 font-mono">${tr.trip_no || 'TRIP-1000'}</td>
                             <td class="p-3">
                                 <div class="font-black text-slate-900">${tr.client_name}</div>
                                 <div class="text-[11px] text-slate-500">من ${tr.from_city} إلى ${tr.to_city}</div>
@@ -812,7 +812,7 @@ function loadAllData() {
                     await client.from('trucks').update({ status: 'جاهزة للعمل' });
                     await client.from('drivers').update({ status: 'متوفر' });
                     
-                    alert('تم تصفير عداد الرحلات بنجاح، ويمكنك البدء من جديد برقم GST-1001!');
+                    alert('تم تصفير عداد الرحلات بنجاح، ويمكنك البدء من جديد برقم TRIP-1001!');
                     loadAllData();
                 } else {
                     alert('حدث خطأ أثناء تصفير العداد.');
@@ -1079,12 +1079,12 @@ async function confirmCompleteTrip(e) {
             const { data: trips } = await client.from('trips').select('trip_no');
             let nextNum = 1001;
             if (trips && trips.length > 0) {
-                const nums = trips.map(t => parseInt(t.trip_no ? t.trip_no.replace('GST-', '') : '1000')).filter(n => !isNaN(n));
+                const nums = trips.map(t => parseInt(t.trip_no ? t.trip_no.replace('TRIP-', '') : '1000')).filter(n => !isNaN(n));
                 if (nums.length > 0) {
                     nextNum = Math.max(...nums) + 1;
                 }
             }
-            return 'GST-' + nextNum;
+            return 'TRIP-' + nextNum;
         }
 
         async function loadTripsData() {
@@ -1144,7 +1144,7 @@ async function confirmCompleteTrip(e) {
 
                 return `
                     <tr class="hover:bg-slate-50 transition">
-                        <td class="p-3.5 font-black text-amber-600 font-mono">${tr.trip_no || 'GST-1000'}</td>
+                        <td class="p-3.5 font-black text-amber-600 font-mono">${tr.trip_no || 'TRIP-1000'}</td>
                         <td class="p-3.5">
                             <div class="font-black text-slate-900">${tr.client_name}</div>
                             <div class="text-[11px] text-slate-500"><i class="fa-solid fa-location-dot ml-1 text-amber-500"></i> من ${tr.from_city} إلى ${tr.to_city}</div>
