@@ -1315,7 +1315,6 @@ async function confirmCompleteTrip(e) {
     }]);
 
     if (!error) {
-        // تحديث الشاحنة والسائق مع التحقق من نجاح التحديث
         const truckUpdate = await client.from('trucks').update({ status: 'في رحلة' }).eq('plate', truck_plate);
         const driverUpdate = await client.from('drivers').update({ status: 'في رحلة' }).eq('name', driver_name);
         
@@ -1345,7 +1344,6 @@ async function saveCompleteTrip(e) {
         return;
     }
 
-    // تصحيح: استخدام trip_no بدلاً من id لجلب بيانات الرحلة
     const { data: currentTrip, error: fetchError } = await client.from('trips').select('*').eq('trip_no', tripId).single();
     
     if (fetchError || !currentTrip) {
@@ -1365,7 +1363,6 @@ async function saveCompleteTrip(e) {
     const paymentStatus = newRemainingAmount === 0 ? 'مسدد بالكامل' : 'سداد جزئي';
     const status = newRemainingAmount === 0 ? 'منتهية' : currentTrip.status;
 
-    // تصحيح: استخدام trip_no بدلاً من id في عملية التحديث
     const { error: updateError } = await client.from('trips').update({
         paid_amount: newPaidAmount,
         remaining_amount: newRemainingAmount,
@@ -1374,7 +1371,6 @@ async function saveCompleteTrip(e) {
     }).eq('trip_no', tripId);
 
     if (!updateError) {
-        // إذا أصبحت الرحلة منتهية (تم السداد بالكامل)، نقوم بتحرير الشاحنة والسائق
         if (status === 'منتهية') {
             await client.from('trucks').update({ status: 'جاهزة للعمل' }).eq('plate', currentTrip.truck_plate);
             await client.from('drivers').update({ status: 'متوفر' }).eq('name', currentTrip.driver_name);
@@ -1384,13 +1380,6 @@ async function saveCompleteTrip(e) {
         if (typeof loadAllData === 'function') loadAllData();
     } else {
         alert('حدث خطأ أثناء حفظ التسوية: ' + updateError.message);
-    }
-}
-        closeCompleteModal();
-        alert('تمت التسوية وحفظ البيانات بنجاح!');
-        loadAllData();
-    } else {
-        alert('حدث خطأ أثناء حفظ التسوية.');
     }
 }
         async function loadTrucks() {
