@@ -1041,8 +1041,8 @@ async function confirmCompleteTrip(e) {
         const paymentStatus = newRemainingAmount === 0 ? 'مسدد بالكامل' : 'سداد جزئي';
         const status = 'منتهية'; // لأنها صفحة تسوية وإنهاء الرحلة
 
-        // إرسال التحديثات لقاعدة البيانات
-        const { error: updateError } = await client.from('trips').update({
+      // إرسال التحديثات لقاعدة البيانات مع طباعة تفاصيل الخطأ في حال حدوثه
+        const { data: updatedData, error: updateError } = await client.from('trips').update({
             paid_amount: newPaidAmount,
             remaining_amount: newRemainingAmount,
             payment_status: paymentStatus,
@@ -1050,14 +1050,15 @@ async function confirmCompleteTrip(e) {
             driver_commission: driverCommission,
             payment_method: paymentMethod,
             collection_date: collectionDate
-        }).eq('id', tripId);
+        }).eq('id', tripId).select();
 
         if (updateError) {
-            console.error("Update error:", updateError);
-            alert('حدث خطأ أثناء حفظ التسوية في قاعدة البيانات.');
+            console.error("خطأ قاعدة البيانات المفصل:", updateError);
+            alert('خطأ في قاعدة البيانات: ' + updateError.message);
             return;
         }
 
+        console.log("تم التحديث بنجاح في قاعدة البيانات:", updatedData);
         // تحرير الشاحنة والسائق لتصبح جاهزة ومتوفرة
         if (currentTrip.truck_plate) {
             await client.from('trucks').update({ status: 'جاهزة للعمل' }).eq('plate', currentTrip.truck_plate);
