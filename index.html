@@ -788,23 +788,20 @@ async function confirmCompleteTrip(e) {
         const paymentStatus = newRemainingAmount === 0 ? 'مسدد بالكامل' : (newPaidAmount > 0 ? 'سداد جزئي' : currentTrip.payment_status);
         const status = 'منتهية';
 
-        // تجهيز بيانات التحديث الأساسية
+        // قراءة قيم طريقة السداد والتاريخ والتأكد من جعلها null إذا كانت فارغة لمنع أخطاء القاعدة
+        const paymentMethodVal = document.getElementById('modalPaymentMethod').value;
+        const collectionDateVal = document.getElementById('modalCollectionDate').value;
+
+        // تجهيز بيانات التحديث
         const updateData = {
             paid_amount: newPaidAmount,
             remaining_amount: newRemainingAmount,
             payment_status: paymentStatus,
             status: status,
-            driver_commission: driverCommission
+            driver_commission: driverCommission,
+            payment_method: paymentMethodVal ? paymentMethodVal : null,
+            collection_date: collectionDateVal ? collectionDateVal : null
         };
-
-        // إذا تم إدخال مبلغ سداد، نقوم بتسجيل طريقة السداد وتاريخ التحصيل، وإلا نتركها فارغة (null)
-        if (additionalPayment > 0) {
-            updateData.payment_method = document.getElementById('modalPaymentMethod').value || null;
-            updateData.collection_date = document.getElementById('modalCollectionDate').value || null;
-        } else {
-            updateData.payment_method = null;
-            updateData.collection_date = null;
-        }
 
         // إرسال التحديثات لقاعدة البيانات باستخدام trip_no
         const { error: updateError } = await client.from('trips').update(updateData).eq('trip_no', tripId);
@@ -836,8 +833,7 @@ async function confirmCompleteTrip(e) {
         console.error("Unexpected error in confirmCompleteTrip:", err);
         alert('حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.');
     }
-}
-    function loadAllData() {
+}    function loadAllData() {
     loadDashboardData();
     loadTripsData();
     loadTrucks();
