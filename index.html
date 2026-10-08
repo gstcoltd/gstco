@@ -1201,7 +1201,59 @@ function openCompleteModal(id, truckPlate, driverName, totalAmount, paidAmount, 
         function closeCompleteModal() {
             document.getElementById('completeTripModal').classList.add('hidden');
         }
-       
+       async function saveCompleteTrip(e) {
+    if (e) e.preventDefault();
+    
+    const tripId = document.getElementById('modalTripId').value;
+    const additionalPayment = parseFloat(document.getElementById('modalPaymentInput').value) || 0;
+    
+    if (additionalPayment <= 0) {
+        alert('الرجاء إدخال مبلغ صحيح للتسوية');
+        return;
+    }
+
+    // جلب بيانات الرحلة الحالية من قاعدة البيانات
+    const { data: currentTrip, error: fetchError } = await client.from('trips').select('*').eq('id', tripId).single();
+    
+    if (fetchError || !currentTrip) {
+        alert('حدث خطأ أثناء جلب بيانات الرحلة');
+        return;
+    }
+
+    const newPaidAmount = (currentTrip.paid_amount || 0) + additionalPayment;
+    const totalAmount = currentTrip.total_amount || 0;
+    
+    if (newPaidAmount > totalAmount) {
+        alert('المبلغ المدفوع لا يمكن أن يتجاوز إجمالي المبلغ');
+        return;
+    }
+
+    const newRemainingAmount = totalAmount - newPaidAmount;
+    const paymentStatus = newRemainingAmount === 0 ? 'مسدد بالكامل' : 'سداد جزئي';
+    const status = newRemainingAmount === 0 ? 'منتهية' : currentTrip.status;
+
+    // إرسال البيانات المحدثة إلى جدول الرحلات في Supabase
+    const { error: updateError } = await client.from('trips').update({
+        paid_amount: newPaidAmount,
+        remaining_amount: newRemainingAmount,
+        payment_status: paymentStatus,
+        status: status
+    }).eq('id', tripId);
+
+    if (!updateError) {
+        // إذا أصبحت الرحلة منتهية (تم السداد بالكامل)، نقوم بتحرير الشاحنة والسائق لتصبح جاهزة ومتوفرة
+        if (status === 'منتهية') {
+            await client.from('trucks').update({ status: 'جاهزة للعمل' }).eq('plate', currentTrip.truck_plate);
+            await client.from('drivers').update({ status: 'متوفر' }).eq('name', currentTrip.driver_name);
+        }
+
+        closeCompleteModal();
+        alert('تمت التسوية وحفظ البيانات بنجاح!');
+        loadAllData();
+    } else {
+        alert('حدث خطأ أثناء حفظ التسوية.');
+    }
+}
         async function loadTrucks() {
             const table = document.getElementById('trucksTable');
             try {
