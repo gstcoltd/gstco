@@ -698,7 +698,84 @@
         document.getElementById('loginError').classList.remove('hidden');
     }
 }
+// يجب أن تكون هذه الدوال في النطاق العام (خارج أي دالة أخرى) لكي يراها الزر
+function openCompleteModal(tripNo, truckPlate, driverName, totalAmount, paidAmount, remainingAmount, driverCommission) {
+    const modalTripId = document.getElementById('modalTripId');
+    if (modalTripId) modalTripId.value = tripNo;
+    
+    const modalDisplayTotal = document.getElementById('modalDisplayTotal');
+    if (modalDisplayTotal) modalDisplayTotal.value = totalAmount;
+    
+    const modalDisplayPaid = document.getElementById('modalDisplayPaid');
+    if (modalDisplayPaid) modalDisplayPaid.value = paidAmount;
+    
+    const modalDisplayRemaining = document.getElementById('modalDisplayRemaining');
+    if (modalDisplayRemaining) modalDisplayRemaining.value = remainingAmount;
+    
+    const modalPaymentInput = document.getElementById('modalPaymentInput');
+    if (modalPaymentInput) modalPaymentInput.value = '';
+    
+    const modalDriverCommission = document.getElementById('modalDriverCommission');
+    if (modalDriverCommission) modalDriverCommission.value = driverCommission || 0;
+    
+    const completeModal = document.getElementById('completeTripModal');
+    if (completeModal) completeModal.classList.remove('hidden');
+}
 
+function closeCompleteModal() {
+    const completeModal = document.getElementById('completeTripModal');
+    if (completeModal) completeModal.classList.add('hidden');
+}
+
+async function saveCompleteTrip(e) {
+    if (e) e.preventDefault();
+    
+    const tripNo = document.getElementById('modalTripId').value;
+    const additionalPayment = parseFloat(document.getElementById('modalPaymentInput').value) || 0;
+    
+    if (additionalPayment <= 0) {
+        alert('الرجاء إدخال مبلغ صحيح للتسوية');
+        return;
+    }
+
+    const { data: currentTrip, error: fetchError } = await client.from('trips').select('*').eq('trip_no', tripNo).single();
+    
+    if (fetchError || !currentTrip) {
+        alert('حدث خطأ أثناء جلب بيانات الرحلة');
+        return;
+    }
+
+    const newPaidAmount = (currentTrip.paid_amount || 0) + additionalPayment;
+    const totalAmount = currentTrip.total_amount || 0;
+    
+    if (newPaidAmount > totalAmount) {
+        alert('المبلغ المدفوع لا يمكن أن يتجاوز إجمالي المبلغ');
+        return;
+    }
+
+    const newRemainingAmount = totalAmount - newPaidAmount;
+    const paymentStatus = newRemainingAmount === 0 ? 'مسدد بالكامل' : 'سداد جزئي';
+    const status = newRemainingAmount === 0 ? 'منتهية' : currentTrip.status;
+
+    const { error: updateError } = await client.from('trips').update({
+        paid_amount: newPaidAmount,
+        remaining_amount: newRemainingAmount,
+        payment_status: paymentStatus,
+        status: status
+    }).eq('trip_no', tripNo);
+
+    if (!updateError) {
+        if (status === 'منتهية') {
+            await client.from('trucks').update({ status: 'جاهزة للعمل' }).eq('plate', currentTrip.truck_plate);
+            await client.from('drivers').update({ status: 'متوفر' }).eq('name', currentTrip.driver_name);
+        }
+        closeCompleteModal();
+        alert('تمت التسوية بنجاح!');
+        if (typeof loadAllData === 'function') loadAllData();
+    } else {
+        alert('حدث خطأ أثناء حفظ التسوية: ' + updateError.message);
+    }
+}
 function loadAllData() {
     loadDashboardData();
     loadTripsData();
