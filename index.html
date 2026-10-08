@@ -70,8 +70,6 @@
                     </div>
                 </div>
 
-loadDashboardData();
-loadTripsData();
                 <nav class="space-y-2">
                     <button onclick="switchTab('dashboard')" id="tabDashboardBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition bg-amber-500 text-slate-900 shadow-sm">
                         <i class="fa-solid fa-chart-pie text-base"></i> لوحة التحكم
@@ -650,7 +648,7 @@ loadTripsData();
 
         let currentLoggedInUser = { username: 'admin', employee_name: 'محمد القحطاني', role: 'admin' };
 
-        async function handleLogin(e) {
+       async function handleLogin(e) {
     e.preventDefault();
     const u = document.getElementById('usernameInput').value.trim();
     const p = document.getElementById('passwordInput').value.trim();
@@ -675,23 +673,24 @@ loadTripsData();
             }
         }
 
-        // 📍 هنا تضع كود تخزين الدور واسم الموظف في المتصفح:
+        // تخزين الدور واسم الموظف في المتصفح
         localStorage.setItem('userRole', currentLoggedInUser.role);
         localStorage.setItem('userName', currentLoggedInUser.employee_name);
 
         document.getElementById('loginSection').classList.add('hidden');
         document.getElementById('mainDashboard').classList.remove('hidden');
         
-        // تحديث شارة اسم المستخدم والدور بناءً على القيمة (مدير، محاسب، أو مستخدم)
+        // تحديد مسمى الدور بالشكل الصحيح
         let roleName = 'مستخدم';
-if (user.role === 'admin') {
-    roleName = 'مدير';
-} else if (user.role === 'accountant') {
-    roleName = 'محاسب';
-}
+        if (currentLoggedInUser.role === 'admin') {
+            roleName = 'مدير';
+        } else if (currentLoggedInUser.role === 'accountant') {
+            roleName = 'محاسب';
+        }
         
-        document.getElementById('currentUserBadge').innerText = (currentLoggedInUser.employee_name || u) + roleLabel;
+        document.getElementById('currentUserBadge').innerText = (currentLoggedInUser.employee_name || u) + ' (' + roleName + ')';
         
+        // استدعاء دالة جلب كافة البيانات لتظهر فوراً في الداش بورد والرحلات
         loadAllData();
     } catch (err) {
         console.error("Login error:", err);
@@ -699,17 +698,17 @@ if (user.role === 'admin') {
         document.getElementById('loginError').classList.remove('hidden');
     }
 }
-        function loadAllData() {
-            loadDashboardData();
-            loadTripsData();
-            loadTrucks();
-            loadDrivers();
-            loadUsers();
-            loadDropdowns();
-            renderAdminControls();
-            generateReport();
-        }
 
+function loadAllData() {
+    loadDashboardData();
+    loadTripsData();
+    loadTrucks();
+    loadDrivers();
+    loadUsers();
+    loadDropdowns();
+    renderAdminControls();
+    generateReport();
+}
         async function loadDashboardData() {
             try {
                 const { data: trips } = await client.from('trips').select('*');
