@@ -799,21 +799,22 @@ async function confirmCompleteTrip(e) {
         };
 
         // فحص طريقة السداد وتاريخ التحصيل: لا تقم بإضافتهما نهائياً إذا كانت فارغة لمنع خطأ قاعدة البيانات
+       // قراءة القيم من الحقول وتجهيز بيانات التحديث بذكاء
         const paymentMethodVal = document.getElementById('modalPaymentMethod').value;
-        if (paymentMethodVal && paymentMethodVal.trim() !== "") {
-            updateData.payment_method = paymentMethodVal;
-        }
-
         const collectionDateVal = document.getElementById('modalCollectionDate').value;
-        if (collectionDateVal && collectionDateVal.trim() !== "" && !collectionDateVal.includes("dd")) {
-            updateData.collection_date = collectionDateVal;
-        }
-    
-        updateData.payment_method = paymentMethodVal;
-        updateData.collection_date = collectionDateVal;
+
+        const updateData = {
+            paid_amount: newPaidAmount,
+            remaining_amount: newRemainingAmount,
+            payment_status: paymentStatus,
+            status: status,
+            driver_commission: driverCommission,
+            payment_method: (paymentMethodVal && paymentMethodVal.trim() !== "") ? paymentMethodVal : null,
+            collection_date: (collectionDateVal && collectionDateVal.trim() !== "" && !collectionDateVal.includes("dd")) ? collectionDateVal : null
+        };
+
         // إرسال التحديثات لقاعدة البيانات باستخدام trip_no
         const { error: updateError } = await client.from('trips').update(updateData).eq('trip_no', tripId);
-
         if (updateError) {
             console.error("خطأ قاعدة البيانات المفصل:", updateError);
             alert('خطأ في قاعدة البيانات: ' + updateError.message);
