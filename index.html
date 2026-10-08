@@ -728,7 +728,7 @@ function closeCompleteModal() {
     if (completeModal) completeModal.classList.add('hidden');
 }
 
-// 3. دالة الحفظ والتسوية التي أرسلتها أنت (تستدعى من زر التأكيد داخل النافذة)
+// 3. تسوية وإنهاء الرحلة (مع جعل حقول الدفع اختيارية إذا كان المبلغ صفر)
 async function confirmCompleteTrip(e) {
     if (e) e.preventDefault();
     
@@ -736,14 +736,13 @@ async function confirmCompleteTrip(e) {
         const tripId = document.getElementById('modalTripId').value;
         const additionalPayment = parseFloat(document.getElementById('modalPaymentInput').value) || 0;
         const driverCommission = parseFloat(document.getElementById('modalDriverCommission').value) || 0;
-        const paymentMethod = document.getElementById('modalPaymentMethod').value;
-        const collectionDate = document.getElementById('modalCollectionDate').value;
         
         if (!tripId) {
             alert('رقم الرحلة غير موجود.');
             return;
         }
 
+        // جلب بيانات الرحلة الحالية باستخدام trip_no
         const { data: currentTrip, error: fetchError } = await client.from('trips').select('*').eq('trip_no', tripId).single();
         
         if (fetchError || !currentTrip) {
@@ -762,18 +761,29 @@ async function confirmCompleteTrip(e) {
         }
 
         const newRemainingAmount = totalAmount - newPaidAmount;
-        const paymentStatus = newRemainingAmount === 0 ? 'مسدد بالكامل' : 'سداد جزئي';
+        const paymentStatus = newRemainingAmount === 0 ? 'مسدد بالكامل' : (newPaidAmount > 0 ? 'سداد جزئي' : currentTrip.payment_status);
         const status = 'منتهية';
 
-        const { error: updateError } = await client.from('trips').update({
+        // تجهيز بيانات التحديث الأساسية
+        const updateData = {
             paid_amount: newPaidAmount,
             remaining_amount: newRemainingAmount,
             payment_status: paymentStatus,
             status: status,
-            driver_commission: driverCommission,
-            payment_method: paymentMethod,
-            collection_date: collectionDate
-        }).eq('trip_no', tripId);
+            driver_commission: driverCommission
+        };
+
+        // إذا تم إدخال مبلغ سداد، نقوم بتسجيل طريقة السداد وتاريخ التحصيل، وإلا نتركها فارغة (null)
+        if (additionalPayment > 0) {
+            updateData.payment_method = document.getElementById('modalPaymentMethod').value || null;
+            updateData.collection_date = document.getElementById('modalCollectionDate').value || null;
+        } else {
+            updateData.payment_method = null;
+            updateData.collection_date = null;
+        }
+
+        // إرسال التحديثات لقاعدة البيانات باستخدام trip_no
+        const { error: updateError } = await client.from('trips').update(updateData).eq('trip_no', tripId);
 
         if (updateError) {
             console.error("خطأ قاعدة البيانات المفصل:", updateError);
@@ -781,6 +791,7 @@ async function confirmCompleteTrip(e) {
             return;
         }
 
+        // تحرير الشاحنة والسائق
         if (currentTrip.truck_plate) {
             await client.from('trucks').update({ status: 'جاهزة للعمل' }).eq('plate', currentTrip.truck_plate);
         }
@@ -801,7 +812,8 @@ async function confirmCompleteTrip(e) {
         console.error("Unexpected error in confirmCompleteTrip:", err);
         alert('حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.');
     }
-}function loadAllData() {
+}
+    function loadAllData() {
     loadDashboardData();
     loadTripsData();
     loadTrucks();
