@@ -789,6 +789,7 @@ async function confirmCompleteTrip(e) {
         const status = 'منتهية';
 
         // تجهيز بيانات التحديث الأساسية المضمنة دائماً
+        // تجهيز بيانات التحديث الأساسية
         const updateData = {
             paid_amount: newPaidAmount,
             remaining_amount: newRemainingAmount,
@@ -797,13 +798,17 @@ async function confirmCompleteTrip(e) {
             driver_commission: driverCommission
         };
 
-       // استبدل هذا الجزء بهذا الكود الحاسم تماماً
-        const paymentMethodEl = document.getElementById('modalPaymentMethod');
-        const collectionDateEl = document.getElementById('modalCollectionDate');
+        // فحص طريقة السداد وتاريخ التحصيل: لا تقم بإضافتهما نهائياً إذا كانت فارغة لمنع خطأ قاعدة البيانات
+        const paymentMethodVal = document.getElementById('modalPaymentMethod').value;
+        if (paymentMethodVal && paymentMethodVal.trim() !== "") {
+            updateData.payment_method = paymentMethodVal;
+        }
 
-        const paymentMethodVal = (paymentMethodEl && paymentMethodEl.value.trim() !== "") ? paymentMethodEl.value : null;
-        const collectionDateVal = (collectionDateEl && collectionDateEl.value.trim() !== "") ? collectionDateEl.value : null;
-
+        const collectionDateVal = document.getElementById('modalCollectionDate').value;
+        if (collectionDateVal && collectionDateVal.trim() !== "" && !collectionDateVal.includes("dd")) {
+            updateData.collection_date = collectionDateVal;
+        }
+    
         updateData.payment_method = paymentMethodVal;
         updateData.collection_date = collectionDateVal;
         // إرسال التحديثات لقاعدة البيانات باستخدام trip_no
