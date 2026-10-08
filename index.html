@@ -797,22 +797,15 @@ async function confirmCompleteTrip(e) {
             driver_commission: driverCommission
         };
 
-        // إضافة طريقة السداد وتاريخ التحصيل فقط إذا قام المستخدم بإدخالها فعلياً
-        const paymentMethodVal = document.getElementById('modalPaymentMethod').value;
-        const collectionDateVal = document.getElementById('modalCollectionDate').value;
+       // استبدل هذا الجزء بهذا الكود الحاسم تماماً
+        const paymentMethodEl = document.getElementById('modalPaymentMethod');
+        const collectionDateEl = document.getElementById('modalCollectionDate');
 
-        if (paymentMethodVal && paymentMethodVal.trim() !== "") {
-            updateData.payment_method = paymentMethodVal;
-        } else {
-            updateData.payment_method = null;
-        }
+        const paymentMethodVal = (paymentMethodEl && paymentMethodEl.value.trim() !== "") ? paymentMethodEl.value : null;
+        const collectionDateVal = (collectionDateEl && collectionDateEl.value.trim() !== "") ? collectionDateEl.value : null;
 
-        if (collectionDateVal && collectionDateVal.trim() !== "") {
-            updateData.collection_date = collectionDateVal;
-        } else {
-            updateData.collection_date = null;
-        }
-
+        updateData.payment_method = paymentMethodVal;
+        updateData.collection_date = collectionDateVal;
         // إرسال التحديثات لقاعدة البيانات باستخدام trip_no
         const { error: updateError } = await client.from('trips').update(updateData).eq('trip_no', tripId);
 
