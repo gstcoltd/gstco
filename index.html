@@ -1204,30 +1204,82 @@ function closeAddTripModal() {
 }
 
 // 3. فتح نافذة تسوية وإنهاء الرحلة
-function openCompleteModal(id, truckPlate, driverName, totalAmount, paidAmount, remainingAmount, driverCommission) {
-    const modalTripId = document.getElementById('modalTripId');
-    if (modalTripId) modalTripId.value = id;
+async function confirmCompleteTrip(e) {
+    if (e) e.preventDefault();
     
-    const modalDisplayTotal = document.getElementById('modalDisplayTotal');
-    if (modalDisplayTotal) modalDisplayTotal.value = totalAmount;
-    
-    const modalDisplayPaid = document.getElementById('modalDisplayPaid');
-    if (modalDisplayPaid) modalDisplayPaid.value = paidAmount;
-    
-    const modalDisplayRemaining = document.getElementById('modalDisplayRemaining');
-    if (modalDisplayRemaining) modalDisplayRemaining.value = remainingAmount;
-    
-    const modalPaymentInput = document.getElementById('modalPaymentInput');
-    if (modalPaymentInput) modalPaymentInput.value = '';
-    
-    const modalDriverCommission = document.getElementById('modalDriverCommission');
-    if (modalDriverCommission) modalDriverCommission.value = driverCommission || 0;
-    
-    // إظهار نافذة التسوية
-    const completeModal = document.getElementById('completeTripModal');
-    if (completeModal) completeModal.classList.remove('hidden');
-}
-        async function saveTrip(e) {
+    try {
+        const tripId = document.getElementById('modalTripId').value;
+        const additionalPayment = parseFloat(document.getElementById('modalPaymentInput').value) || 0;
+        const driverCommission = parseFloat(document.getElementById('modalDriverCommission').value) || 0;
+        const paymentMethod = document.getElementById('modalPaymentMethod').value;
+        const collectionDate = document.getElementById('modalCollectionDate').value;
+        
+        if (!tripId) {
+            alert('رقم الرحلة غير موجود.');
+            return;
+        }
+
+        // جلب بيانات الرحلة الحالية باستخدام trip_no
+        const { data: currentTrip, error: fetchError } = await client.from('trips').select('*').eq('trip_no', tripId).single();
+        
+        if (fetchError || !currentTrip) {
+            console.error("Fetch error:", fetchError);
+            alert('حدث خطأ أثناء جلب بيانات الرحلة.');
+            return;
+        }
+
+        const currentPaid = currentTrip.paid_amount || 0;
+        const totalAmount = currentTrip.total_amount || 0;
+        const newPaidAmount = currentPaid + additionalPayment;
+        
+        if (newPaidAmount > totalAmount) {
+            alert('المبلغ المدفوع لا يمكن أن يتجاوز إجمالي المبلغ.');
+            return;
+        }
+
+        const newRemainingAmount = totalAmount - newPaidAmount;
+        const paymentStatus = newRemainingAmount === 0 ? 'مسدد بالكامل' : 'سداد جزئي';
+        const status = 'منتهية';
+
+        // إرسال التحديثات لقاعدة البيانات باستخدام trip_no
+        const { data: updatedData, error: updateError } = await client.from('trips').update({
+            paid_amount: newPaidAmount,
+            remaining_amount: newRemainingAmount,
+            payment_status: paymentStatus,
+            status: status,
+            driver_commission: driverCommission,
+            payment_method: paymentMethod,
+            collection_date: collectionDate
+        }).eq('trip_no', tripId).select();
+
+        if (updateError) {
+            console.error("خطأ قاعدة البيانات المفصل:", updateError);
+            alert('خطأ في قاعدة البيانات: ' + updateError.message);
+            return;
+        }
+
+        // تحرير الشاحنة والسائق
+        if (currentTrip.truck_plate) {
+            await client.from('trucks').update({ status: 'جاهزة للعمل' }).eq('plate', currentTrip.truck_plate);
+        }
+        if (currentTrip.driver_name) {
+            await client.from('drivers').update({ status: 'متوفر' }).eq('name', currentTrip.driver_name);
+        }
+
+        closeCompleteModal();
+        alert('تمت التسوية وإنهاء الرحلة بنجاح!');
+        
+        if (typeof loadAllData === 'function') {
+            loadAllData();
+        } else if (typeof loadTripsData === 'function') {
+            loadTripsData();
+        }
+
+    } catch (err) {
+        console.error("Unexpected error in confirmCompleteTrip:", err);
+        alert('حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.');
+    }
+}        async function saveTrip(e) {
     e.preventDefault();
     const trip_no = await generateTripNo();
     const client_name = document.getElementById('clientName').value.trim();
