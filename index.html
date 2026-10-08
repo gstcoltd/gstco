@@ -1227,7 +1227,8 @@ async function confirmCompleteTrip(e) {
                     statusBadge = '<span class="bg-rose-50 text-rose-700 border border-rose-200 px-2.5 py-1 rounded-full text-[10px] font-bold">ملغاة</span>';
                 }
 
-             let actionButtons = '';
+            let actionButtons = '';
+const remaining = tr.remaining_amount || 0;
 
 if (tr.status === 'جارية') {
     actionButtons = `
@@ -1238,21 +1239,19 @@ if (tr.status === 'جارية') {
             <i class="fa-solid fa-ban ml-1"></i> إلغاء
         </button>
     `;
-} else if (tr.status === 'منتهية') {
-    const remaining = tr.remaining_amount || 0;
+} else if (tr.status === 'ملغاة') {
+    actionButtons = `<span class="text-rose-500 text-[11px] font-bold">رحلة ملغاة</span>`;
+} else {
+    // لأي حالة أخرى (منتهية، مكتملة، أو غيرها)
     if (remaining > 0) {
-        // تظهر زر تسوية المتبقي إذا كان هناك مبلغ لم يُسدد بعد
         actionButtons = `
             <button onclick="openCompleteModal('${tr.trip_no}', '${tr.truck_plate}', '${tr.driver_name}', ${tr.total_amount}, ${tr.paid_amount}, ${tr.remaining_amount}, ${tr.driver_commission || 0})" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-3 py-1.5 rounded-xl text-[10px] transition shadow-sm" title="سداد المبلغ المتبقي">
                 <i class="fa-solid fa-wallet ml-1"></i> تسوية المتبقي
             </button>
         `;
     } else {
-        // تظهر عبارة منتهية ومسددة فقط إذا تم سداد المبلغ بالكامل
         actionButtons = `<span class="text-emerald-600 text-[11px] font-bold"><i class="fa-solid fa-check-circle"></i> منتهية ومسددة</span>`;
     }
-} else if (tr.status === 'ملغاة') {
-    actionButtons = `<span class="text-rose-500 text-[11px] font-bold">رحلة ملغاة</span>`;
 }
                 return `
                     <tr class="hover:bg-slate-50 transition">
