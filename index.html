@@ -1067,15 +1067,16 @@ async function confirmCompleteTrip(e) {
             await client.from('drivers').update({ status: 'متوفر' }).eq('name', currentTrip.driver_name);
         }
 
-        closeCompleteModal();
+       closeCompleteModal();
         alert('تمت التسوية وإنهاء الرحلة بنجاح!');
-        if (typeof loadAllData === 'function') loadAllData();
-
-    } catch (err) {
-        console.error("Unexpected error in confirmCompleteTrip:", err);
-        alert('حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.');
-    }
-}
+        
+        // استدعاء دالة تحديث البيانات فوراً لترسم التعديلات على الشاشة
+        if (typeof loadAllData === 'function') {
+            loadAllData();
+        } else if (typeof loadTripsData === 'function') {
+            loadTripsData();
+        }
+      
         async function generateTripNo() {
             const { data: trips } = await client.from('trips').select('trip_no');
             let nextNum = 1001;
