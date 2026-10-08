@@ -1230,17 +1230,17 @@ async function confirmCompleteTrip(e) {
                 let actionButtons = '';
                 if (tr.status === 'جارية') {
                     actionButtons = `
-                        <button onclick="openCompleteModal(${tr.trip_no}, '${tr.truck_plate}', '${tr.driver_name}', ${tr.total_amount}, ${tr.paid_amount}, ${tr.remaining_amount}, ${tr.driver_commission || 0})" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl text-[10px] transition shadow-sm" title="إنهاء الرحلة وسداد المبلغ والعمولة">
+                        <button onclick="openCompleteModal('${tr.trip_no}', '${tr.truck_plate}', '${tr.driver_name}', ${tr.total_amount}, ${tr.paid_amount}, ${tr.remaining_amount}, ${tr.driver_commission || 0})" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl text-[10px] transition shadow-sm" title="إنهاء الرحلة وسداد المبلغ والعمولة">
                             <i class="fa-solid fa-flag-checkered ml-1"></i> إنهاء وتسوية
                         </button>
-                        <button onclick="cancelTrip(${tr.trip_no})" class="bg-rose-500 hover:bg-rose-600 text-white font-bold px-3 py-1.5 rounded-xl text-[10px] transition shadow-sm" title="إلغاء الرحلة">
+                        <button onclick="cancelTrip('${tr.trip_no}')" class="bg-rose-500 hover:bg-rose-600 text-white font-bold px-3 py-1.5 rounded-xl text-[10px] transition shadow-sm" title="إلغاء الرحلة">
                             <i class="fa-solid fa-ban ml-1"></i> إلغاء
                         </button>
                     `;
                 } else if (tr.status === 'مكتملة') {
                     if (remaining > 0) {
                         actionButtons = `
-                            <button onclick="openCompleteModal(${tr.trip_no}, '${tr.truck_plate}', '${tr.driver_name}', ${tr.total_amount}, ${tr.paid_amount}, ${tr.remaining_amount}, ${tr.driver_commission || 0})" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-3 py-1.5 rounded-xl text-[10px] transition shadow-sm" title="سداد المبلغ المتبقي">
+                            <button onclick="openCompleteModal('${tr.trip_no}', '${tr.truck_plate}', '${tr.driver_name}', ${tr.total_amount}, ${tr.paid_amount}, ${tr.remaining_amount}, ${tr.driver_commission || 0})" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-3 py-1.5 rounded-xl text-[10px] transition shadow-sm" title="سداد المبلغ المتبقي">
                                 <i class="fa-solid fa-wallet ml-1"></i> تسوية المتبقي
                             </button>
                             <span class="text-slate-400 text-[10px] font-bold block mt-1">منتهية</span>
