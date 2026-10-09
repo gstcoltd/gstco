@@ -766,7 +766,7 @@ async function confirmCompleteTrip(e) {
             return;
         }
 
-        // جلب بيانات الرحلة الحالية باستخدام trip_no
+        // 1. جلب بيانات الرحلة الحالية
         const { data: currentTrip, error: fetchError } = await client.from('trips').select('*').eq('trip_no', tripId).single();
         
         if (fetchError || !currentTrip) {
@@ -786,62 +786,77 @@ async function confirmCompleteTrip(e) {
 
         const newRemainingAmount = totalAmount - newPaidAmount;
         const paymentStatus = newRemainingAmount === 0 ? 'مسدد بالكامل' : (newPaidAmount > 0 ? 'سداد جزئي' : currentTrip.payment_status);
-        const status = 'منتهية';
-
-        // تجهيز بيانات التحديث الأساسية
+        
+        // 2. بناء كائن التحديث بتمييز صريح للحقول الفارغة (لتجنب خطأ التاريخ)
         const updateData = {
             paid_amount: newPaidAmount,
             remaining_amount: newRemainingAmount,
             payment_status: paymentStatus,
-            status: status,
+            status: 'منتهية',
             driver_commission: driverCommission
         };
 
         const paymentMethodVal = document.getElementById('modalPaymentMethod').value;
         if (paymentMethodVal && paymentMethodVal.trim() !== "") {
-            updateData.payment_method = paymentMethodVal;
+            updateData.payment_method = paymentMethodVal.trim();
+        } else {
+            updateData.payment_method = null;
         }
 
         const collectionDateVal = document.getElementById('modalCollectionDate').value;
         if (collectionDateVal && collectionDateVal.trim() !== "" && !collectionDateVal.includes("dd")) {
-            updateData.collection_date = collectionDateVal;
+            updateData.collection_date = collectionDateVal.trim();
+        } else {
+            updateData.collection_date = null;
         }
 
-        // إرسال التحديثات لقاعدة البيانات باستخدام trip_no
+        console.log("بيانات التحديث المرسلة للرحلة:", updateData);
+
+        // 3. تحديث جدول الرحلات
         const { error: updateError } = await client.from('trips').update(updateData).eq('trip_no', tripId);
 
         if (updateError) {
-            console.error("خطأ قاعدة البيانات المفصل:", updateError);
+            console.error("خطأ قاعدة البيانات في الرحلات:", updateError);
             alert('خطأ في قاعدة البيانات: ' + updateError.message);
             return;
         }
 
-        // تحرير الشاحنة (تغيير حالتها إلى جاهزة للعمل)
+        // 4. تحرير الشاحنة المرتبطة
         if (currentTrip.truck_plate) {
-            const { error: truckError } = await client
+            const plateVal = currentTrip.truck_plate.trim();
+            console.log("جاري تحديث الشاحنة رقم:", plateVal);
+            
+            const { data: truckData, error: truckError } = await client
                 .from('trucks')
                 .update({ status: 'جاهزة للعمل' })
-                .eq('plate', currentTrip.truck_plate.trim());
+                .eq('plate', plateVal)
+                .select();
             
+            console.log("نتيجة تحديث الشاحنة:", truckData, truckError);
             if (truckError) {
                 console.error("خطأ تحديث الشاحنة:", truckError);
             }
         }
 
-        // تحرير السائق (تغيير حالته إلى متوفر)
+        // 5. تحرير السائق المرتبط
         if (currentTrip.driver_name) {
-            const { error: driverError } = await client
+            const driverVal = currentTrip.driver_name.trim();
+            console.log("جاري تحديث السائق:", driverVal);
+            
+            const { data: driverData, error: driverError } = await client
                 .from('drivers')
                 .update({ status: 'متوفر' })
-                .eq('name', currentTrip.driver_name.trim());
+                .eq('name', driverVal)
+                .select();
             
+            console.log("نتيجة تحديث السائق:", driverData, driverError);
             if (driverError) {
                 console.error("خطأ تحديث السائق:", driverError);
             }
         }
 
         closeCompleteModal();
-        alert('تمت التسوية وإنهاء الرحلة بنجاح، وتم تحرير الشاحنة والسائق!');
+        alert('تمت التسوية وإنهاء الرحلة بنجاح!');
         
         if (typeof loadAllData === 'function') {
             loadAllData();
@@ -853,8 +868,7 @@ async function confirmCompleteTrip(e) {
         console.error("Unexpected error in confirmCompleteTrip:", err);
         alert('حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.');
     }
-}        
-        function loadAllData() {
+}        function loadAllData() {
     loadDashboardData();
     loadTripsData();
     loadTrucks();
