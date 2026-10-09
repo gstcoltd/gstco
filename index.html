@@ -753,7 +753,8 @@ function closeCompleteModal() {
 }
 
 // 3. تسوية وإنهاء الرحلة (مع جعل حقول الدفع اختيارية إذا كان المبلغ صفر)
-async function confirmCompleteTrip(e) {
+
+        async function confirmCompleteTrip(e) {
     if (e) e.preventDefault();
     
     try {
@@ -787,32 +788,31 @@ async function confirmCompleteTrip(e) {
         const newRemainingAmount = totalAmount - newPaidAmount;
         const paymentStatus = newRemainingAmount === 0 ? 'مسدد بالكامل' : (newPaidAmount > 0 ? 'سداد جزئي' : currentTrip.payment_status);
         
-        // 2. بناء كائن التحديث بتمييز صريح للحقول الفارغة (لتجنب خطأ التاريخ)
-        const updateData = {
+        // 2. قراءة القيم من الحقول
+        const paymentMethodVal = document.getElementById('modalPaymentMethod').value;
+        const collectionDateVal = document.getElementById('modalCollectionDate').value;
+
+        // 3. تجهيز بيانات التحديث الأساسية
+        let updateData = {
             paid_amount: newPaidAmount,
             remaining_amount: newRemainingAmount,
             payment_status: paymentStatus,
             status: 'منتهية',
-            driver_commission: driverCommission
+            driver_commission: driverCommission,
+            payment_method: paymentMethodVal ? paymentMethodVal.trim() : null,
+            collection_date: collectionDateVal ? collectionDateVal.trim() : null
         };
 
-        const paymentMethodVal = document.getElementById('modalPaymentMethod').value;
-        if (paymentMethodVal && paymentMethodVal.trim() !== "") {
-            updateData.payment_method = paymentMethodVal.trim();
-        } else {
-            updateData.payment_method = null;
-        }
+        // 🛡️ صمام الأمان الحاسم: حذف أي مفتاح قيمته فارغة، نص خاوٍ، أو غير ممتلئ نهائياً لمنع أخطاء القاعدة
+        Object.keys(updateData).forEach(key => {
+            if (updateData[key] === "" || updateData[key] === "mm / dd / yyyy" || updateData[key] === undefined) {
+                delete updateData[key];
+            }
+        });
 
-        const collectionDateVal = document.getElementById('modalCollectionDate').value;
-        if (collectionDateVal && collectionDateVal.trim() !== "" && !collectionDateVal.includes("dd")) {
-            updateData.collection_date = collectionDateVal.trim();
-        } else {
-            updateData.collection_date = null;
-        }
+        console.log("البيانات النظيفة المرسلة لقاعدة البيانات:", updateData);
 
-        console.log("بيانات التحديث المرسلة للرحلة:", updateData);
-
-        // 3. تحديث جدول الرحلات
+        // 4. تحديث جدول الرحلات
         const { error: updateError } = await client.from('trips').update(updateData).eq('trip_no', tripId);
 
         if (updateError) {
@@ -821,42 +821,34 @@ async function confirmCompleteTrip(e) {
             return;
         }
 
-        // 4. تحرير الشاحنة المرتبطة
+        // 5. تحرير الشاحنة المرتبطة وتغيير حالتها إلى "جاهزة للعمل"
         if (currentTrip.truck_plate) {
             const plateVal = currentTrip.truck_plate.trim();
-            console.log("جاري تحديث الشاحنة رقم:", plateVal);
-            
-            const { data: truckData, error: truckError } = await client
+            const { error: truckError } = await client
                 .from('trucks')
                 .update({ status: 'جاهزة للعمل' })
-                .eq('plate', plateVal)
-                .select();
+                .eq('plate', plateVal);
             
-            console.log("نتيجة تحديث الشاحنة:", truckData, truckError);
             if (truckError) {
                 console.error("خطأ تحديث الشاحنة:", truckError);
             }
         }
 
-        // 5. تحرير السائق المرتبط
+        // 6. تحرير السائق المرتبط وتغيير حالته إلى "متوفر"
         if (currentTrip.driver_name) {
             const driverVal = currentTrip.driver_name.trim();
-            console.log("جاري تحديث السائق:", driverVal);
-            
-            const { data: driverData, error: driverError } = await client
+            const { error: driverError } = await client
                 .from('drivers')
                 .update({ status: 'متوفر' })
-                .eq('name', driverVal)
-                .select();
+                .eq('name', driverVal);
             
-            console.log("نتيجة تحديث السائق:", driverData, driverError);
             if (driverError) {
                 console.error("خطأ تحديث السائق:", driverError);
             }
         }
 
         closeCompleteModal();
-        alert('تمت التسوية وإنهاء الرحلة بنجاح!');
+        alert('تمت التسوية وإنهاء الرحلة بنجاح، وتم تحرير الشاحنة والسائق!');
         
         if (typeof loadAllData === 'function') {
             loadAllData();
@@ -868,7 +860,8 @@ async function confirmCompleteTrip(e) {
         console.error("Unexpected error in confirmCompleteTrip:", err);
         alert('حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.');
     }
-}        function loadAllData() {
+}   
+        function loadAllData() {
     loadDashboardData();
     loadTripsData();
     loadTrucks();
